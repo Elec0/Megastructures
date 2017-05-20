@@ -5,9 +5,11 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ModBlocks {
 	
+	public static TerminalBlock terminalBlock;
+	
 	public static void init()
 	{
-		
+		terminalBlock = new TerminalBlock();
 	}
 	
 	@SideOnly(Side.CLIENT)

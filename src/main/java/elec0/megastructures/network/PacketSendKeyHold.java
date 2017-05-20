@@ -1,8 +1,5 @@
 package elec0.megastructures.network;
 
-import elec0.simplypowers.capabilities.IPowerData;
-import elec0.simplypowers.capabilities.PowerDataProvider;
-import elec0.simplypowers.powers.IPower;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -57,11 +54,7 @@ public class PacketSendKeyHold implements IMessage
         private void handle(PacketSendKeyHold message, MessageContext ctx) 
         {
             // This code is run on the server side. So you can do server-side calculations here
-            EntityPlayerMP playerEntity = ctx.getServerHandler().playerEntity;
             
-            IPowerData powerData = playerEntity.getCapability(PowerDataProvider.POWER_CAP, null);
-            
-            powerData.keyStatus(message.keyCode, message.isPressed);
         }
     }
 }

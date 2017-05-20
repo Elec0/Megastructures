@@ -1,8 +1,5 @@
 package elec0.megastructures.network;
 
-import elec0.simplypowers.capabilities.IPowerData;
-import elec0.simplypowers.capabilities.PowerDataProvider;
-import elec0.simplypowers.powers.IPower;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
@@ -61,19 +58,7 @@ public class PacketSendKey implements IMessage
         private void handle(PacketSendKey message, MessageContext ctx) 
         {
             // This code is run on the server side. So you can do server-side calculations here
-            EntityPlayerMP playerEntity = ctx.getServerHandler().playerEntity;
-            World world = playerEntity.worldObj;
             
-            IPowerData powerData = playerEntity.getCapability(PowerDataProvider.POWER_CAP, null);
-            IPower[] powers = powerData.getPowers();
-            if(powers[0] != null && powers[1] != null)
-            {
-            	// Toggle power activate status
-            	powers[message.powerNum].activate(playerEntity, message.keyCode); 
-            }
-            
-            playerEntity.addChatMessage(new TextComponentString(TextFormatting.GREEN + "Power " + (message.powerNum+1) + " " 
-            		+ (powers[message.powerNum].getActive() == 0 ? "off" : "on") + "."));
 
         }
     }

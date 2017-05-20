@@ -1,14 +1,5 @@
 package elec0.megastructures;
 
-import elec0.simplypowers.capabilities.IPowerData;
-import elec0.simplypowers.capabilities.PowerData;
-import elec0.simplypowers.capabilities.PowerDataProvider;
-import elec0.simplypowers.input.KeyBindings;
-import elec0.simplypowers.network.PacketHandler;
-import elec0.simplypowers.network.PacketSendKeyHold;
-import elec0.simplypowers.powers.IPower;
-import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingJumpEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;

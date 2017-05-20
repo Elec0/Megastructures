@@ -1,6 +1,5 @@
 package elec0.megastructures.capabilities;
 
-import elec0.simplypowers.SimplyPowers;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.event.AttachCapabilitiesEvent;

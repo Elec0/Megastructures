@@ -1,0 +1,13 @@
+{
+  "forge_marker": 1,
+  "defaults": {
+    "model": "megastructures:terminalblock",
+    "textures": {
+      "txt": "megastructures:blocks/terminalblocktexture"
+    }
+  },
+	"variants": {
+    "normal": [{}],
+    "inventory": [{}]
+  }
+}

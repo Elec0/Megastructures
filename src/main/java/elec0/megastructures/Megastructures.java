@@ -1,18 +1,8 @@
 package elec0.megastructures;
 
-import elec0.simplypowers.blocks.ModBlocks;
-import elec0.simplypowers.capabilities.CapabilityHandler;
-import elec0.simplypowers.capabilities.IPowerData;
-import elec0.simplypowers.capabilities.PowerData;
-import elec0.simplypowers.capabilities.PowerDataStorage;
-import elec0.simplypowers.commands.SimplyPowersCommand;
-import elec0.simplypowers.input.InputHandler;
-import elec0.simplypowers.input.KeyBindings;
-import elec0.simplypowers.items.ModItems;
-import elec0.simplypowers.network.PacketHandler;
+import elec0.megastructures.blocks.ModBlocks;
+import elec0.megastructures.items.ModItems;
 import net.minecraftforge.client.model.obj.OBJLoader;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -32,7 +22,7 @@ public class Megastructures
 	public static CommonProxy proxy;
 	
 	@Mod.Instance
-	public static Megastructures instance;
+	public static Megastructures instance;	
 	
 	
 	@Mod.EventHandler
