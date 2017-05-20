@@ -36,18 +36,7 @@ public class TerminalBlock extends Block implements ITileEntityProvider{
 
 	@SideOnly(Side.CLIENT)
     public void initModel() {
-        ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(this), 0, new ModelResourceLocation(getRegistryName(), "inventory"));
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public BlockRenderLayer getBlockLayer() {
-        return BlockRenderLayer.TRANSLUCENT;
-    }
-
-    @Override
-    public boolean isOpaqueCube(IBlockState state) {
-        return false;
+		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(this), 0, new ModelResourceLocation(getRegistryName(), "inventory"));
     }
 
     @Override
@@ -58,13 +47,6 @@ public class TerminalBlock extends Block implements ITileEntityProvider{
     private TerminalTileEntity getTE(IBlockAccess world, BlockPos pos) {
         return (TerminalTileEntity) world.getTileEntity(pos);
     }
-
-    @Override
-    public IBlockState getActualState(IBlockState state, IBlockAccess world, BlockPos pos) {
-        //return state.withProperty(LIT, getTE(world, pos).isLit());
-    	return null;
-    }
-
 
     @Override
     public int getMetaFromState(IBlockState state) {
