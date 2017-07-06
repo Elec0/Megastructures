@@ -21,7 +21,7 @@ import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class TerminalBlock extends Block implements ITileEntityProvider
+public class TerminalBlock extends BaseBlock implements ITileEntityProvider
 {
 
 	public TerminalBlock() 
@@ -49,9 +49,5 @@ public class TerminalBlock extends Block implements ITileEntityProvider
         return (TerminalTileEntity) world.getTileEntity(pos);
     }
 
-    @Override
-    public int getMetaFromState(IBlockState state) {
-        return 0;
-    }
 
 }
