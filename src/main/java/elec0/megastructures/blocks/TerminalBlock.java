@@ -21,30 +21,26 @@ import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class TerminalBlock extends Block implements ITileEntityProvider{
+public class TerminalBlock extends Block implements ITileEntityProvider
+{
 
 	public TerminalBlock() 
 	{
 		super(Material.ROCK);
-		this.setUnlocalizedName(Megastructures.MODID + ".terminalblock");
-		this.setCreativeTab(CreativeTabs.DECORATIONS);
-		this.setRegistryName("terminalblock");
-		GameRegistry.register(this);
-		GameRegistry.register(new ItemBlock(this), getRegistryName());
+		setUnlocalizedName(Megastructures.MODID + ".terminalblock");
+		setCreativeTab(CreativeTabs.DECORATIONS);
+		setRegistryName("terminalblock");
+
 		GameRegistry.registerTileEntity(TerminalTileEntity.class, Megastructures.MODID + "_terminalblock");
 	}
-
-	@SideOnly(Side.CLIENT)
-    public void initModel() {
-		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(this), 0, new ModelResourceLocation(getRegistryName(), "inventory"));
-    }
 
     @Override
     public TileEntity createNewTileEntity(World worldIn, int meta) {
         return new TerminalTileEntity();
     }
 
-    private TerminalTileEntity getTE(IBlockAccess world, BlockPos pos) {
+    private TerminalTileEntity getTE(IBlockAccess world, BlockPos pos)
+	{
         return (TerminalTileEntity) world.getTileEntity(pos);
     }
 

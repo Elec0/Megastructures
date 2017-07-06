@@ -2,6 +2,7 @@ package elec0.megastructures;
 
 import elec0.megastructures.blocks.ModBlocks;
 import elec0.megastructures.items.ModItems;
+import elec0.megastructures.proxy.CommonProxy;
 import net.minecraftforge.client.model.obj.OBJLoader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
@@ -11,13 +12,13 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 
 @Mod(modid = Megastructures.MODID, name = Megastructures.MODNAME, version =  Megastructures.MODVERSION, dependencies = "required-after:forge@[13.19.1.2197,)", useMetadata = true)
-public class Megastructures 
+public class Megastructures
 {
 	public static final String MODID = "megastructures";
 	public static final String MODNAME = "Megastructures";
 	public static final String MODVERSION = "0.0.1";
-	
-	
+
+
 	@SidedProxy
 	public static CommonProxy proxy;
 	
@@ -48,33 +49,6 @@ public class Megastructures
 	{
         //event.registerServerCommand(new SimplyPowersCommand());
     }
-	
-	public static class CommonProxy
-	{
-		public void preInit(FMLPreInitializationEvent e)
-		{
-			ModItems.init();
-			ModBlocks.init();
-			
-			OBJLoader.INSTANCE.addDomain(MODID);
-			// Initialize our packet handler. Make sure the name is 20 characters or less!
-            //PacketHandler.registerMessages("simplypowers");
-		}
-		
-		 public void init(FMLInitializationEvent e) 
-		 {	
-			 //MinecraftForge.EVENT_BUS.register(new EventHandlerCommon());
-			 //MinecraftForge.EVENT_BUS.register(new CapabilityHandler());
-			 //CapabilityManager.INSTANCE.register(IPowerData.class, new PowerDataStorage(), PowerData.class);
-
-			 
-		 }
-
-        public void postInit(FMLPostInitializationEvent e) 
-        {
-
-        }
-	}
 	
 	public static class ClientProxy extends CommonProxy
 	{

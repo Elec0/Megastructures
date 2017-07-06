@@ -9,7 +9,9 @@ public class CapabilityHandler
 {
 
 	//public static final ResourceLocation POWER_CAP = new ResourceLocation(SimplyPowers.MODID, "powerdata");
-	
+
+	// Errors abound
+	/*
 	@SubscribeEvent
 	public void attachCapability(AttachCapabilitiesEvent.Entity event)
 	{
@@ -17,4 +19,5 @@ public class CapabilityHandler
 			return;
 		//event.addCapability(POWER_CAP, new PowerDataProvider());
 	}
+	*/
 }
