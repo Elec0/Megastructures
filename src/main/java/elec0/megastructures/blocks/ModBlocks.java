@@ -22,12 +22,12 @@ public class ModBlocks {
 	@SideOnly(Side.CLIENT)
 	public static void initModels()
 	{
-		//terminalBlock.initModel();
+		terminalBlock.initModel();
 	}
 	
 	@SideOnly(Side.CLIENT)
 	public static void initItemModels()
 	{
-		
+
 	}
 }

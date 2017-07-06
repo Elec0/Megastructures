@@ -7,6 +7,7 @@ import elec0.megastructures.items.ModItems;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
+import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.obj.OBJLoader;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -37,7 +38,7 @@ public class CommonProxy
 
 	public void postInit(FMLPostInitializationEvent e)
 	{
-
+		ModBlocks.initItemModels();
 	}
 
 	@SubscribeEvent
@@ -51,5 +52,13 @@ public class CommonProxy
 	{
 		event.getRegistry().register(new ItemBlock(ModBlocks.terminalBlock).setRegistryName(ModBlocks.terminalBlock.getRegistryName()));
 	}
+
+	@SubscribeEvent
+	public static void registerModels(ModelRegistryEvent event)
+	{
+		ModBlocks.initModels();
+		ModItems.initModels();
+	}
+
 
 }

@@ -34,6 +34,11 @@ public class TerminalBlock extends Block implements ITileEntityProvider
 		GameRegistry.registerTileEntity(TerminalTileEntity.class, Megastructures.MODID + "_terminalblock");
 	}
 
+	@SideOnly(Side.CLIENT)
+	public void initModel() {
+		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(this), 0, new ModelResourceLocation(getRegistryName(), "inventory"));
+	}
+
     @Override
     public TileEntity createNewTileEntity(World worldIn, int meta) {
         return new TerminalTileEntity();
