@@ -4,6 +4,7 @@ import elec0.megastructures.Megastructures;
 import elec0.megastructures.blocks.ModBlocks;
 import elec0.megastructures.blocks.TerminalBlock;
 import elec0.megastructures.items.ModItems;
+import elec0.megastructures.tileentities.TerminalTileEntity;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
@@ -15,6 +16,7 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.registry.GameRegistry;
 
 @Mod.EventBusSubscriber
 public class CommonProxy
@@ -45,6 +47,7 @@ public class CommonProxy
 	public static void registerBlocks(RegistryEvent.Register<Block> event)
 	{
 		event.getRegistry().register(new TerminalBlock());
+		GameRegistry.registerTileEntity(TerminalTileEntity.class, Megastructures.MODID + "_terminalblock");
 	}
 
 	@SubscribeEvent
