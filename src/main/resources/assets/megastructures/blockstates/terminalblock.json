@@ -1,9 +1,9 @@
 {
   "forge_marker": 1,
   "defaults": {
-	"model": "megastructures:terminalblock"
+    "model": "megastructures:terminalblock"
   },
-	"variants": {
+  "variants": {
     "normal": [{}],
     "inventory": [{}],
     "facing": {

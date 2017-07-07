@@ -1,6 +1,12 @@
 {
   "parent": "block/cube",
   "textures": {
-    "all": "megastructures:blocks/terminalblocktexture"
+    "particle": "megastructures:blocks/terminalblocktexture",
+    "down": "megastructures:blocks/terminalblocktexture",
+    "up": "megastructures:blocks/terminalblocktexture",
+    "east": "megastructures:blocks/terminalblocktexture",
+    "west": "megastructures:blocks/terminalblocktexture",
+    "north": "megastructures:blocks/terminalblocktexture",
+    "south": "megastructures:blocks/terminalblocktexture"
   }
 }
