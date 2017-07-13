@@ -1,6 +1,7 @@
 package elec0.megastructures.blocks;
 
 import elec0.megastructures.Megastructures;
+import elec0.megastructures.capabilities.MSWorldSavedData;
 import elec0.megastructures.tileentities.TerminalTileEntity;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
@@ -58,6 +59,11 @@ public class TerminalBlock extends BaseBlock implements ITileEntityProvider
 
 		player.openGui(Megastructures.instance, GUI_ID, world, pos.getX(), pos.getY(), pos.getZ());
 		player.sendMessage(new TextComponentString("Placer: " + ((TerminalTileEntity)getTE(world,pos)).getPlacer().toString()));
+
+		MSWorldSavedData wsd = MSWorldSavedData.getData(world);
+		player.sendMessage(new TextComponentString("WSD String: " + wsd.getStrToSave()));
+		wsd.setStrToSave(wsd.getStrToSave() + "L");
+		wsd.save(world);
 
 		// Return true on the client so MC doesn't try to place block
 		return true;

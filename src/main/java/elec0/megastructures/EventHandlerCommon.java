@@ -1,12 +1,5 @@
 package elec0.megastructures;
 
-import elec0.megastructures.blocks.ModBlocks;
-import net.minecraft.block.Block;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
-import net.minecraft.item.Item;
-import net.minecraftforge.client.event.ModelRegistryEvent;
-import net.minecraftforge.client.model.ModelLoader;
-import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingJumpEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
@@ -14,12 +7,30 @@ import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
+import net.minecraftforge.fml.relauncher.Side;
 
 public class EventHandlerCommon 
 {
-	// Player events
 
+	private static int worldTickCount = 0;
+
+	@SubscribeEvent
+	public void onWorldTick(TickEvent.WorldTickEvent event)
+	{
+		if(event.side == Side.SERVER)
+		{
+			worldTickCount++;
+			if(worldTickCount == 10) // Run this once every half second
+			{
+
+				worldTickCount = 0;
+			}
+		}
+	}
+
+	// Player events
 	@SubscribeEvent
 	public void onLivingJumpEvent(LivingJumpEvent event)
 	{

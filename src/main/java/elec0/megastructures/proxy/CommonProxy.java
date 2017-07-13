@@ -1,5 +1,6 @@
 package elec0.megastructures.proxy;
 
+import elec0.megastructures.EventHandlerCommon;
 import elec0.megastructures.Megastructures;
 import elec0.megastructures.blocks.ModBlocks;
 import elec0.megastructures.blocks.TerminalBlock;
@@ -10,6 +11,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.obj.OBJLoader;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -37,7 +39,7 @@ public class CommonProxy
 
 	public void init(FMLInitializationEvent e)
 	{
-		//MinecraftForge.EVENT_BUS.register(new EventHandlerCommon());
+		MinecraftForge.EVENT_BUS.register(new EventHandlerCommon());
 		//MinecraftForge.EVENT_BUS.register(new CapabilityHandler());
 		//CapabilityManager.INSTANCE.register(IPowerData.class, new PowerDataStorage(), PowerData.class);
 	}
