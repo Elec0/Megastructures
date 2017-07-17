@@ -1,6 +1,7 @@
 package elec0.megastructures.capabilities;
 
 import elec0.megastructures.Megastructures;
+import elec0.megastructures.universe.Galaxy;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import net.minecraft.world.storage.MapStorage;
@@ -9,12 +10,13 @@ import net.minecraft.world.storage.WorldSavedData;
 public class MSWorldSavedData extends WorldSavedData
 {
 	private static final String DATA_NAME = Megastructures.MODID + "_WorldSavedData";
-	private String strToSave;
+
+	private Galaxy galaxy;
 
 	public MSWorldSavedData()
 	{
 		super(DATA_NAME);
-		strToSave = "";
+		galaxy = new Galaxy();
 	}
 	public MSWorldSavedData(String s)
 	{
@@ -45,27 +47,27 @@ public class MSWorldSavedData extends WorldSavedData
 		return instance;
 	}
 
-
-	public String getStrToSave()
+	public Galaxy getGalaxy()
 	{
-		return strToSave;
+		return galaxy;
 	}
-	public void setStrToSave(String val)
+
+	public void setGalaxy(Galaxy galaxy)
 	{
-		strToSave = val;
+		this.galaxy = galaxy;
 	}
 
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound compound)
 	{
-		compound.setString("str", strToSave);
+
 		return compound;
 	}
 
 	@Override
 	public void readFromNBT(NBTTagCompound compound)
 	{
-		strToSave = compound.getString("str");
+
 	}
 
 }
