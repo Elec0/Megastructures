@@ -12,28 +12,34 @@ public class Galaxy extends Location
 {
 	private List<SolarSystem> solarSystems;
 
-	public Galaxy()
+	public Galaxy(long seed)
+	{
+		super(seed);
+		solarSystems = new ArrayList<>();
+		// This makes each dimension's seed unique, but still able to get the same solar systems out of the same minecraft seed
+		setSeed(seed);
+	}
+	public Galaxy(World world)
 	{
 		super();
 		solarSystems = new ArrayList<>();
+		// This makes each dimension's seed unique, but still able to get the same solar systems out of the same minecraft seed
+		setSeed(world.getSeed() + world.provider.getDimension());
 	}
 
 	/**
 	 * First time galaxy generation. Should only be called once per dimension
 	 * Will generate a certain amount of solar systems close to the overworld
-	 * @param world
 	 */
-	public void generate(World world)
+	public void generate()
 	{
-		// This makes each dimension's seed unique, but still able to get the same solar systems out of the same minecraft seed
-		setSeed(world.getSeed() + world.provider.getDimension());
 		Random rand = new Random(getSeed());
 
 		// The galaxy's galaxyPos is the 'center' of the galaxy, namely where the overworld system will be placed.
 		setGalaxyPos(new Vector2l(rand.nextInt(), rand.nextInt()));
 
 		// Generate the overworld solar system custom, since it needs specific planets
-		SolarSystem overSystem = SolarSystem.generateOverSystem(world, getSeed() - 1);
+		SolarSystem overSystem = SolarSystem.generateOverSystem(getSeed() - 1);
 		overSystem.setSolarSystemPos(getGalaxyPos());
 		solarSystems.add(overSystem);
 
@@ -42,7 +48,7 @@ public class Galaxy extends Location
 		{
 			// I'm changing the seeds for each solar system since it is possible they could start to look similar to the galaxies
 			// 		depending on how I make it
-			SolarSystem curSS = new SolarSystem(world, getSeed() + i);
+			SolarSystem curSS = new SolarSystem(getSeed() + i);
 
 
 			//solarSystems.add(curSS);
@@ -57,4 +63,11 @@ public class Galaxy extends Location
 	{
 		this.solarSystems = solarSystems;
 	}
+
+	@Override
+	public String toString()
+	{
+		return getGalaxyPos() + ", SS: " + getSolarSystems().size();
+	}
+
 }

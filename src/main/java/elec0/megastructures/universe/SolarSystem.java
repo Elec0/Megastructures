@@ -2,7 +2,6 @@ package elec0.megastructures.universe;
 
 
 import elec0.megastructures.general.Vector2l;
-import net.minecraft.world.World;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,16 +15,16 @@ public class SolarSystem extends Location
 		super();
 		celestials = new ArrayList<>();
 	}
-	public SolarSystem(World world, long seed)
+	public SolarSystem(long seed)
 	{
 		super(seed);
 		celestials = new ArrayList<>();
 	}
 
 
-	public static SolarSystem generateOverSystem(World world, long seed)
+	public static SolarSystem generateOverSystem(long seed)
 	{
-		SolarSystem overSystem = new SolarSystem(world, seed);
+		SolarSystem overSystem = new SolarSystem(seed);
 		overSystem.setName("OverSystem");
 
 		/*

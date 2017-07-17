@@ -16,7 +16,6 @@ public class MSWorldSavedData extends WorldSavedData
 	public MSWorldSavedData()
 	{
 		super(DATA_NAME);
-		galaxy = new Galaxy();
 	}
 	public MSWorldSavedData(String s)
 	{
@@ -42,6 +41,7 @@ public class MSWorldSavedData extends WorldSavedData
 		if (instance == null)
 		{
 			instance = new MSWorldSavedData();
+			instance.setGalaxy(new Galaxy(world));
 			storage.setData(DATA_NAME, instance);
 		}
 		return instance;
@@ -60,14 +60,17 @@ public class MSWorldSavedData extends WorldSavedData
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound compound)
 	{
-
+		// I will probably eventually make it so that the data actually saves instead of re-generating for every load
+		// But for now, this works as a test to keep things fairly simple
+		compound.setLong("galaxySeed", getGalaxy().getSeed());
 		return compound;
 	}
 
 	@Override
 	public void readFromNBT(NBTTagCompound compound)
 	{
-
+		galaxy = new Galaxy(compound.getLong("galaxySeed"));
+		galaxy.generate();
 	}
 
 }

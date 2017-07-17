@@ -2,6 +2,7 @@ package elec0.megastructures.blocks;
 
 import elec0.megastructures.Megastructures;
 import elec0.megastructures.capabilities.MSWorldSavedData;
+import elec0.megastructures.proxy.GUIProxy;
 import elec0.megastructures.tileentities.TerminalTileEntity;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
@@ -25,7 +26,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class TerminalBlock extends BaseBlock implements ITileEntityProvider
 {
-	public static final int GUI_ID = 1;
 
 	public TerminalBlock() 
 	{
@@ -48,21 +48,21 @@ public class TerminalBlock extends BaseBlock implements ITileEntityProvider
 	@Override
 	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
 	{
-		if(world.isRemote)
-		{
-			return true;
-		}
 
 		TileEntity te = getTE(world, pos);
 		if(!(te instanceof TerminalTileEntity))
 			return false;
 
-		player.openGui(Megastructures.instance, GUI_ID, world, pos.getX(), pos.getY(), pos.getZ());
+		if(world.isRemote)
+		{
+			player.openGui(Megastructures.instance, GUIProxy.TERMINAL_GUI, world, pos.getX(), pos.getY(), pos.getZ());
+			return true;
+		}
+
 		player.sendMessage(new TextComponentString("Placer: " + ((TerminalTileEntity)getTE(world,pos)).getPlacer().toString()));
 
 		MSWorldSavedData wsd = MSWorldSavedData.getData(world);
-		player.sendMessage(new TextComponentString("WSD String: " + wsd.getStrToSave()));
-		wsd.setStrToSave(wsd.getStrToSave() + "L");
+		player.sendMessage(new TextComponentString("Galaxy: " + wsd.getGalaxy().toString()));
 		wsd.save(world);
 
 		// Return true on the client so MC doesn't try to place block
