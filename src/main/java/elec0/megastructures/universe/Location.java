@@ -13,8 +13,8 @@ public class Location
 	private String name;
 	private int ID; // A unique ID 1-MAXINT for everything inheriting from Location, which should be pretty much everything
 
-	public Location() { ID = ++LAST_ID; }
-	public Location(long seed) { this.seed = seed; ID = ++ LAST_ID; }
+	public Location() { ID = ++LAST_ID; name = ""+ID;}
+	public Location(long seed) { this.seed = seed; ID = ++LAST_ID; name = ""+ID;}
 
 	public long getSeed()
 	{

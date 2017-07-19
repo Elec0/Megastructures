@@ -5,6 +5,7 @@ import elec0.megastructures.Megastructures;
 import elec0.megastructures.blocks.ModBlocks;
 import elec0.megastructures.blocks.TerminalBlock;
 import elec0.megastructures.items.ModItems;
+import elec0.megastructures.network.PacketHandler;
 import elec0.megastructures.tileentities.TerminalTileEntity;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
@@ -34,7 +35,7 @@ public class CommonProxy
 		NetworkRegistry.INSTANCE.registerGuiHandler(Megastructures.instance, new GUIProxy());
 
 		// Initialize our packet handler. Make sure the name is 20 characters or less!
-		//PacketHandler.registerMessages("simplypowers");
+		PacketHandler.registerMessages("megastructures");
 	}
 
 	public void init(FMLInitializationEvent e)
