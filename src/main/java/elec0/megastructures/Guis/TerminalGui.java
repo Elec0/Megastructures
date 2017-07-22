@@ -1,6 +1,7 @@
 package elec0.megastructures.Guis;
 
 
+import elec0.megastructures.universe.Galaxy;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 
@@ -9,11 +10,20 @@ import java.io.IOException;
 public class TerminalGui extends GuiScreen
 {
 	private GuiButton a, b;
+	private Galaxy galaxy;
 
+	/*
+		drawScreen is called every frame, I believe. Or close enough to not matter.
+	 */
 	@Override
-	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+	public void drawScreen(int mouseX, int mouseY, float partialTicks)
+	{
 		this.drawDefaultBackground();
 		super.drawScreen(mouseX, mouseY, partialTicks);
+		if(galaxy != null)
+		{
+			this.fontRenderer.drawString(String.valueOf(galaxy.getSeed()), 0, 0, 0xFF0000, false);
+		}
 	}
 
 	@Override
@@ -41,6 +51,17 @@ public class TerminalGui extends GuiScreen
 				this.mc.setIngameFocus();
 		}
 	}
+
+	public void updateInfo()
+	{
+
+	}
+
+	public void setGalaxy(Galaxy galaxy)
+	{
+		this.galaxy = galaxy;
+	}
+
 
 	@Override
 	public boolean doesGuiPauseGame()

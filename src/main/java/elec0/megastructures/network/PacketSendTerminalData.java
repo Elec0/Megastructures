@@ -1,7 +1,9 @@
 package elec0.megastructures.network;
 
+import elec0.megastructures.Guis.TerminalGui;
 import elec0.megastructures.universe.Galaxy;
 import io.netty.buffer.ByteBuf;
+import net.minecraft.client.Minecraft;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
@@ -56,8 +58,14 @@ public class PacketSendTerminalData implements IMessage
         {
 			// This is client-side
 
-			// System.out.println("Player " + Minecraft.getMinecraft().player.getName());
-            System.out.println("Galaxy: " + message.galaxy.getName() + ", " + message.galaxy.getSeed());
+            if(Minecraft.getMinecraft().currentScreen instanceof TerminalGui)
+			{
+				TerminalGui termGui = (TerminalGui) Minecraft.getMinecraft().currentScreen;
+				termGui.setGalaxy(message.galaxy);
+				termGui.updateInfo();
+			}
+			//player.openGui(Megastructures.instance, GUIProxy.TERMINAL_GUI, Minecraft.getMinecraft().world, (int)player.posX, (int)player.posY, (int)player.posZ);
+
 
 		}
     }

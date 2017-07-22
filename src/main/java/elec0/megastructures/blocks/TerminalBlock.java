@@ -4,6 +4,7 @@ import elec0.megastructures.Megastructures;
 import elec0.megastructures.capabilities.MSWorldSavedData;
 import elec0.megastructures.network.PacketHandler;
 import elec0.megastructures.network.PacketSendTerminalData;
+import elec0.megastructures.proxy.GUIProxy;
 import elec0.megastructures.tileentities.TerminalTileEntity;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
@@ -57,7 +58,7 @@ public class TerminalBlock extends BaseBlock implements ITileEntityProvider
 
 		if(world.isRemote)
 		{
-			//player.openGui(Megastructures.instance, GUIProxy.TERMINAL_GUI, world, pos.getX(), pos.getY(), pos.getZ());
+			player.openGui(Megastructures.instance, GUIProxy.TERMINAL_GUI, world, pos.getX(), pos.getY(), pos.getZ());
 			return true;
 		}
 
