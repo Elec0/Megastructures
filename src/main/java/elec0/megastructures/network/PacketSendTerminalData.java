@@ -62,7 +62,6 @@ public class PacketSendTerminalData implements IMessage
 			{
 				TerminalGui termGui = (TerminalGui) Minecraft.getMinecraft().currentScreen;
 				termGui.setGalaxy(message.galaxy);
-				termGui.updateInfo();
 			}
 			//player.openGui(Megastructures.instance, GUIProxy.TERMINAL_GUI, Minecraft.getMinecraft().world, (int)player.posX, (int)player.posY, (int)player.posZ);
 

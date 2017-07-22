@@ -20,7 +20,6 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.client.model.ModelLoader;
@@ -65,10 +64,8 @@ public class TerminalBlock extends BaseBlock implements ITileEntityProvider
 		//player.sendMessage(new TextComponentString("Placer: " + ((TerminalTileEntity)getTE(world,pos)).getPlacer().toString()));
 
 		MSWorldSavedData wsd = MSWorldSavedData.getData(world);
-		System.out.println("Send packet.");
 		PacketHandler.INSTANCE.sendTo(new PacketSendTerminalData(wsd.getGalaxy()), (EntityPlayerMP)player);
 
-		player.sendMessage(new TextComponentString("Galaxy: " + wsd.getGalaxy().getSeed()));
 		wsd.save(world);
 
 		// Return true on the client so MC doesn't try to place block
