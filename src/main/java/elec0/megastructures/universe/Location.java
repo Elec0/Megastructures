@@ -8,8 +8,7 @@ public class Location
 	public static int LAST_ID = 0; // Iterates every time a new object is created
 
 	private long seed;
-	private Vector2l galaxyPos; // Not really used at this point
-	private Vector2l solarSystemPos; // Position of the solar system in the galaxy
+	private Vector2l position; // Not really used at this point
 	private String name;
 	private int ID; // A unique ID 1-MAXINT for everything inheriting from Location, which should be pretty much everything
 
@@ -25,23 +24,15 @@ public class Location
 		this.seed = seed;
 	}
 
-	public Vector2l getGalaxyPos()
+	public Vector2l getPosition()
 	{
-		return galaxyPos;
+		return position;
 	}
-	public void setGalaxyPos(Vector2l galaxyPos)
+	public void setPosition(Vector2l position)
 	{
-		this.galaxyPos = galaxyPos;
+		this.position = position;
 	}
 
-	public Vector2l getSolarSystemPos()
-	{
-		return solarSystemPos;
-	}
-	public void setSolarSystemPos(Vector2l solarSystemPos)
-	{
-		this.solarSystemPos = solarSystemPos;
-	}
 
 	public String getName()
 	{

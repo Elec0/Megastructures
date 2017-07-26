@@ -1,7 +1,9 @@
 package elec0.megastructures.network;
 
 import elec0.megastructures.Guis.TerminalGui;
+import elec0.megastructures.general.Vector2l;
 import elec0.megastructures.universe.Galaxy;
+import elec0.megastructures.universe.SolarSystem;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -31,6 +33,15 @@ public class PacketSendTerminalData implements IMessage
 		// Retrieve info from message
 		galaxy = new Galaxy(buf.readLong());
 		galaxy.setName(buf.readCharSequence(buf.readInt(), StandardCharsets.ISO_8859_1).toString());
+
+		int SSlen = buf.readInt();
+		for(int i = 0; i < SSlen; ++i)
+		{
+			SolarSystem s = new SolarSystem(buf.readLong());
+			s.setName(buf.readCharSequence(buf.readInt(), StandardCharsets.ISO_8859_1).toString());
+			s.setPosition(new Vector2l(buf.readLong(), buf.readLong()));
+			galaxy.addSolarSystem(s);
+		}
 	}
 
 	@Override
@@ -40,6 +51,18 @@ public class PacketSendTerminalData implements IMessage
 		buf.writeLong(galaxy.getSeed());
 		buf.writeInt(galaxy.getName().length());
 		buf.writeCharSequence(galaxy.getName(), StandardCharsets.ISO_8859_1);
+
+		// Number of solar systems in galaxy
+		buf.writeInt(galaxy.getSolarSystems().size());
+		for(int i = 0; i < galaxy.getSolarSystems().size(); ++i)
+		{
+			SolarSystem s = galaxy.getSolarSystems().get(i);
+			buf.writeLong(s.getSeed());
+			buf.writeInt(s.getName().length()); 								// Write name 1/2
+			buf.writeCharSequence(s.getName(), StandardCharsets.ISO_8859_1); 	// 2/2
+			buf.writeLong(s.getPosition().getX());
+			buf.writeLong(s.getPosition().getY());
+		}
 	}
 	
 	public static class Handler implements IMessageHandler<PacketSendTerminalData, IMessage>

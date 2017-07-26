@@ -24,7 +24,8 @@ public class Galaxy extends Location
 		super();
 		solarSystems = new ArrayList<>();
 		// This makes each dimension's seed unique, but still able to get the same solar systems out of the same minecraft seed
-		setSeed(world.getSeed() + world.provider.getDimension());
+		// Not using linearly related seeds
+		setSeed(world.getSeed() + (long)Math.pow(world.provider.getDimension(), 3));
 	}
 
 	/**
@@ -35,39 +36,40 @@ public class Galaxy extends Location
 	{
 		Random rand = new Random(getSeed());
 
-		// The galaxy's galaxyPos is the 'center' of the galaxy, namely where the overworld system will be placed.
-		setGalaxyPos(new Vector2l(rand.nextInt(), rand.nextInt()));
+		setName("Milky Way"); // Randomly generate this eventually
+
+		// The galaxy's position is the 'center' of the galaxy, namely where the overworld system will be placed.
+		setPosition(new Vector2l(rand.nextInt(), rand.nextInt()));
 
 		// Generate the overworld solar system custom, since it needs specific planets
-		SolarSystem overSystem = SolarSystem.generateOverSystem(getSeed() - 1);
-		overSystem.setSolarSystemPos(getGalaxyPos());
+		SolarSystem overSystem = SolarSystem.generateOverSystem(rand.nextLong());
+		overSystem.setPosition(getPosition());
 		solarSystems.add(overSystem);
 
-		int systems = rand.nextInt(20) + 20; // Generate at 20-40 solar systems
+		int systems = rand.nextInt(10) + 10; // Generate at 20-40 solar systems
 		for(int i = 0; i < systems; ++i)
 		{
-			// I'm changing the seeds for each solar system since it is possible they could start to look similar to the galaxies
-			// 		depending on how I make it
-			SolarSystem curSS = new SolarSystem(getSeed() + i);
+			// Since we set the seed specifically at the beginning of generation, all numbers will be generated
+			//		the same, given the order. It's better than doing math on the actual seed.
+			SolarSystem curSS = new SolarSystem(rand.nextLong());
+			curSS.generate();
 
-
-			//solarSystems.add(curSS);
+			solarSystems.add(curSS);
 		}
 	}
 
-	public List<SolarSystem> getSolarSystems()
-	{
-		return solarSystems;
-	}
+	public List<SolarSystem> getSolarSystems() { return solarSystems; }
 	public void setSolarSystems(List<SolarSystem> solarSystems)
 	{
 		this.solarSystems = solarSystems;
 	}
 
+	public void addSolarSystem(SolarSystem system) { this.solarSystems.add(system); }
+
 	@Override
 	public String toString()
 	{
-		return getGalaxyPos() + ", SS: " + getSolarSystems().size();
+		return getPosition() + ", SS: " + getSolarSystems().size();
 	}
 
 }
