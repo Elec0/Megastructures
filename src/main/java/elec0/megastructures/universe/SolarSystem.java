@@ -53,8 +53,18 @@ public class SolarSystem extends Location
 
 	public void generate()
 	{
+		if(getSector() == null)
+		{
+			System.err.println("SolarSystem.generate: sector is null");
+			return;
+		}
 		Random rand = new Random(getSeed());
-		setPosition(new Vector2l(rand.nextInt(), rand.nextInt()));
+
+		// Max position is sector + SECTOR_SIZE in x/y directions
+		Vector2l pos = sectorToPositon(getSector());
+		pos.setX(pos.getX() + rand.nextInt(SECTOR_SIZE)); // add 0 to SECTOR_SIZE to the position
+		pos.setY(pos.getY() + rand.nextInt(SECTOR_SIZE));
+		setPosition(pos);
 	}
 
 	public void addCelestial(Celestial celestial)

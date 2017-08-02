@@ -12,9 +12,10 @@ import java.io.IOException;
 
 public class TerminalGui extends GuiScreen
 {
-	private GuiButton a, b;
+	//private GuiButton a, b;
 	private Galaxy galaxy;
 	private int zoom = 0; // 0 = galaxy overview, 1 = solar system overview, 2 = planet overview
+	private int left, right, top, bottom;
 
 	private static final ResourceLocation background = new ResourceLocation(Megastructures.MODID, "textures/gui/terminal.png");
 	private static final int w = 320, h = 150;
@@ -36,6 +37,7 @@ public class TerminalGui extends GuiScreen
 
 		if(galaxy != null)
 		{
+			drawView();
 			fontRenderer.drawString(String.valueOf(galaxy.getSeed()) + ", " + galaxy.getName(), 0, 0, 0xFF0000, false);
 
 			switch(zoom)
@@ -44,7 +46,7 @@ public class TerminalGui extends GuiScreen
 					for(int i = 0; i < galaxy.getSolarSystems().size(); ++i)
 					{
 						SolarSystem s = galaxy.getSolarSystems().get(i);
-						fontRenderer.drawString(s.getName() + ", " + s.getPosition().toString() + ", " + s.getSeed(), 0, 10*(i+1), 0xFF0000, false);
+						//fontRenderer.drawString(s.getName() + ", " + s.getPosition().toString() + ", " + s.getSector().toString(), 0, 10*(i+1), 0xFF0000, false);
 					}
 					break;
 			}
@@ -58,8 +60,10 @@ public class TerminalGui extends GuiScreen
 	 */
 	private void drawBackground()
 	{
-		int left = (width / 2) - (PAD_HORIZ + w/2), top = (height / 2) - (PAD_VERT + h/2);
-		int right = (width / 2) + (PAD_HORIZ + w/2), bottom = (height / 2) + (PAD_VERT + h/2);
+		left = (width / 2) - (PAD_HORIZ + w/2);
+		top = (height / 2) - (PAD_VERT + h/2);
+		right = (width / 2) + (PAD_HORIZ + w/2);
+		bottom = (height / 2) + (PAD_VERT + h/2);
 
 		drawRect(left - BORDER_SIZE, top - BORDER_SIZE, right + BORDER_SIZE, bottom + BORDER_SIZE, 0xFFFFFFFF); // White
 		drawRect(left, top, right + BORDER_SIZE, bottom + BORDER_SIZE, 0xFF000000); // Black
@@ -67,17 +71,23 @@ public class TerminalGui extends GuiScreen
 
 	}
 
+	private void drawView()
+	{
+		int BORDER_VIEW = 4;
+		drawRect(left + BORDER_VIEW, top + BORDER_VIEW, right - BORDER_VIEW, bottom - h/4, 0xFF000000);
+	}
+
 	@Override
 	public void initGui()
 	{
-		this.buttonList.add(this.a = new GuiButton(0, this.width / 2 - 100, this.height / 2 - 24, "This is button a"));
-		this.buttonList.add(this.b = new GuiButton(1, this.width / 2 - 100, this.height / 2 + 4, "This is button b"));
+		//this.buttonList.add(this.a = new GuiButton(0, this.width / 2 - 100, this.height / 2 - 24, "This is button a"));
+		//this.buttonList.add(this.b = new GuiButton(1, this.width / 2 - 100, this.height / 2 + 4, "This is button b"));
 	}
 
 	@Override
 	protected void actionPerformed(GuiButton button) throws IOException
 	{
-		if (button == this.a)
+		/*if (button == this.a)
 		{
 			//Main.packetHandler.sendToServer(...);
 			this.mc.displayGuiScreen(null);
@@ -90,7 +100,7 @@ public class TerminalGui extends GuiScreen
 			this.mc.displayGuiScreen(null);
 			if (this.mc.currentScreen == null)
 				this.mc.setIngameFocus();
-		}
+		}*/
 	}
 
 	public void setGalaxy(Galaxy galaxy)

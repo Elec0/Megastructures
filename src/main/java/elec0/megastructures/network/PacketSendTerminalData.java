@@ -3,6 +3,7 @@ package elec0.megastructures.network;
 import elec0.megastructures.Guis.TerminalGui;
 import elec0.megastructures.general.Vector2l;
 import elec0.megastructures.universe.Galaxy;
+import elec0.megastructures.universe.Location;
 import elec0.megastructures.universe.SolarSystem;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
@@ -40,6 +41,7 @@ public class PacketSendTerminalData implements IMessage
 			SolarSystem s = new SolarSystem(buf.readLong());
 			s.setName(buf.readCharSequence(buf.readInt(), StandardCharsets.ISO_8859_1).toString());
 			s.setPosition(new Vector2l(buf.readLong(), buf.readLong()));
+			s.setSector(Location.positionToSector(s.getPosition())); // No need to send this over the network when we can compute it
 			galaxy.addSolarSystem(s);
 		}
 	}

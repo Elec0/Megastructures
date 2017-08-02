@@ -10,6 +10,8 @@ import java.util.Random;
 
 public class Galaxy extends Location
 {
+	private static final int SECTOR_DENSITY = 20; // Around how many solar systems should be in a sector
+
 	private List<SolarSystem> solarSystems;
 
 	public Galaxy(long seed)
@@ -40,18 +42,22 @@ public class Galaxy extends Location
 
 		// The galaxy's position is the 'center' of the galaxy, namely where the overworld system will be placed.
 		setPosition(new Vector2l(rand.nextInt(), rand.nextInt()));
+		// The galaxy's sector is the same as it's position
+		setSector(positionToSector(getPosition()));
 
 		// Generate the overworld solar system custom, since it needs specific planets
 		SolarSystem overSystem = SolarSystem.generateOverSystem(rand.nextLong());
 		overSystem.setPosition(getPosition());
+		overSystem.setSector(positionToSector(overSystem.getPosition()));
 		solarSystems.add(overSystem);
 
-		int systems = rand.nextInt(10) + 10; // Generate at 20-40 solar systems
+		int systems = rand.nextInt(SECTOR_DENSITY) + 10; // Generate at 10-30 solar systems
 		for(int i = 0; i < systems; ++i)
 		{
 			// Since we set the seed specifically at the beginning of generation, all numbers will be generated
 			//		the same, given the order. It's better than doing math on the actual seed.
 			SolarSystem curSS = new SolarSystem(rand.nextLong());
+			curSS.setSector(getSector()); // The generate method has to know what the sector is
 			curSS.generate();
 
 			solarSystems.add(curSS);
