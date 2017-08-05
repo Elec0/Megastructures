@@ -8,6 +8,9 @@ public class Location
 {
 	public static int LAST_ID = 0; // Iterates every time a new object is created
 	public static final int SECTOR_SIZE = 10000; // x and y size of a sector
+	public static final int SUBSECTOR_SIZE = 1000; // The 'square' size of a solar system. No solar system can be closer than this to another
+	public static final int SUBSECTORS = SECTOR_SIZE / SUBSECTOR_SIZE; // Number of subsectors in a sector
+
 
 	private long seed; // The random seed used for generating things, usually through the generate() method
 	private Vector2l position; // Position of the object in space

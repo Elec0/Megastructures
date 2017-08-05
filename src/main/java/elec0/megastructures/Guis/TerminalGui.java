@@ -3,6 +3,7 @@ package elec0.megastructures.Guis;
 
 import elec0.megastructures.Megastructures;
 import elec0.megastructures.universe.Galaxy;
+import elec0.megastructures.universe.Location;
 import elec0.megastructures.universe.SolarSystem;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -74,7 +75,21 @@ public class TerminalGui extends GuiScreen
 	private void drawView()
 	{
 		int BORDER_VIEW = 4;
-		drawRect(left + BORDER_VIEW, top + BORDER_VIEW, right - BORDER_VIEW, bottom - h/4, 0xFF000000);
+		int squareSize = (right-left) / 2;
+		int viewSubsectors = squareSize / Location.SUBSECTORS;
+		int viewLeft = right - squareSize - BORDER_VIEW, viewTop = top + BORDER_VIEW, viewRight = right - BORDER_VIEW, viewBottom = top + squareSize;
+
+		drawRect(viewLeft, viewTop, viewRight, viewBottom, 0xFF000000);
+
+		// Draw sector grid
+		for(int i = 0; i < Location.SUBSECTORS + 1; ++i)
+		{
+			drawHorizontalLine(viewLeft, viewRight, viewTop + i * viewSubsectors, 0xFFFFFFFF);
+			drawVerticalLine(viewLeft + i * viewSubsectors, viewTop, viewBottom, 0xFFFFFFFF);
+		}
+
+
+
 	}
 
 	@Override
