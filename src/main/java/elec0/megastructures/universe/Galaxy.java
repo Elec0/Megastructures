@@ -39,7 +39,8 @@ public class Galaxy extends Location
 
 	/**
 	 * First time galaxy generation. Should only be called once per dimension
-	 * Will generate a certain amount of solar systems close to the overworld
+	 * Will generate the solar systems in the same sector as the overworld
+	 * Use generate(sector) to generate specific sectors after initial generation
 	 */
 	public void generate()
 	{
@@ -48,7 +49,11 @@ public class Galaxy extends Location
 		setName("Milky Way"); // Randomly generate this eventually
 
 		// The galaxy's position is the 'center' of the galaxy, namely where the overworld system will be placed.
-		setPosition(new Vector2l(rand.nextInt(), rand.nextInt()));
+		// Generate random position, turn that into a sector, then figure out which subsector to put the system in
+		Vector2i tmpPos = positionToSector(new Vector2l(rand.nextInt(), rand.nextInt()));
+		setPosition(new Vector2l(tmpPos.getX() + rand.nextInt(SUBSECTORS) * SUBSECTOR_SIZE, tmpPos.getY() + rand.nextInt(SUBSECTORS) * SUBSECTOR_SIZE));
+		Vector2i skipSubSector = positionToSubsector(getPosition()); // Skip this subsector on generation or problems will be had
+
 		// The galaxy's sector is the same as it's position
 		setSector(positionToSector(getPosition()));
 
@@ -57,30 +62,40 @@ public class Galaxy extends Location
 		overSystem.setPosition(getPosition());
 		addSolarSystem(overSystem);
 
+		Vector2i sectorGenerate = getSector();
+
 		// Loop through each square subsector
 		// subsector 0,0 is top left of the sector
 		for(int i = 0; i < SUBSECTORS; ++i)
 		{
 			for(int j = 0; j < SUBSECTORS; ++j)
 			{
+				if(skipSubSector.getX() == j && skipSubSector.getY() == i) // Skip the overworld subsector in generation since it's already done
+					continue;
+
 				// Determine if a solar system should be placed in this subsector
 				if(rand.nextDouble() < SECTOR_DENSITY)
 				{
 					// Since we set the seed specifically at the beginning of generation, all numbers will be generated
 					//		the same, given the order. It's better than doing math on the actual seed.
 					SolarSystem curSS = new SolarSystem(rand.nextLong());
-					Vector2l curPos = sectorToPositon(getSector());
+					Vector2l curPos = sectorToPositon(sectorGenerate);
 					// Set the system's position to the subsector position. The positions are not random anymore, but if a system is spawned
 					// 	in a certain position is now random.
 
-					// TODO: Something is wrong here, positions are being generated out of sector bounds
-					curSS.setPosition(new Vector2l(curPos.getX() + i * SUBSECTOR_SIZE, curPos.getY() + i * SUBSECTOR_SIZE));
+					// The ternaries are for making sure we aren't adding to a negative number. We must treat the top left of the sector as 0,0.
+					curSS.setPosition(new Vector2l(curPos.getX() + (curPos.getX() > 0 ? j * SUBSECTOR_SIZE : j * SUBSECTOR_SIZE * -1), curPos.getY() + (curPos.getY() > 0 ? i * SUBSECTOR_SIZE : i * SUBSECTOR_SIZE * -1)));
 					curSS.generate();
 
 					addSolarSystem(curSS);
 				}
 			}
 		}
+	}
+
+	public void generate(Vector2i sector)
+	{
+
 	}
 
 	public List<SolarSystem> getSolarSystems() { return solarSystems; }
@@ -103,7 +118,6 @@ public class Galaxy extends Location
 		// I don't think we need to put this back in, if it wasn't null to begin with, but just in case
 		sectorMap.put(system.getSector(), sector);
 
-		System.out.println("Add system to sector " + system.getSector());
 		// We'll keep this for now
 		this.solarSystems.add(system);
 	}

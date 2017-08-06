@@ -89,9 +89,7 @@ public class TerminalGui extends GuiScreen
 					SolarSystem s = sector.get(i);
 					Vector2i subsector = Location.positionToSubsector(s.getPosition());
 
-					System.out.println(s.getPosition() + ", " + s.getSector() + ", " + subsector);
-
-					fontRenderer.drawString("SS", viewLeft + subsector.getX() * viewSubsectors, viewTop + subsector.getY() * viewSubsectors, 0xFF0000, false);
+					fontRenderer.drawString("SS", viewLeft + subsector.getX() * viewSubsectors + 3, viewTop + subsector.getY() * viewSubsectors + 5, 0xFF0000, false);
 					// System.out.println((viewLeft + subsector.getX() * viewSubsectors) + ", " + (viewTop + subsector.getY() * viewSubsectors));
 					//fontRenderer.drawString(s.getName() + ", " + s.getPosition().toString() + ", " + s.getSectorList().toString(), 0, 10*(i+1), 0xFF0000, false);
 				}
