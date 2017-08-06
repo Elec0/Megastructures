@@ -2,6 +2,7 @@ package elec0.megastructures.Guis;
 
 
 import elec0.megastructures.Megastructures;
+import elec0.megastructures.general.Vector2i;
 import elec0.megastructures.universe.Galaxy;
 import elec0.megastructures.universe.Location;
 import elec0.megastructures.universe.SolarSystem;
@@ -10,6 +11,7 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.util.ResourceLocation;
 
 import java.io.IOException;
+import java.util.List;
 
 public class TerminalGui extends GuiScreen
 {
@@ -17,6 +19,7 @@ public class TerminalGui extends GuiScreen
 	private Galaxy galaxy;
 	private int zoom = 0; // 0 = galaxy overview, 1 = solar system overview, 2 = planet overview
 	private int left, right, top, bottom;
+	private Vector2i viewSector;
 
 	private static final ResourceLocation background = new ResourceLocation(Megastructures.MODID, "textures/gui/terminal.png");
 	private static final int w = 320, h = 150;
@@ -39,18 +42,7 @@ public class TerminalGui extends GuiScreen
 		if(galaxy != null)
 		{
 			drawView();
-			fontRenderer.drawString(String.valueOf(galaxy.getSeed()) + ", " + galaxy.getName(), 0, 0, 0xFF0000, false);
-
-			switch(zoom)
-			{
-				case 0:
-					for(int i = 0; i < galaxy.getSolarSystems().size(); ++i)
-					{
-						SolarSystem s = galaxy.getSolarSystems().get(i);
-						//fontRenderer.drawString(s.getName() + ", " + s.getPosition().toString() + ", " + s.getSector().toString(), 0, 10*(i+1), 0xFF0000, false);
-					}
-					break;
-			}
+			fontRenderer.drawString(galaxy.getName() + "," + galaxy.getSector().toString(), 0, 0, 0xFF0000, false);
 		}
 
 		super.drawScreen(mouseX, mouseY, partialTicks); // Handles drawing things like buttons, which need to be over the background
@@ -88,6 +80,25 @@ public class TerminalGui extends GuiScreen
 			drawVerticalLine(viewLeft + i * viewSubsectors, viewTop, viewBottom, 0xFFFFFFFF);
 		}
 
+		switch(zoom)
+		{
+			case 0: // Sector view
+				List<SolarSystem> sector = galaxy.getSectorList(viewSector);
+				for(int i = 0; i < sector.size(); ++i)
+				{
+					SolarSystem s = sector.get(i);
+					Vector2i subsector = Location.positionToSubsector(s.getPosition());
+
+					System.out.println(s.getPosition() + ", " + s.getSector() + ", " + subsector);
+					//[17:02:22] [main/INFO]: [STDOUT]: [-1064328987, 1995612844], [-106432, 199561], [1064222555, 2844]
+					//[17:02:22] [main/INFO]: [STDOUT]: [-1064320000, 1995610000], [-106432, 199561], [1064213568, 0]
+
+					//fontRenderer.drawString("SS", viewLeft + subsector.getX() * viewSubsectors, viewTop + subsector.getY() * viewSubsectors, 0xFF0000, false);
+					// System.out.println((viewLeft + subsector.getX() * viewSubsectors) + ", " + (viewTop + subsector.getY() * viewSubsectors));
+					//fontRenderer.drawString(s.getName() + ", " + s.getPosition().toString() + ", " + s.getSectorList().toString(), 0, 10*(i+1), 0xFF0000, false);
+				}
+				break;
+		}
 
 
 	}
@@ -121,6 +132,7 @@ public class TerminalGui extends GuiScreen
 	public void setGalaxy(Galaxy galaxy)
 	{
 		this.galaxy = galaxy;
+		viewSector = galaxy.getSector();
 	}
 
 

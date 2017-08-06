@@ -3,7 +3,6 @@ package elec0.megastructures.network;
 import elec0.megastructures.Guis.TerminalGui;
 import elec0.megastructures.general.Vector2l;
 import elec0.megastructures.universe.Galaxy;
-import elec0.megastructures.universe.Location;
 import elec0.megastructures.universe.SolarSystem;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
@@ -13,6 +12,8 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PacketSendTerminalData implements IMessage
 {
@@ -34,6 +35,7 @@ public class PacketSendTerminalData implements IMessage
 		// Retrieve info from message
 		galaxy = new Galaxy(buf.readLong());
 		galaxy.setName(buf.readCharSequence(buf.readInt(), StandardCharsets.ISO_8859_1).toString());
+		galaxy.setPosition(new Vector2l(buf.readLong(), buf.readLong()));
 
 		int SSlen = buf.readInt();
 		for(int i = 0; i < SSlen; ++i)
@@ -41,7 +43,6 @@ public class PacketSendTerminalData implements IMessage
 			SolarSystem s = new SolarSystem(buf.readLong());
 			s.setName(buf.readCharSequence(buf.readInt(), StandardCharsets.ISO_8859_1).toString());
 			s.setPosition(new Vector2l(buf.readLong(), buf.readLong()));
-			s.setSector(Location.positionToSector(s.getPosition())); // No need to send this over the network when we can compute it
 			galaxy.addSolarSystem(s);
 		}
 	}
@@ -51,14 +52,22 @@ public class PacketSendTerminalData implements IMessage
 	{
 		// Send info to message
 		buf.writeLong(galaxy.getSeed());
-		buf.writeInt(galaxy.getName().length());
-		buf.writeCharSequence(galaxy.getName(), StandardCharsets.ISO_8859_1);
+		buf.writeInt(galaxy.getName().length()); // Galaxy name 1/2
+		buf.writeCharSequence(galaxy.getName(), StandardCharsets.ISO_8859_1); // Name 2/2
+		buf.writeLong(galaxy.getPosition().getX()); // Galaxy position
+		buf.writeLong(galaxy.getPosition().getY());
 
-		// Number of solar systems in galaxy
-		buf.writeInt(galaxy.getSolarSystems().size());
-		for(int i = 0; i < galaxy.getSolarSystems().size(); ++i)
+		// Number of solar systems in sector
+		List<SolarSystem> sector = galaxy.getSectorList(galaxy.getSector()); // This needs to change based on the sector requested.
+		if(sector == null)
+			sector = new ArrayList<>(); // Just to prevent errors.
+
+		System.out.println("Get systems in sector " + galaxy.getSector().toString());
+
+		buf.writeInt(sector.size());
+		for(int i = 0; i < sector.size(); ++i)
 		{
-			SolarSystem s = galaxy.getSolarSystems().get(i);
+			SolarSystem s = sector.get(i);
 			buf.writeLong(s.getSeed());
 			buf.writeInt(s.getName().length()); 								// Write name 1/2
 			buf.writeCharSequence(s.getName(), StandardCharsets.ISO_8859_1); 	// 2/2

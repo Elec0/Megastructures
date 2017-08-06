@@ -41,8 +41,26 @@ public class Location
 	public static Vector2i positionToSector(Vector2l position)
 	{
 		if(position == null)
-			return new Vector2i(-1, -1);
+			return null;
 		return new Vector2i((int)(position.getX() / SECTOR_SIZE), (int)(position.getY() / SECTOR_SIZE));
+	}
+
+	/**
+	 * Takes a positon and returns the subsector
+	 * (0 - SUBSECTORS)
+	 * Subsector 0,0 is top left of sector
+	 * @param position
+	 * @return
+	 */
+	public static Vector2i positionToSubsector(Vector2l position)
+	{
+		if(position == null)
+			return null;
+		// Get position in sector
+		// ||pX| - |sector.X * SIZE||
+		Vector2i pos = new Vector2i((int)Math.abs(Math.abs(position.getX()) - Math.abs(positionToSector(position).getX())), (int)Math.abs(Math.abs(position.getY()) - Math.abs(positionToSector(position).getY() * SECTOR_SIZE)));
+
+		return pos;
 	}
 
 	/**
@@ -53,7 +71,7 @@ public class Location
 	public static Vector2l sectorToPositon(Vector2i sector)
 	{
 		if(sector == null)
-			return new Vector2l(-1, -1);
+			return null;
 		return new Vector2l(sector.getX() * SECTOR_SIZE, sector.getY() * SECTOR_SIZE);
 	}
 
@@ -87,6 +105,9 @@ public class Location
 
 	public Vector2i getSector()
 	{
+		// If the sector hasn't been initialized, but the position has, calculate the sector
+		if(sector == null && getPosition() != null)
+			sector = positionToSector(getPosition());
 		return sector;
 	}
 	public void setSector(Vector2i sector)

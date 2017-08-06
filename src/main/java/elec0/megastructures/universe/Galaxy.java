@@ -13,15 +13,17 @@ import java.util.Random;
 public class Galaxy extends Location
 {
 	private static final double SECTOR_DENSITY = 0.1; // Probability of a solar system spawning in a subsector
-
+	private static final int MAP_CAPACITY = 10000;
 
 	private List<SolarSystem> solarSystems;
-	private HashMap<Vector2i, List<Integer>> sectorMap;
+	private HashMap<Vector2i, List<SolarSystem>> sectorMap;
 
 	public Galaxy(long seed)
 	{
 		super(seed);
 		solarSystems = new ArrayList<>();
+		sectorMap = new HashMap<>(MAP_CAPACITY);
+
 		// This makes each dimension's seed unique, but still able to get the same solar systems out of the same minecraft seed
 		setSeed(seed);
 	}
@@ -29,6 +31,7 @@ public class Galaxy extends Location
 	{
 		super();
 		solarSystems = new ArrayList<>();
+		sectorMap = new HashMap<>(MAP_CAPACITY);
 		// This makes each dimension's seed unique, but still able to get the same solar systems out of the same minecraft seed
 		// Not using linearly related seeds
 		setSeed(world.getSeed() + (long)Math.pow(world.provider.getDimension(), 3));
@@ -52,8 +55,7 @@ public class Galaxy extends Location
 		// Generate the overworld solar system custom, since it needs specific planets
 		SolarSystem overSystem = SolarSystem.generateOverSystem(rand.nextLong());
 		overSystem.setPosition(getPosition());
-		overSystem.setSector(positionToSector(overSystem.getPosition()));
-		solarSystems.add(overSystem);
+		addSolarSystem(overSystem);
 
 		// Loop through each square subsector
 		// subsector 0,0 is top left of the sector
@@ -67,31 +69,49 @@ public class Galaxy extends Location
 					// Since we set the seed specifically at the beginning of generation, all numbers will be generated
 					//		the same, given the order. It's better than doing math on the actual seed.
 					SolarSystem curSS = new SolarSystem(rand.nextLong());
-					curSS.setSector(getSector()); // The generate method has to know what the sector is
 					Vector2l curPos = sectorToPositon(getSector());
 					// Set the system's position to the subsector position. The positions are not random anymore, but if a system is spawned
 					// 	in a certain position is now random.
+
+					// TODO: Something is wrong here, positions are being generated out of sector bounds
 					curSS.setPosition(new Vector2l(curPos.getX() + i * SUBSECTOR_SIZE, curPos.getY() + i * SUBSECTOR_SIZE));
 					curSS.generate();
 
-					solarSystems.add(curSS);
+					addSolarSystem(curSS);
 				}
 			}
 		}
 	}
 
 	public List<SolarSystem> getSolarSystems() { return solarSystems; }
-	public void setSolarSystems(List<SolarSystem> solarSystems)
-	{
-		this.solarSystems = solarSystems;
-	}
+	public List<SolarSystem> getSectorList(Vector2i sector) { return sectorMap.get(sector); }
+	public HashMap<Vector2i, List<SolarSystem>> getSectors() { return sectorMap; }
 
-	public void addSolarSystem(SolarSystem system) { this.solarSystems.add(system); }
+	/**
+	 * Adds the given solar system to the galaxy's storage.
+	 * Solar system must have a sector defined.
+	 * @param system
+	 */
+	public void addSolarSystem(SolarSystem system)
+	{
+		List<SolarSystem> sector;
+		if(sectorMap.containsKey(system.getSector()))
+		 	sector = sectorMap.get(system.getSector());
+		else
+			sector = new ArrayList<>();
+		sector.add(system);
+		// I don't think we need to put this back in, if it wasn't null to begin with, but just in case
+		sectorMap.put(system.getSector(), sector);
+
+		System.out.println("Add system to sector " + system.getSector());
+		// We'll keep this for now
+		this.solarSystems.add(system);
+	}
 
 	@Override
 	public String toString()
 	{
-		return getPosition() + ", SS: " + getSolarSystems().size();
+		return getPosition() + ", Sectors: " + getSectors().size() + ", SS: " + getSolarSystems().size();
 	}
 
 }
