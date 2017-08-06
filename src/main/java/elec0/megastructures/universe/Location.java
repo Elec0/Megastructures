@@ -57,8 +57,8 @@ public class Location
 		if(position == null)
 			return null;
 		// Get position in sector
-		// ||pX| - |sector.X * SIZE||
-		Vector2i pos = new Vector2i((int)Math.abs(Math.abs(position.getX()) - Math.abs(positionToSector(position).getX())), (int)Math.abs(Math.abs(position.getY()) - Math.abs(positionToSector(position).getY() * SECTOR_SIZE)));
+		// ||pX| - |sector.X * SIZE|| / SUB_SIZE
+		Vector2i pos = new Vector2i((int)Math.abs(Math.abs(positionToSector(position).getX() * SECTOR_SIZE) - Math.abs(position.getX())) / SUBSECTOR_SIZE, (int)Math.abs(Math.abs(positionToSector(position).getY() * SECTOR_SIZE) - Math.abs(position.getY())) / SUBSECTOR_SIZE);
 
 		return pos;
 	}

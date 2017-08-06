@@ -90,10 +90,8 @@ public class TerminalGui extends GuiScreen
 					Vector2i subsector = Location.positionToSubsector(s.getPosition());
 
 					System.out.println(s.getPosition() + ", " + s.getSector() + ", " + subsector);
-					//[17:02:22] [main/INFO]: [STDOUT]: [-1064328987, 1995612844], [-106432, 199561], [1064222555, 2844]
-					//[17:02:22] [main/INFO]: [STDOUT]: [-1064320000, 1995610000], [-106432, 199561], [1064213568, 0]
 
-					//fontRenderer.drawString("SS", viewLeft + subsector.getX() * viewSubsectors, viewTop + subsector.getY() * viewSubsectors, 0xFF0000, false);
+					fontRenderer.drawString("SS", viewLeft + subsector.getX() * viewSubsectors, viewTop + subsector.getY() * viewSubsectors, 0xFF0000, false);
 					// System.out.println((viewLeft + subsector.getX() * viewSubsectors) + ", " + (viewTop + subsector.getY() * viewSubsectors));
 					//fontRenderer.drawString(s.getName() + ", " + s.getPosition().toString() + ", " + s.getSectorList().toString(), 0, 10*(i+1), 0xFF0000, false);
 				}
