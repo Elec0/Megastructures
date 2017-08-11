@@ -42,7 +42,7 @@ public class MSWorldSavedData extends WorldSavedData
 		{
 			instance = new MSWorldSavedData();
 			Galaxy g = new Galaxy(world);
-			g.generate();
+			g.generateInit();
 			instance.setGalaxy(g);
 			storage.setData(DATA_NAME, instance);
 		}
@@ -72,7 +72,7 @@ public class MSWorldSavedData extends WorldSavedData
 	public void readFromNBT(NBTTagCompound compound)
 	{
 		galaxy = new Galaxy(compound.getLong("galaxySeed"));
-		galaxy.generate(); // This could be an issue, since new Location IDs are created statically
+		galaxy.generateInit(); // This could be an issue, since new Location IDs are created statically
 	}
 
 }

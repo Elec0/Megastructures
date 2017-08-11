@@ -5,7 +5,6 @@ import elec0.megastructures.general.Vector2l;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 public class SolarSystem extends Location
 {
@@ -53,7 +52,6 @@ public class SolarSystem extends Location
 
 	public void generate()
 	{
-		Random rand = new Random(getSeed());
 
 	}
 

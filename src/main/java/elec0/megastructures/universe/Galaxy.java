@@ -8,7 +8,6 @@ import net.minecraft.world.World;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Random;
 
 public class Galaxy extends Location
 {
@@ -42,27 +41,23 @@ public class Galaxy extends Location
 	 * Will generate the solar systems in the same sector as the overworld
 	 * Use generate(sector) to generate specific sectors after initial generation
 	 */
-	public void generate()
+	public void generateInit()
 	{
-		Random rand = new Random(getSeed());
-
 		setName("Milky Way"); // Randomly generate this eventually
 
 		// The galaxy's position is the 'center' of the galaxy, namely where the overworld system will be placed.
 		// Generate random position, turn that into a sector, then figure out which subsector to put the system in
-		Vector2i tmpPos = positionToSector(new Vector2l(rand.nextInt(), rand.nextInt()));
-		setPosition(new Vector2l(tmpPos.getX() + rand.nextInt(SUBSECTORS) * SUBSECTOR_SIZE, tmpPos.getY() + rand.nextInt(SUBSECTORS) * SUBSECTOR_SIZE));
+		Vector2i tmpPos = positionToSector(new Vector2l(getRand().nextInt(), getRand().nextInt()));
+		setPosition(new Vector2l(tmpPos.getX() + getRand().nextInt(SUBSECTORS) * SUBSECTOR_SIZE, tmpPos.getY() + getRand().nextInt(SUBSECTORS) * SUBSECTOR_SIZE));
 		Vector2i skipSubSector = positionToSubsector(getPosition()); // Skip this subsector on generation or problems will be had
 
 		// The galaxy's sector is the same as it's position
 		setSector(positionToSector(getPosition()));
 
 		// Generate the overworld solar system custom, since it needs specific planets
-		SolarSystem overSystem = SolarSystem.generateOverSystem(rand.nextLong());
+		SolarSystem overSystem = SolarSystem.generateOverSystem(getRand().nextLong());
 		overSystem.setPosition(getPosition());
 		addSolarSystem(overSystem);
-
-		Vector2i sectorGenerate = getSector();
 
 		// Loop through each square subsector
 		// subsector 0,0 is top left of the sector
@@ -74,11 +69,40 @@ public class Galaxy extends Location
 					continue;
 
 				// Determine if a solar system should be placed in this subsector
-				if(rand.nextDouble() < SECTOR_DENSITY)
+				if(getRand().nextDouble() < SECTOR_DENSITY)
 				{
 					// Since we set the seed specifically at the beginning of generation, all numbers will be generated
 					//		the same, given the order. It's better than doing math on the actual seed.
-					SolarSystem curSS = new SolarSystem(rand.nextLong());
+					SolarSystem curSS = new SolarSystem(getRand().nextLong());
+					Vector2l curPos = sectorToPositon(getSector());
+					// Set the system's position to the subsector position. The positions are not random anymore, but if a system is spawned
+					// 	in a certain position is now random.
+
+					// The ternaries are for making sure we aren't adding to a negative number. We must treat the top left of the sector as 0,0.
+					curSS.setPosition(new Vector2l(curPos.getX() + (curPos.getX() > 0 ? j * SUBSECTOR_SIZE : j * SUBSECTOR_SIZE * -1), curPos.getY() + (curPos.getY() > 0 ? i * SUBSECTOR_SIZE : i * SUBSECTOR_SIZE * -1)));
+					curSS.generate();
+
+					addSolarSystem(curSS);
+				}
+			}
+		}
+
+	}
+
+	public void generate(Vector2i sectorGenerate)
+	{
+		// Loop through each square subsector
+		// subsector 0,0 is top left of the sector
+		for(int i = 0; i < SUBSECTORS; ++i)
+		{
+			for(int j = 0; j < SUBSECTORS; ++j)
+			{
+				// Determine if a solar system should be placed in this subsector
+				if(getRand().nextDouble() < SECTOR_DENSITY)
+				{
+					// Since we set the seed specifically at the beginning of generation, all numbers will be generated
+					//		the same, given the order. It's better than doing math on the actual seed.
+					SolarSystem curSS = new SolarSystem(getRand().nextLong());
 					Vector2l curPos = sectorToPositon(sectorGenerate);
 					// Set the system's position to the subsector position. The positions are not random anymore, but if a system is spawned
 					// 	in a certain position is now random.
@@ -91,11 +115,6 @@ public class Galaxy extends Location
 				}
 			}
 		}
-	}
-
-	public void generate(Vector2i sector)
-	{
-
 	}
 
 	public List<SolarSystem> getSolarSystems() { return solarSystems; }

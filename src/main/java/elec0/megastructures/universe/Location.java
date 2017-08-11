@@ -4,6 +4,8 @@ package elec0.megastructures.universe;
 import elec0.megastructures.general.Vector2i;
 import elec0.megastructures.general.Vector2l;
 
+import java.util.Random;
+
 public class Location
 {
 	public static int LAST_ID = 0; // Iterates every time a new object is created
@@ -13,6 +15,7 @@ public class Location
 
 
 	private long seed; // The random seed used for generating things, usually through the generate() method
+	private Random rand; // Generating cross-method requires a constant random object, or things are just going to be regenerated
 	private Vector2l position; // Position of the object in space
 	private Vector2i sector; // x,y sector location of the object, which correlates to the position
 								// positionToSector() returns the position of the upper-left part of the sector
@@ -20,7 +23,7 @@ public class Location
 	private int ID; // A unique ID 1-MAXINT for everything inheriting from Location, which should be pretty much everything
 
 	public Location() { ID = ++LAST_ID; name = "";}
-	public Location(long seed) { this.seed = seed; ID = ++LAST_ID; name = "";}
+	public Location(long seed) { this.seed = seed; ID = ++LAST_ID; name = ""; rand = new Random(seed); }
 
 	public long getSeed()
 	{
@@ -29,7 +32,11 @@ public class Location
 	public void setSeed(long seed)
 	{
 		this.seed = seed;
+		rand = new Random(seed);
 	}
+
+	public Random getRand() { return rand; }
+	//public void setRand(Random rand) { this.rand = rand; }
 
 	/**
 	 * Converts a position Vector2l into a sector

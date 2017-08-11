@@ -28,7 +28,10 @@ public class PacketHandler
 	
 	public static void registerMessages()
 	{
-		// Register messages which are sent from server to client
+		// Register messages from server to client
 		INSTANCE.registerMessage(PacketSendTerminalData.Handler.class, PacketSendTerminalData.class, nextID(), Side.CLIENT);
+
+		// Register messages from client to server
+		INSTANCE.registerMessage(PacketRequestTerminalData.Handler.class, PacketRequestTerminalData.class, nextID(), Side.SERVER);
 	}
 }

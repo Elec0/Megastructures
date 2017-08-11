@@ -1,6 +1,7 @@
 package elec0.megastructures.network;
 
 import elec0.megastructures.Guis.TerminalGui;
+import elec0.megastructures.general.Vector2i;
 import elec0.megastructures.general.Vector2l;
 import elec0.megastructures.universe.Galaxy;
 import elec0.megastructures.universe.SolarSystem;
@@ -18,15 +19,17 @@ import java.util.List;
 public class PacketSendTerminalData implements IMessage
 {
 	private Galaxy galaxy;
+	private Vector2i sectorToSend;
 
 	public PacketSendTerminalData()
 	{
 
 	}
 
-	public PacketSendTerminalData(Galaxy galaxy)
+	public PacketSendTerminalData(Galaxy galaxy, Vector2i sector)
 	{
 		this.galaxy = galaxy;
+		this.sectorToSend = sector;
 	}
 
 	@Override
@@ -58,7 +61,7 @@ public class PacketSendTerminalData implements IMessage
 		buf.writeLong(galaxy.getPosition().getY());
 
 		// Number of solar systems in sector
-		List<SolarSystem> sector = galaxy.getSectorList(galaxy.getSector()); // This needs to change based on the sector requested.
+		List<SolarSystem> sector = galaxy.getSectorList(sectorToSend); // This needs to change based on the sector requested.
 		if(sector == null)
 			sector = new ArrayList<>(); // Just to prevent errors.
 
@@ -98,8 +101,6 @@ public class PacketSendTerminalData implements IMessage
 				termGui.setGalaxy(message.galaxy);
 			}
 			//player.openGui(Megastructures.instance, GUIProxy.TERMINAL_GUI, Minecraft.getMinecraft().world, (int)player.posX, (int)player.posY, (int)player.posZ);
-
-
 		}
     }
 }

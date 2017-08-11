@@ -64,7 +64,7 @@ public class TerminalBlock extends BaseBlock implements ITileEntityProvider
 		//player.sendMessage(new TextComponentString("Placer: " + ((TerminalTileEntity)getTE(world,pos)).getPlacer().toString()));
 
 		MSWorldSavedData wsd = MSWorldSavedData.getData(world);
-		PacketHandler.INSTANCE.sendTo(new PacketSendTerminalData(wsd.getGalaxy()), (EntityPlayerMP)player);
+		PacketHandler.INSTANCE.sendTo(new PacketSendTerminalData(wsd.getGalaxy(), wsd.getGalaxy().getSector()), (EntityPlayerMP)player);
 
 		wsd.save(world);
 
