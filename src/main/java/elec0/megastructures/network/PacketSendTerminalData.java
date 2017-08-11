@@ -13,7 +13,6 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
 
 public class PacketSendTerminalData implements IMessage
@@ -39,6 +38,7 @@ public class PacketSendTerminalData implements IMessage
 		galaxy = new Galaxy(buf.readLong());
 		galaxy.setName(buf.readCharSequence(buf.readInt(), StandardCharsets.ISO_8859_1).toString());
 		galaxy.setPosition(new Vector2l(buf.readLong(), buf.readLong()));
+		sectorToSend = new Vector2i(buf.readInt(), buf.readInt());
 
 		int SSlen = buf.readInt();
 		for(int i = 0; i < SSlen; ++i)
@@ -60,10 +60,18 @@ public class PacketSendTerminalData implements IMessage
 		buf.writeLong(galaxy.getPosition().getX()); // Galaxy position
 		buf.writeLong(galaxy.getPosition().getY());
 
+		buf.writeInt(sectorToSend.getX());
+		buf.writeInt(sectorToSend.getY());
+
 		// Number of solar systems in sector
-		List<SolarSystem> sector = galaxy.getSectorList(sectorToSend); // This needs to change based on the sector requested.
+		List<SolarSystem> sector = galaxy.getSectorList(sectorToSend);
 		if(sector == null)
-			sector = new ArrayList<>(); // Just to prevent errors.
+		{
+			System.out.println("SendData: generate sector " + sectorToSend);
+			// If the sector hasn't been generated yet, do that
+			galaxy.generate(sectorToSend);
+			sector = galaxy.getSectorList(sectorToSend);
+		}
 
 		System.out.println("Get systems in sector " + galaxy.getSector().toString());
 
@@ -99,8 +107,8 @@ public class PacketSendTerminalData implements IMessage
 			{
 				TerminalGui termGui = (TerminalGui) Minecraft.getMinecraft().currentScreen;
 				termGui.setGalaxy(message.galaxy);
+				termGui.setViewSector(message.sectorToSend);
 			}
-			//player.openGui(Megastructures.instance, GUIProxy.TERMINAL_GUI, Minecraft.getMinecraft().world, (int)player.posX, (int)player.posY, (int)player.posZ);
 		}
     }
 }

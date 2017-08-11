@@ -43,6 +43,8 @@ public class Galaxy extends Location
 	 */
 	public void generateInit()
 	{
+		System.out.println("Galaxy.generateInit()");
+
 		setName("Milky Way"); // Randomly generate this eventually
 
 		// The galaxy's position is the 'center' of the galaxy, namely where the overworld system will be placed.

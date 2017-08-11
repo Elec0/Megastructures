@@ -44,7 +44,7 @@ public class MSWorldSavedData extends WorldSavedData
 			Galaxy g = new Galaxy(world);
 			g.generateInit();
 			instance.setGalaxy(g);
-			storage.setData(DATA_NAME, instance);
+			storage.setData(DATA_NAME, instance); // TODO: I think I'm not saving the WSD correctly
 		}
 		return instance;
 	}

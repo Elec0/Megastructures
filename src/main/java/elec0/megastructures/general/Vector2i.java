@@ -17,7 +17,7 @@ public class Vector2i
 		this.y = y;
 	}
 
-	public long getX()
+	public int getX()
 	{
 		return x;
 	}
@@ -25,7 +25,7 @@ public class Vector2i
 	{
 		this.x = x;
 	}
-	public long getY()
+	public int getY()
 	{
 		return y;
 	}
