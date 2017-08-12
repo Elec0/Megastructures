@@ -17,8 +17,7 @@ import java.util.List;
 
 public class TerminalGui extends GuiScreen
 {
-	//private GuiButton a, b;
-	private GuiButton sectorLeft;
+	private GuiButton sectorLeft, sectorRight, sectorUp, sectorDown;
 	private Galaxy galaxy;
 	private int zoom = 0; // 0 = galaxy overview, 1 = solar system overview, 2 = planet overview
 	private int left, right, top, bottom;
@@ -108,6 +107,8 @@ public class TerminalGui extends GuiScreen
 				break;
 		}
 
+		// Draw current sector location
+		fontRenderer.drawString(viewSector.toString(), viewLeft - fontRenderer.getStringWidth(viewSector.toString()), viewTop + 20, 0x000000, false);
 
 	}
 
@@ -116,23 +117,39 @@ public class TerminalGui extends GuiScreen
 	{
 		calcBounds();
 		int btnBorder = 6;
-		buttonList.add(sectorLeft = new GuiButton(0, viewLeft - fontRenderer.getStringWidth("<-") - btnBorder, height / 2, fontRenderer.getStringWidth("<-") + btnBorder, 20, "<-"));
+		int btnSize = fontRenderer.getStringWidth("<-");
+		buttonList.add(sectorLeft = new GuiButton(0, viewLeft - (btnSize + btnBorder) * 2, height / 2, btnSize + btnBorder, 20, "◄"));
+		buttonList.add(sectorRight = new GuiButton(1, viewLeft - (btnSize + btnBorder), height / 2, btnSize + btnBorder, 20, "►"));
+		buttonList.add(sectorUp = new GuiButton(2, viewLeft - (int)((btnSize + btnBorder) * 1.5), (height / 2) - 20, btnSize + btnBorder, 20, "▲"));
+		buttonList.add(sectorDown = new GuiButton(3, viewLeft - (int)((btnSize + btnBorder) * 1.5), (height / 2) + 20, btnSize + btnBorder, 20, "▼"));
 
 	}
 
 	@Override
 	protected void actionPerformed(GuiButton button) throws IOException
 	{
-		if (button == sectorLeft)
-		{
-			PacketHandler.INSTANCE.sendToServer(new PacketRequestTerminalData(new Vector2i(viewSector.getX() - 1, viewSector.getY())));
-
-			// Close the gui
+		// Close the gui
 			/*mc.displayGuiScreen(null);
 			if (mc.currentScreen == null)
 				mc.setIngameFocus();
 				*/
+		if (button == sectorLeft)
+		{
+			PacketHandler.INSTANCE.sendToServer(new PacketRequestTerminalData(new Vector2i(viewSector.getX() - 1, viewSector.getY())));
 		}
+		if (button == sectorRight)
+		{
+			PacketHandler.INSTANCE.sendToServer(new PacketRequestTerminalData(new Vector2i(viewSector.getX() + 1, viewSector.getY())));
+		}
+		if (button == sectorUp)
+		{
+			PacketHandler.INSTANCE.sendToServer(new PacketRequestTerminalData(new Vector2i(viewSector.getX(), viewSector.getY() + 1)));
+		}
+		if (button == sectorDown)
+		{
+			PacketHandler.INSTANCE.sendToServer(new PacketRequestTerminalData(new Vector2i(viewSector.getX(), viewSector.getY() - 1)));
+		}
+
 	}
 
 	public void setGalaxy(Galaxy galaxy)
