@@ -10,6 +10,7 @@ import elec0.megastructures.universe.Location;
 import elec0.megastructures.universe.SolarSystem;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.util.ResourceLocation;
 
 import java.io.IOException;
@@ -17,7 +18,8 @@ import java.util.List;
 
 public class TerminalGui extends GuiScreen
 {
-	private GuiButton sectorLeft, sectorRight, sectorUp, sectorDown;
+	private GuiButton sectorLeft, sectorRight, sectorUp, sectorDown, zoomOut, home;
+	private GuiTextField sectorText;
 	private Galaxy galaxy;
 	private int zoom = 0; // 0 = galaxy overview, 1 = solar system overview, 2 = planet overview
 	private int left, right, top, bottom;
@@ -48,7 +50,9 @@ public class TerminalGui extends GuiScreen
 			fontRenderer.drawString(galaxy.getName() + "," + galaxy.getSector().toString(), 0, 0, 0xFF0000, false);
 		}
 
+		sectorText.drawTextBox();
 		super.drawScreen(mouseX, mouseY, partialTicks); // Handles drawing things like buttons, which need to be over the background
+
 	}
 
 	private void calcBounds()
@@ -101,14 +105,20 @@ public class TerminalGui extends GuiScreen
 					Vector2i subsector = Location.positionToSubsector(s.getPosition());
 
 					fontRenderer.drawString("SS", viewLeft + subsector.getX() * viewSubsectors + 3, viewTop + subsector.getY() * viewSubsectors + 5, 0xFF0000, false);
-					// System.out.println((viewLeft + subsector.getX() * viewSubsectors) + ", " + (viewTop + subsector.getY() * viewSubsectors));
-					//fontRenderer.drawString(s.getName() + ", " + s.getPosition().toString() + ", " + s.getSectorList().toString(), 0, 10*(i+1), 0xFF0000, false);
 				}
+				break;
+
+			case 1: // System view
+
+				break;
+
+			case 2: // Planet view
+
 				break;
 		}
 
 		// Draw current sector location
-		fontRenderer.drawString(viewSector.toString(), viewLeft - fontRenderer.getStringWidth(viewSector.toString()), viewTop + 20, 0x000000, false);
+		//fontRenderer.drawString(viewSector.toString(), viewLeft - fontRenderer.getStringWidth(viewSector.toString()), viewTop + 20, 0x000000, false);
 
 	}
 
@@ -117,11 +127,20 @@ public class TerminalGui extends GuiScreen
 	{
 		calcBounds();
 		int btnBorder = 6;
-		int btnSize = fontRenderer.getStringWidth("<-");
+		int btnSize = fontRenderer.getStringWidth("<-") + 4;
 		buttonList.add(sectorLeft = new GuiButton(0, viewLeft - (btnSize + btnBorder) * 2, height / 2, btnSize + btnBorder, 20, "◄"));
 		buttonList.add(sectorRight = new GuiButton(1, viewLeft - (btnSize + btnBorder), height / 2, btnSize + btnBorder, 20, "►"));
 		buttonList.add(sectorUp = new GuiButton(2, viewLeft - (int)((btnSize + btnBorder) * 1.5), (height / 2) - 20, btnSize + btnBorder, 20, "▲"));
 		buttonList.add(sectorDown = new GuiButton(3, viewLeft - (int)((btnSize + btnBorder) * 1.5), (height / 2) + 20, btnSize + btnBorder, 20, "▼"));
+
+		btnSize = fontRenderer.getStringWidth("Zoom Out");
+		buttonList.add(zoomOut = new GuiButton(4, viewLeft - (btnSize + btnBorder), (height / 2) - 40, btnSize + btnBorder, 20, "Zoom Out"));
+
+		int txtSize = fontRenderer.getStringWidth("-100, -100");
+		sectorText = new GuiTextField(5, fontRenderer, viewLeft - (txtSize + btnBorder), viewTop + 10, txtSize, 20);
+		sectorText.setMaxStringLength(30);
+		sectorText.setCanLoseFocus(true);
+
 
 	}
 
@@ -150,6 +169,63 @@ public class TerminalGui extends GuiScreen
 			PacketHandler.INSTANCE.sendToServer(new PacketRequestTerminalData(new Vector2i(viewSector.getX(), viewSector.getY() - 1)));
 		}
 
+	}
+
+	/**
+	 *
+	 * @param typedChar
+	 * @param keyCode
+	 */
+	@Override
+	protected void  keyTyped(char typedChar, int keyCode)
+	{
+		try
+		{
+			super.keyTyped(typedChar, keyCode);
+		}
+		catch(IOException e) {		}
+
+		sectorText.textboxKeyTyped(typedChar, keyCode);
+	}
+
+	/**
+	 *
+	 * @param x
+	 * @param y
+	 * @param btn
+	 */
+	@Override
+	protected void mouseClicked(int x, int y, int btn)
+	{
+		try
+		{
+			super.mouseClicked(x, y, btn);
+		}
+		catch(IOException e) { }
+
+		sectorText.mouseClicked(x, y, btn);
+	}
+
+	@Override
+	public void updateScreen()
+	{
+		super.updateScreen();
+		sectorText.updateCursorCounter();
+	}
+
+
+	/**
+	 * Called by PacketSendTerminalData when the packet is finished being received
+	 */
+	public void packedFinished()
+	{
+		// Have to wait till after the packet is received to set the text box
+		String text = "";
+		if(viewSector != null)
+			text = viewSector.getX() + ", " + viewSector.getY();
+		else if(galaxy != null) // If this isn't true we have problems
+			text = galaxy.getSector().getX() + ", " + galaxy.getSector().getY();
+		sectorText.setText(text);
 	}
 
 	public void setGalaxy(Galaxy galaxy)

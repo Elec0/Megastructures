@@ -108,6 +108,7 @@ public class PacketSendTerminalData implements IMessage
 				TerminalGui termGui = (TerminalGui) Minecraft.getMinecraft().currentScreen;
 				termGui.setGalaxy(message.galaxy);
 				termGui.setViewSector(message.sectorToSend);
+				termGui.packedFinished();
 			}
 		}
     }
