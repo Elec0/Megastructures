@@ -30,8 +30,8 @@ public class SolarSystem extends Location
 		/*
 			We are going to not assume Galaticraft's system is viewable in our system. If it was, we would have to deal with not being
 				able to build things on the planets and such. We already have to deal with those dimensions accessing dimension 0's network.
-
 		 */
+
 		Planet overworld = new Planet(seed);
 		overworld.isOverworld = true;
 		overworld.generate();

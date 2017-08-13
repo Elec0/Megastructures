@@ -23,8 +23,9 @@ public class TerminalGui extends GuiScreen
 	private Galaxy galaxy;
 	private int zoom = 0; // 0 = galaxy overview, 1 = solar system overview, 2 = planet overview
 	private int left, right, top, bottom;
-	private int viewLeft, viewRight, viewTop, viewBottom, squareSize;
+	private int viewLeft, viewRight, viewTop, viewBottom, squareSize, viewSubsectors;
 	private Vector2i viewSector;
+	private Location viewLocation;
 
 	private static final ResourceLocation background = new ResourceLocation(Megastructures.MODID, "textures/gui/terminal.png");
 	private static final int w = 320, h = 150;
@@ -49,7 +50,15 @@ public class TerminalGui extends GuiScreen
 		{
 			drawView();
 			handleMouse(mouseX, mouseY);
-			fontRenderer.drawString(galaxy.getName(), viewLeft - fontRenderer.getStringWidth(galaxy.getName()) - 7, top + 2, 0x000000, false);
+			String str = null;
+			if(zoom == 0)
+				str = galaxy.getName();
+			else if(zoom == 1)
+				str = viewLocation.getName() + ": " + Location.positionToSubsector(viewLocation.getPosition());
+			else if(zoom == 2)
+				str = "";
+
+			fontRenderer.drawString(str, viewLeft - fontRenderer.getStringWidth(str) - 7, top + 2, 0x000000);
 		}
 
 		sectorText.drawTextBox();
@@ -74,6 +83,7 @@ public class TerminalGui extends GuiScreen
 		viewTop = top + BORDER_VIEW;
 		viewRight = viewLeft + squareSize - BORDER_VIEW;
 		viewBottom = viewTop + squareSize - BORDER_VIEW;
+		viewSubsectors = squareSize / Location.SUBSECTORS;
 	}
 
 	/***
@@ -92,7 +102,6 @@ public class TerminalGui extends GuiScreen
 	 */
 	private void drawView()
 	{
-		int viewSubsectors = squareSize / Location.SUBSECTORS;
 
 		drawRect(viewLeft, viewTop, viewRight, viewBottom, 0xFF000000);
 
@@ -112,7 +121,7 @@ public class TerminalGui extends GuiScreen
 					SolarSystem s = sector.get(i);
 					Vector2i subsector = Location.positionToSubsector(s.getPosition());
 
-					fontRenderer.drawString("SS", viewLeft + subsector.getX() * viewSubsectors + 3, viewTop + subsector.getY() * viewSubsectors + 5, 0xFF0000, false);
+					fontRenderer.drawString("SS", viewLeft + subsector.getX() * viewSubsectors + 3, viewTop + subsector.getY() * viewSubsectors + 5, 0xFF0000);
 				}
 				break;
 
@@ -137,12 +146,34 @@ public class TerminalGui extends GuiScreen
 		boolean inView = (mouseX > viewLeft && mouseX < viewRight) && (mouseY > viewTop && mouseY < viewBottom);
 		if(inView)
 		{
-			int modX = mouseX - viewLeft;
-			int modY = mouseY - viewTop;
-			int squareX = modX / (squareSize / Location.SUBSECTORS);
-			int squareY = modY / (squareSize / Location.SUBSECTORS);
+			Vector2i mouseSub = mouseToSubsector(mouseX, mouseY);
 
-			System.out.println(squareX + ", " + squareY);
+			// Make sure the calculated subsector actually makes sense
+			if(mouseSub.getX() >= 0 && mouseSub.getX() < Location.SUBSECTORS && mouseSub.getY() >= 0 && mouseSub.getY() < Location.SUBSECTORS)
+			{
+				if(zoom == 0)
+					drawSystemInfo(mouseSub.getX(), mouseSub.getY());
+			}
+		}
+	}
+
+	/**
+	 * Draw the rectangle that shows solar system information in the sector view
+	 * @param subX
+	 * @param subY
+	 */
+	private void drawSystemInfo(int subX, int subY)
+	{
+		// 4 squares width, 2 squares hieght
+		int INFO_WIDTH = 4 * viewSubsectors, INFO_HEIGHT = 2 * viewSubsectors, PAD_LEFT = 2, PAD_TOP = 2;
+		int left = viewLeft + subX * viewSubsectors + PAD_LEFT, top = viewTop + subY * viewSubsectors + PAD_TOP;
+
+		SolarSystem sys = getSystemSubsector(viewSector, subX, subY);
+		if(sys != null)
+		{
+			drawRect(left, top, left + INFO_WIDTH + PAD_LEFT, top + INFO_HEIGHT + PAD_TOP, 0xBA9B9B9B);
+			fontRenderer.drawSplitString(sys.getName() + " " + Location.positionToSubsector(sys.getPosition()), left + PAD_LEFT, top + PAD_TOP, INFO_WIDTH,0x000000);
+
 		}
 	}
 
@@ -217,6 +248,7 @@ public class TerminalGui extends GuiScreen
 				try
 				{
 					newSector = new Vector2i(Integer.parseInt(input[0].trim()), Integer.parseInt(input[1].trim()));
+					zoom = 0; // Switch back to sector view if they put in a sector, but not if the arrows are pushed
 				} catch (Exception e){
 				}
 			}
@@ -268,6 +300,22 @@ public class TerminalGui extends GuiScreen
 		catch(IOException e) { }
 
 		sectorText.mouseClicked(x, y, btn);
+
+		boolean inView = (x > viewLeft && x < viewRight) && (y > viewTop && y < viewBottom);
+		if(inView)
+		{
+			Vector2i mouseSub = mouseToSubsector(x, y);
+			if(zoom == 0) // We're looking at solar systems
+			{
+				SolarSystem sys = getSystemSubsector(viewSector, mouseSub.getX(), mouseSub.getY());
+				if(sys != null)
+				{
+					viewLocation = sys;
+					zoom = 1;
+				}
+			}
+
+		}
 	}
 
 	@Override
@@ -276,7 +324,6 @@ public class TerminalGui extends GuiScreen
 		super.updateScreen();
 		sectorText.updateCursorCounter();
 	}
-
 
 	/**
 	 * Called by PacketSendTerminalData when the packet is finished being received
@@ -304,10 +351,45 @@ public class TerminalGui extends GuiScreen
 
 	private static int nextID() { return ID++; }
 
-
 	@Override
 	public boolean doesGuiPauseGame()
 	{
 		return false;
+	}
+
+
+	// ----------------- Utility Methods -----------------
+
+	/**
+	 * Given the sector and subsector x & y, return a system in that sector at the subsector location
+	 * Returns null if there is no system at that location
+	 * @param sector
+	 * @param subX
+	 * @param subY
+	 * @return
+	 */
+	public SolarSystem getSystemSubsector(Vector2i sector, int subX, int subY)
+	{
+		List<SolarSystem> list = galaxy.getSectorList(sector);
+		for(int i = 0; i < list.size(); ++i)
+		{
+			Vector2i subsector = Location.positionToSubsector(list.get(i).getPosition());
+			if(subsector.getX() == subX && subsector.getY() == subY)
+			{
+				return list.get(i);
+			}
+		}
+
+		return null;
+	}
+	/**
+	 * Calculate the subsector square the mouse is in
+	 * @param mouseX
+	 * @param mouseY
+	 * @return
+	 */
+	private Vector2i mouseToSubsector(int mouseX, int mouseY)
+	{
+		return new Vector2i((mouseX - viewLeft) / viewSubsectors, (mouseY - viewTop) / viewSubsectors);
 	}
 }
