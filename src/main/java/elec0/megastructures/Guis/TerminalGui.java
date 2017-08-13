@@ -28,7 +28,7 @@ public class TerminalGui extends GuiScreen
 
 	private static final ResourceLocation background = new ResourceLocation(Megastructures.MODID, "textures/gui/terminal.png");
 	private static final int w = 320, h = 150;
-	private static final int PAD_HORIZ = 14, PAD_VERT = 14, BORDER_SIZE = 2, BORDER_VIEW = 4;
+	private static final int PAD_HORIZ = 14, PAD_VERT = 14, BORDER_SIZE = 2, BORDER_VIEW = 3;
 	private static int ID = 0;
 
 	public TerminalGui()
@@ -49,7 +49,7 @@ public class TerminalGui extends GuiScreen
 		{
 			drawView();
 			handleMouse(mouseX, mouseY);
-			fontRenderer.drawString(galaxy.getName(), viewLeft - fontRenderer.getStringWidth(galaxy.getName()) - 7, top + 3, 0x000000, false);
+			fontRenderer.drawString(galaxy.getName(), viewLeft - fontRenderer.getStringWidth(galaxy.getName()) - 7, top + 2, 0x000000, false);
 		}
 
 		sectorText.drawTextBox();
@@ -72,8 +72,8 @@ public class TerminalGui extends GuiScreen
 		squareSize = (right-left) / 2;
 		viewLeft = right - squareSize - BORDER_VIEW;
 		viewTop = top + BORDER_VIEW;
-		viewRight = right - BORDER_VIEW;
-		viewBottom = top + squareSize;
+		viewRight = viewLeft + squareSize - BORDER_VIEW;
+		viewBottom = viewTop + squareSize - BORDER_VIEW;
 	}
 
 	/***
@@ -137,7 +137,12 @@ public class TerminalGui extends GuiScreen
 		boolean inView = (mouseX > viewLeft && mouseX < viewRight) && (mouseY > viewTop && mouseY < viewBottom);
 		if(inView)
 		{
+			int modX = mouseX - viewLeft;
+			int modY = mouseY - viewTop;
+			int squareX = modX / (squareSize / Location.SUBSECTORS);
+			int squareY = modY / (squareSize / Location.SUBSECTORS);
 
+			System.out.println(squareX + ", " + squareY);
 		}
 	}
 
@@ -161,7 +166,7 @@ public class TerminalGui extends GuiScreen
 		buttonList.add(zoomOut = new GuiButton(nextID(), viewLeft - (btnSize + btnBorder), (height / 2) + 40, btnSize + btnBorder, 20, "Zoom Out"));
 
 		btnSize = fontRenderer.getStringWidth("Home");
-		buttonList.add(home = new GuiButton(nextID(), viewLeft - (btnSize + btnBorder), (height / 2) - 40, btnSize + btnBorder, 20, "Home"));
+		buttonList.add(home = new GuiButton(nextID(), viewLeft - (btnSize + btnBorder) - 7, (height / 2) - 40, btnSize + btnBorder, 20, "Home"));
 
 		btnSize = fontRenderer.getStringWidth("Go");
 		buttonList.add(sectorGo = new GuiButton(nextID(), viewLeft - (btnSize + btnBorder), viewTop + 10, btnSize + btnBorder, 20, "Go"));
@@ -220,6 +225,11 @@ public class TerminalGui extends GuiScreen
 		if(button == home)
 		{
 			PacketHandler.INSTANCE.sendToServer(new PacketRequestTerminalData(galaxy.getSector()));
+		}
+		if(button == zoomOut)
+		{
+			if(zoom > 0)
+				zoom -= 1;
 		}
 
 	}
