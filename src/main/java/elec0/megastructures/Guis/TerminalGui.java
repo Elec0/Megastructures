@@ -18,7 +18,7 @@ import java.util.List;
 
 public class TerminalGui extends GuiScreen
 {
-	private GuiButton sectorLeft, sectorRight, sectorUp, sectorDown, zoomOut, home;
+	private GuiButton sectorLeft, sectorRight, sectorUp, sectorDown, zoomOut, home, sectorGo;
 	private GuiTextField sectorText;
 	private Galaxy galaxy;
 	private int zoom = 0; // 0 = galaxy overview, 1 = solar system overview, 2 = planet overview
@@ -29,6 +29,7 @@ public class TerminalGui extends GuiScreen
 	private static final ResourceLocation background = new ResourceLocation(Megastructures.MODID, "textures/gui/terminal.png");
 	private static final int w = 320, h = 150;
 	private static final int PAD_HORIZ = 14, PAD_VERT = 14, BORDER_SIZE = 2, BORDER_VIEW = 4;
+	private static int ID = 0;
 
 	public TerminalGui()
 	{
@@ -47,7 +48,8 @@ public class TerminalGui extends GuiScreen
 		if(galaxy != null)
 		{
 			drawView();
-			fontRenderer.drawString(galaxy.getName() + "," + galaxy.getSector().toString(), 0, 0, 0xFF0000, false);
+			handleMouse(mouseX, mouseY);
+			fontRenderer.drawString(galaxy.getName(), viewLeft - fontRenderer.getStringWidth(galaxy.getName()) - 7, top + 3, 0x000000, false);
 		}
 
 		sectorText.drawTextBox();
@@ -55,6 +57,9 @@ public class TerminalGui extends GuiScreen
 
 	}
 
+	/**
+	 * Calculate the relevant locations for the GUI, based on the size of the window
+	 */
 	private void calcBounds()
 	{
 		// Main gui bounds
@@ -82,6 +87,9 @@ public class TerminalGui extends GuiScreen
 
 	}
 
+	/**
+	 * Draw all the interesting bits of the GUI: Sector view, planets, etc
+	 */
 	private void drawView()
 	{
 		int viewSubsectors = squareSize / Location.SUBSECTORS;
@@ -119,28 +127,55 @@ public class TerminalGui extends GuiScreen
 
 		// Draw current sector location
 		//fontRenderer.drawString(viewSector.toString(), viewLeft - fontRenderer.getStringWidth(viewSector.toString()), viewTop + 20, 0x000000, false);
-
 	}
 
+	/**
+	 * Handles mouse events that aren't clicking
+	 */
+	private void handleMouse(int mouseX, int mouseY)
+	{
+		boolean inView = (mouseX > viewLeft && mouseX < viewRight) && (mouseY > viewTop && mouseY < viewBottom);
+		if(inView)
+		{
+
+		}
+	}
+
+
+	/**
+	 * Adds the buttons (and other controls) to the screen in question. Called when the GUI is displayed and when the
+	 * window resizes, the buttonList is cleared beforehand.
+	 */
 	@Override
 	public void initGui()
 	{
 		calcBounds();
 		int btnBorder = 6;
 		int btnSize = fontRenderer.getStringWidth("<-") + 4;
-		buttonList.add(sectorLeft = new GuiButton(0, viewLeft - (btnSize + btnBorder) * 2, height / 2, btnSize + btnBorder, 20, "◄"));
-		buttonList.add(sectorRight = new GuiButton(1, viewLeft - (btnSize + btnBorder), height / 2, btnSize + btnBorder, 20, "►"));
-		buttonList.add(sectorUp = new GuiButton(2, viewLeft - (int)((btnSize + btnBorder) * 1.5), (height / 2) - 20, btnSize + btnBorder, 20, "▲"));
-		buttonList.add(sectorDown = new GuiButton(3, viewLeft - (int)((btnSize + btnBorder) * 1.5), (height / 2) + 20, btnSize + btnBorder, 20, "▼"));
+		buttonList.add(sectorLeft = new GuiButton(nextID(), viewLeft - (btnSize + btnBorder) * 2, height / 2, btnSize + btnBorder, 20, "◄"));
+		buttonList.add(sectorRight = new GuiButton(nextID(), viewLeft - (btnSize + btnBorder), height / 2, btnSize + btnBorder, 20, "►"));
+		buttonList.add(sectorUp = new GuiButton(nextID(), viewLeft - (int)((btnSize + btnBorder) * 1.5), (height / 2) - 20, btnSize + btnBorder, 20, "▲"));
+		buttonList.add(sectorDown = new GuiButton(nextID(), viewLeft - (int)((btnSize + btnBorder) * 1.5), (height / 2) + 20, btnSize + btnBorder, 20, "▼"));
 
 		btnSize = fontRenderer.getStringWidth("Zoom Out");
-		buttonList.add(zoomOut = new GuiButton(4, viewLeft - (btnSize + btnBorder), (height / 2) - 40, btnSize + btnBorder, 20, "Zoom Out"));
+		buttonList.add(zoomOut = new GuiButton(nextID(), viewLeft - (btnSize + btnBorder), (height / 2) + 40, btnSize + btnBorder, 20, "Zoom Out"));
 
+		btnSize = fontRenderer.getStringWidth("Home");
+		buttonList.add(home = new GuiButton(nextID(), viewLeft - (btnSize + btnBorder), (height / 2) - 40, btnSize + btnBorder, 20, "Home"));
+
+		btnSize = fontRenderer.getStringWidth("Go");
+		buttonList.add(sectorGo = new GuiButton(nextID(), viewLeft - (btnSize + btnBorder), viewTop + 10, btnSize + btnBorder, 20, "Go"));
 		int txtSize = fontRenderer.getStringWidth("-100, -100");
-		sectorText = new GuiTextField(5, fontRenderer, viewLeft - (txtSize + btnBorder), viewTop + 10, txtSize, 20);
+		sectorText = new GuiTextField(nextID(), fontRenderer, viewLeft - (txtSize + (int)(btnBorder*1.5) + btnSize), viewTop + 10, txtSize, 20);
 		sectorText.setMaxStringLength(30);
-		sectorText.setCanLoseFocus(true);
+		//sectorText.setCanLoseFocus(true);
 
+
+		// To handle when the GUI is resized, everything is cleared so need to be re-initialized
+		if(viewSector != null)
+			sectorText.setText(viewSector.getX() + ", " + viewSector.getY());
+		else if(galaxy != null)
+			sectorText.setText(galaxy.getSector().getX() + ", " + galaxy.getSector().getY());
 
 	}
 
@@ -168,6 +203,24 @@ public class TerminalGui extends GuiScreen
 		{
 			PacketHandler.INSTANCE.sendToServer(new PacketRequestTerminalData(new Vector2i(viewSector.getX(), viewSector.getY() - 1)));
 		}
+		if(button == sectorGo)
+		{
+			String[] input = sectorText.getText().split(",");
+			Vector2i newSector = viewSector; // Just to make sure we have a value
+			if(input.length == 2)
+			{
+				try
+				{
+					newSector = new Vector2i(Integer.parseInt(input[0].trim()), Integer.parseInt(input[1].trim()));
+				} catch (Exception e){
+				}
+			}
+			PacketHandler.INSTANCE.sendToServer(new PacketRequestTerminalData(newSector));
+		}
+		if(button == home)
+		{
+			PacketHandler.INSTANCE.sendToServer(new PacketRequestTerminalData(galaxy.getSector()));
+		}
 
 	}
 
@@ -185,7 +238,8 @@ public class TerminalGui extends GuiScreen
 		}
 		catch(IOException e) {		}
 
-		sectorText.textboxKeyTyped(typedChar, keyCode);
+		if(sectorText.isFocused())
+			sectorText.textboxKeyTyped(typedChar, keyCode);
 	}
 
 	/**
@@ -237,6 +291,8 @@ public class TerminalGui extends GuiScreen
 	{
 		this.viewSector = viewSector;
 	}
+
+	private static int nextID() { return ID++; }
 
 
 	@Override

@@ -73,8 +73,6 @@ public class PacketSendTerminalData implements IMessage
 			sector = galaxy.getSectorList(sectorToSend);
 		}
 
-		System.out.println("Get systems in sector " + galaxy.getSector().toString());
-
 		buf.writeInt(sector.size());
 		for(int i = 0; i < sector.size(); ++i)
 		{
