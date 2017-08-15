@@ -5,6 +5,7 @@ import elec0.megastructures.Megastructures;
 import elec0.megastructures.general.Vector2i;
 import elec0.megastructures.network.PacketHandler;
 import elec0.megastructures.network.PacketRequestTerminalData;
+import elec0.megastructures.universe.Celestial;
 import elec0.megastructures.universe.Galaxy;
 import elec0.megastructures.universe.Location;
 import elec0.megastructures.universe.SolarSystem;
@@ -12,6 +13,7 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.util.ResourceLocation;
+import org.lwjgl.opengl.GL11;
 
 import java.io.IOException;
 import java.util.List;
@@ -23,7 +25,7 @@ public class TerminalGui extends GuiScreen
 	private Galaxy galaxy;
 	private int zoom = 0; // 0 = galaxy overview, 1 = solar system overview, 2 = planet overview
 	private int left, right, top, bottom;
-	private int viewLeft, viewRight, viewTop, viewBottom, squareSize, viewSubsectors;
+	private int viewLeft, viewRight, viewTop, viewBottom, squareSize, viewSubsectors, viewSubsystems;
 	private Vector2i viewSector;
 	private Location viewLocation;
 
@@ -84,6 +86,7 @@ public class TerminalGui extends GuiScreen
 		viewRight = viewLeft + squareSize - BORDER_VIEW;
 		viewBottom = viewTop + squareSize - BORDER_VIEW;
 		viewSubsectors = squareSize / Location.SUBSECTORS;
+		viewSubsystems = squareSize / Location.SUBSYSTEMS;
 	}
 
 	/***
@@ -105,16 +108,16 @@ public class TerminalGui extends GuiScreen
 
 		drawRect(viewLeft, viewTop, viewRight, viewBottom, 0xFF000000);
 
-		// Draw sector grid
-		for(int i = 0; i < Location.SUBSECTORS + 1; ++i)
-		{
-			drawHorizontalLine(viewLeft, viewRight, viewTop + i * viewSubsectors, 0xFFFFFFFF);
-			drawVerticalLine(viewLeft + i * viewSubsectors, viewTop, viewBottom, 0xFFFFFFFF);
-		}
-
 		switch(zoom)
 		{
 			case 0: // Sector view
+				// Draw sector grid
+				for(int i = 0; i < Location.SUBSECTORS + 1; ++i)
+				{
+					drawHorizontalLine(viewLeft, viewRight, viewTop + i * viewSubsectors, 0xFFFFFFFF);
+					drawVerticalLine(viewLeft + i * viewSubsectors, viewTop, viewBottom, 0xFFFFFFFF);
+				}
+
 				List<SolarSystem> sector = galaxy.getSectorList(viewSector);
 				for(int i = 0; i < sector.size(); ++i)
 				{
@@ -126,7 +129,24 @@ public class TerminalGui extends GuiScreen
 				break;
 
 			case 1: // System view
+				// Draw system grid
+				for(int i = 0; i < Location.SUBSYSTEMS + 1; ++i)
+				{
+					drawHorizontalLine(viewLeft, viewRight, viewTop + i * viewSubsystems, 0xFFFFFFFF);
+					drawVerticalLine(viewLeft + i * viewSubsystems, viewTop, viewBottom, 0xFFFFFFFF);
+				}
 
+				List<Celestial> system = ((SolarSystem) viewLocation).getCelestials();
+				for(int i = 0; i < system.size(); ++i)
+				{
+					Celestial c = system.get(i);
+					Vector2i subsystem = Location.positionToSubsystem(c.getPosition());
+					
+					GL11.glPushMatrix();
+					GL11.glScalef(0.7f, 0.7f, 0.7f);
+					fontRenderer.drawString("C", viewLeft + subsystem.getX() * viewSubsystems + 2, viewTop + subsystem.getY() * viewSubsystems + 1, 0xFF0000);
+					GL11.glPopMatrix();
+				}
 				break;
 
 			case 2: // Planet view
@@ -148,12 +168,10 @@ public class TerminalGui extends GuiScreen
 		{
 			Vector2i mouseSub = mouseToSubsector(mouseX, mouseY);
 
-			// Make sure the calculated subsector actually makes sense
-			if(mouseSub.getX() >= 0 && mouseSub.getX() < Location.SUBSECTORS && mouseSub.getY() >= 0 && mouseSub.getY() < Location.SUBSECTORS)
-			{
-				if(zoom == 0)
-					drawSystemInfo(mouseSub.getX(), mouseSub.getY());
-			}
+			if(zoom == 0)
+				drawSystemInfo(mouseSub.getX(), mouseSub.getY());
+			else if(zoom == 1)
+				drawCelestialInfo(mouseSub.getX(), mouseSub.getY());
 		}
 	}
 
@@ -173,6 +191,27 @@ public class TerminalGui extends GuiScreen
 		{
 			drawRect(left, top, left + INFO_WIDTH + PAD_LEFT, top + INFO_HEIGHT + PAD_TOP, 0xBA9B9B9B);
 			fontRenderer.drawSplitString(sys.getName() + " " + Location.positionToSubsector(sys.getPosition()), left + PAD_LEFT, top + PAD_TOP, INFO_WIDTH,0x000000);
+
+		}
+	}
+
+	/**
+	 * Draw the rectangle that shows celestial information in the solar system view
+	 * @param subX
+	 * @param subY
+	 */
+	private void drawCelestialInfo(int subX, int subY)
+	{
+		// Keep same sizing as on system map (INFOs)
+		// 4 squares width, 2 squares hieght
+		int INFO_WIDTH = 4 * viewSubsectors, INFO_HEIGHT = 2 * viewSubsectors, PAD_LEFT = 2, PAD_TOP = 2;
+		int left = viewLeft + subX * viewSubsystems + PAD_LEFT, top = viewTop + subY * viewSubsystems + PAD_TOP;
+
+		Celestial cel = getCelestialSubsystem(subX, subY);
+		if(cel != null)
+		{
+			drawRect(left, top, left + INFO_WIDTH + PAD_LEFT, top + INFO_HEIGHT + PAD_TOP, 0xBA9B9B9B);
+			fontRenderer.drawSplitString(cel.getName() + " " + Location.positionToSubsystem(cel.getPosition()), left + PAD_LEFT, top + PAD_TOP, INFO_WIDTH,0x000000);
 
 		}
 	}
@@ -310,7 +349,9 @@ public class TerminalGui extends GuiScreen
 				SolarSystem sys = getSystemSubsector(viewSector, mouseSub.getX(), mouseSub.getY());
 				if(sys != null)
 				{
+					// We've clicked on a solar system, so set the viewLocation to that system
 					viewLocation = sys;
+					// Change our zoom level to the system level
 					zoom = 1;
 				}
 			}
@@ -382,6 +423,29 @@ public class TerminalGui extends GuiScreen
 
 		return null;
 	}
+
+	/**
+	 * Given the subsystem x & y, return the celestial at that subsystem location
+	 * Returns null if there is no celestial at that location
+	 * @param subX
+	 * @param subY
+	 * @return
+	 */
+	public Celestial getCelestialSubsystem(int subX, int subY)
+	{
+		List<Celestial> list = ((SolarSystem) viewLocation).getCelestials();
+		for(int i = 0; i < list.size(); ++i)
+		{
+			Vector2i subsystem = Location.positionToSubsystem(list.get(i).getPosition());
+			if(subsystem.getX() == subX && subsystem.getY() == subY)
+			{
+				return list.get(i);
+			}
+		}
+
+		return null;
+	}
+
 	/**
 	 * Calculate the subsector square the mouse is in
 	 * @param mouseX
@@ -390,6 +454,11 @@ public class TerminalGui extends GuiScreen
 	 */
 	private Vector2i mouseToSubsector(int mouseX, int mouseY)
 	{
-		return new Vector2i((mouseX - viewLeft) / viewSubsectors, (mouseY - viewTop) / viewSubsectors);
+		if(zoom == 0)
+			return new Vector2i((mouseX - viewLeft) / viewSubsectors, (mouseY - viewTop) / viewSubsectors);
+		else if(zoom == 1) // Gotta handle different size grids
+			return new Vector2i((mouseX - viewLeft) / viewSubsystems, (mouseY - viewTop) / viewSubsystems);
+		else
+			return null;
 	}
 }

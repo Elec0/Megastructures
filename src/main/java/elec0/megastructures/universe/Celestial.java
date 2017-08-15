@@ -5,8 +5,11 @@ import elec0.megastructures.general.Vector2l;
 
 public class Celestial extends Location
 {
-	private double mass, radius; // In SI units. Duh.
-	private Vector2l pos; // Position of the celestial in a solar system
+	// Celestial type IDs
+	public static final int PLANET = -1;
+	public static final int STAR = -2;
+
+	private double mass, radius; // Mass in SI, radius in subsystem squares?
 	private Vector2l periapsisPos, apoapsisPos; // Not used yet, but eventually we will plot a path through these two points
 
 	public Celestial() { super(); };
@@ -16,15 +19,6 @@ public class Celestial extends Location
 	public void generate()
 	{
 
-	}
-
-	public Vector2l getPos()
-	{
-		return pos;
-	}
-	public void setPos(Vector2l pos)
-	{
-		this.pos = pos;
 	}
 
 	public double getMass()

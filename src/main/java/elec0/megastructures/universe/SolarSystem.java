@@ -32,19 +32,16 @@ public class SolarSystem extends Location
 				able to build things on the planets and such. We already have to deal with those dimensions accessing dimension 0's network.
 		 */
 
-		Planet overworld = new Planet(seed);
-		overworld.isOverworld = true;
-		overworld.generate();
-		overworld.setPos(new Vector2l(152000000, 0));
-		overSystem.addCelestial(overworld);
-
 		Star sol = new Star(seed);
-		// Don't need to set the pos, because sol is at the center of our solar system
 		sol.setName("Sol");
+		sol.setPosition(new Vector2l((Location.SUBSYSTEMS / 2) * Location.SUBSYSTEM_SIZE, (Location.SUBSYSTEMS / 2) * Location.SUBSYSTEM_SIZE)); // Put the sun in the middle of the system
 		sol.setMass(1.988e30);
 		sol.setRadius(696000);
 		overSystem.addCelestial(sol);
 
+		Planet overworld = Planet.generateOverworld(overSystem.getRand().nextLong());
+		overworld.setPosition(new Vector2l(sol.getPosition().getX() - (4 * Location.SUBSYSTEM_SIZE), sol.getPosition().getY()));
+		overSystem.addCelestial(overworld);
 
 		return overSystem;
 	}
