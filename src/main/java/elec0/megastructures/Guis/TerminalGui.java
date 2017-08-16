@@ -141,11 +141,8 @@ public class TerminalGui extends GuiScreen
 				{
 					Celestial c = system.get(i);
 					Vector2i subsystem = Location.positionToSubsystem(c.getPosition());
-					
-					GL11.glPushMatrix();
-					GL11.glScalef(0.7f, 0.7f, 0.7f);
+
 					fontRenderer.drawString("C", viewLeft + subsystem.getX() * viewSubsystems + 2, viewTop + subsystem.getY() * viewSubsystems + 1, 0xFF0000);
-					GL11.glPopMatrix();
 				}
 				break;
 
