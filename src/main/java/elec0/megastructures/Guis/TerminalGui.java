@@ -124,7 +124,11 @@ public class TerminalGui extends GuiScreen
 					SolarSystem s = sector.get(i);
 					Vector2i subsector = Location.positionToSubsector(s.getPosition());
 
-					fontRenderer.drawString("SS", viewLeft + subsector.getX() * viewSubsectors + 3, viewTop + subsector.getY() * viewSubsectors + 5, 0xFF0000);
+					GL11.glPushMatrix();
+					GL11.glTranslated(viewLeft + subsector.getX() * viewSubsectors, viewTop + subsector.getY() * viewSubsectors, 0);
+					//fontRenderer.drawString("SS", 0, 0, 0xFF0000);
+					GuiDrawing.drawSystem(this, s, viewSubsectors);
+					GL11.glPopMatrix();
 				}
 				break;
 
@@ -142,7 +146,10 @@ public class TerminalGui extends GuiScreen
 					Celestial c = system.get(i);
 					Vector2i subsystem = Location.positionToSubsystem(c.getPosition());
 
-					fontRenderer.drawString("C", viewLeft + subsystem.getX() * viewSubsystems + 2, viewTop + subsystem.getY() * viewSubsystems + 1, 0xFF0000);
+					GL11.glPushMatrix();
+					GL11.glTranslated(viewLeft + subsystem.getX() * viewSubsystems, viewTop + subsystem.getY() * viewSubsystems, 0);
+					fontRenderer.drawString("C", 0, 0, 0xFF0000);
+					GL11.glPopMatrix();
 				}
 				break;
 
