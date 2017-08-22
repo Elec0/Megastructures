@@ -19,6 +19,10 @@ public class Planet extends Celestial
 	@Override
 	public void generate()
 	{
+		// Generate ore distributions, other stuff about the planet, etc
+
+
+		// Generate satellites, if any
 
 	}
 

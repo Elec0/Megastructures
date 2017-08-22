@@ -21,9 +21,10 @@ public class GuiDrawing
 		g2d.fill(new Ellipse2D.Float(0, 0, 32, 32));
 		g2d.dispose();
 
-		bindTexture(image);
+		//bindTexture(image);
 
-		screen.drawTexturedModalRect(0, 0, 0, 0, squareSize, squareSize);
+		//screen.drawTexturedModalRect(0, 0, 0, 0, squareSize, squareSize);
+		screen.drawRect(2, 2, squareSize-2, squareSize-2, 0xFFFF0000);
 
 	}
 

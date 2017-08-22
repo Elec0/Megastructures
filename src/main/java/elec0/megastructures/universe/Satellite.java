@@ -10,6 +10,6 @@ public class Satellite extends Planet
     @Override
     public void generate()
     {
-
+        // Generate ore distributions/other attributes
     }
 }

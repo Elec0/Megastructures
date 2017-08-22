@@ -5,10 +5,7 @@ import elec0.megastructures.Megastructures;
 import elec0.megastructures.general.Vector2i;
 import elec0.megastructures.network.PacketHandler;
 import elec0.megastructures.network.PacketRequestTerminalData;
-import elec0.megastructures.universe.Celestial;
-import elec0.megastructures.universe.Galaxy;
-import elec0.megastructures.universe.Location;
-import elec0.megastructures.universe.SolarSystem;
+import elec0.megastructures.universe.*;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
@@ -146,8 +143,12 @@ public class TerminalGui extends GuiScreen
 					Vector2i subsystem = Location.positionToSubsystem(c.getPosition());
 
 					GL11.glPushMatrix();
-					GL11.glTranslated(viewLeft + subsystem.getX() * viewSubsystems, viewTop + subsystem.getY() * viewSubsystems, 0);
-					fontRenderer.drawString("C", 0, 0, 0xFF0000);
+					GL11.glTranslated(viewLeft + subsystem.getX() * viewSubsystems + 2, viewTop + subsystem.getY() * viewSubsystems + 1, 0);
+					if(c instanceof Planet)
+						fontRenderer.drawString("P", 0, 0, 0xFF0000);
+					else if(c instanceof Star)
+						fontRenderer.drawString("S", 0, 0, 0xFF0000);
+
 					GL11.glPopMatrix();
 				}
 				break;
