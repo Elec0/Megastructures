@@ -97,7 +97,6 @@ public class TerminalGui extends GuiScreen
 		drawRect(left - BORDER_SIZE, top - BORDER_SIZE, right + BORDER_SIZE, bottom + BORDER_SIZE, 0xFFFFFFFF); // White
 		drawRect(left, top, right + BORDER_SIZE, bottom + BORDER_SIZE, 0xFF000000); // Black
 		drawRect(left, top, right, bottom,0xFFC6C6C6); // Default MC background
-
 	}
 
 	/**
