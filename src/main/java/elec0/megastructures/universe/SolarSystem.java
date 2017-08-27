@@ -78,7 +78,7 @@ public class SolarSystem extends Location
 				int distCenter = getRand().nextInt(Location.SYSTEM_SIZE); // Distance from the center of the system the planet will be
 				double percX = getRand().nextDouble(); // Percentage of distance from center is in the X direction
 				double percY = 1 - percX; // Same as X but for Y, and is left over distance
-				if(getRand().nextDouble() > 0.5) // Flip X/Y in half the cases
+				if(getRand().nextDouble() > 0.5) // Flip X/Y in half the cases // TODO: this doesn't seem actually random. Seems weighted to upper-left quadrant
 					percX *= -1;
 				if(getRand().nextDouble() > 0.5)
 					percY *= -1;

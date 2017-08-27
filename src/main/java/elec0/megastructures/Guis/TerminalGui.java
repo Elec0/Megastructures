@@ -17,7 +17,7 @@ import java.util.List;
 
 public class TerminalGui extends GuiScreen
 {
-	private GuiButton sectorLeft, sectorRight, sectorUp, sectorDown, zoomOut, home, sectorGo;
+	private GuiButton sectorLeft, sectorRight, sectorUp, sectorDown, zoomOut, home, sectorGo, toggleGrid;
 	private GuiTextField sectorText;
 	private Galaxy galaxy;
 	private int zoom = 0; // 0 = galaxy overview, 1 = solar system overview, 2 = planet overview
@@ -25,6 +25,7 @@ public class TerminalGui extends GuiScreen
 	private int viewLeft, viewRight, viewTop, viewBottom, squareSize, viewSubsectors, viewSubsystems;
 	private Vector2i viewSector;
 	private Location viewLocation;
+	private boolean displayGrid = true;
 
 	private static final ResourceLocation background = new ResourceLocation(Megastructures.MODID, "textures/gui/terminal.png");
 	private static final int w = 320, h = 150;
@@ -107,11 +108,14 @@ public class TerminalGui extends GuiScreen
 		switch(zoom)
 		{
 			case 0: // Sector view
-				// Draw sector grid
-				for(int i = 0; i < Location.SUBSECTORS + 1; ++i)
+				if(displayGrid)
 				{
-					drawHorizontalLine(viewLeft, viewRight, viewTop + i * viewSubsectors, 0xFFFFFFFF);
-					drawVerticalLine(viewLeft + i * viewSubsectors, viewTop, viewBottom, 0xFFFFFFFF);
+					// Draw sector grid
+					for (int i = 0; i < Location.SUBSECTORS + 1; ++i)
+					{
+						drawHorizontalLine(viewLeft, viewRight, viewTop + i * viewSubsectors, 0xFFFFFFFF);
+						drawVerticalLine(viewLeft + i * viewSubsectors, viewTop, viewBottom, 0xFFFFFFFF);
+					}
 				}
 
 				List<SolarSystem> sector = galaxy.getSectorList(viewSector);
@@ -129,11 +133,14 @@ public class TerminalGui extends GuiScreen
 				break;
 
 			case 1: // System view
-				// Draw system grid
-				for(int i = 0; i < Location.SUBSYSTEMS + 1; ++i)
+				if(displayGrid)
 				{
-					drawHorizontalLine(viewLeft, viewRight, viewTop + i * viewSubsystems, 0xFFFFFFFF);
-					drawVerticalLine(viewLeft + i * viewSubsystems, viewTop, viewBottom, 0xFFFFFFFF);
+					// Draw system grid
+					for (int i = 0; i < Location.SUBSYSTEMS + 1; ++i)
+					{
+						drawHorizontalLine(viewLeft, viewRight, viewTop + i * viewSubsystems, 0xFFFFFFFF);
+						drawVerticalLine(viewLeft + i * viewSubsystems, viewTop, viewBottom, 0xFFFFFFFF);
+					}
 				}
 
 				List<Celestial> system = ((SolarSystem) viewLocation).getCelestials();
@@ -167,9 +174,11 @@ public class TerminalGui extends GuiScreen
 	 */
 	private void handleMouse(int mouseX, int mouseY)
 	{
+		// Determine if the mouse is in the viewport
 		boolean inView = (mouseX > viewLeft && mouseX < viewRight) && (mouseY > viewTop && mouseY < viewBottom);
 		if(inView)
 		{
+			// If so, turn the mouse location to a subsector and display the relevant information
 			Vector2i mouseSub = mouseToSubsector(mouseX, mouseY);
 
 			if(zoom == 0)
@@ -229,21 +238,26 @@ public class TerminalGui extends GuiScreen
 	public void initGui()
 	{
 		calcBounds();
-		int btnBorder = 6;
+		int btnBorder = 6, btnHeight = 20;
 		int btnSize = fontRenderer.getStringWidth("<-") + 4;
-		buttonList.add(sectorLeft = new GuiButton(nextID(), viewLeft - (btnSize + btnBorder) * 2, height / 2, btnSize + btnBorder, 20, "◄"));
-		buttonList.add(sectorRight = new GuiButton(nextID(), viewLeft - (btnSize + btnBorder), height / 2, btnSize + btnBorder, 20, "►"));
-		buttonList.add(sectorUp = new GuiButton(nextID(), viewLeft - (int)((btnSize + btnBorder) * 1.5), (height / 2) - 20, btnSize + btnBorder, 20, "▲"));
-		buttonList.add(sectorDown = new GuiButton(nextID(), viewLeft - (int)((btnSize + btnBorder) * 1.5), (height / 2) + 20, btnSize + btnBorder, 20, "▼"));
+		buttonList.add(sectorLeft = new GuiButton(nextID(), viewLeft - (btnSize + btnBorder) * 2, height / 2, btnSize + btnBorder, btnHeight, "◄"));
+		buttonList.add(sectorRight = new GuiButton(nextID(), viewLeft - (btnSize + btnBorder), height / 2, btnSize + btnBorder, btnHeight, "►"));
+		buttonList.add(sectorUp = new GuiButton(nextID(), viewLeft - (int)((btnSize + btnBorder) * 1.5), (height / 2) - 20, btnSize + btnBorder, btnHeight, "▲"));
+		buttonList.add(sectorDown = new GuiButton(nextID(), viewLeft - (int)((btnSize + btnBorder) * 1.5), (height / 2) + 20, btnSize + btnBorder, btnHeight, "▼"));
 
 		btnSize = fontRenderer.getStringWidth("Zoom Out");
-		buttonList.add(zoomOut = new GuiButton(nextID(), viewLeft - (btnSize + btnBorder), (height / 2) + 40, btnSize + btnBorder, 20, "Zoom Out"));
+		buttonList.add(zoomOut = new GuiButton(nextID(), viewLeft - (btnSize + btnBorder), (height / 2) + btnHeight * 2, btnSize + btnBorder, btnHeight, "Zoom Out"));
 
 		btnSize = fontRenderer.getStringWidth("Home");
-		buttonList.add(home = new GuiButton(nextID(), viewLeft - (btnSize + btnBorder) - 7, (height / 2) - 40, btnSize + btnBorder, 20, "Home"));
+		buttonList.add(home = new GuiButton(nextID(), viewLeft - (btnSize + btnBorder) - 7, (height / 2) - btnHeight * 2, btnSize + btnBorder, btnHeight, "Home"));
+
+		btnSize = fontRenderer.getStringWidth("Toggle Grid");
+		buttonList.add(toggleGrid = new GuiButton(nextID(), viewLeft - (btnSize + btnBorder), (height / 2) + btnHeight * 3, btnSize + btnBorder, btnHeight, "Toggle Grid"));
+
 
 		btnSize = fontRenderer.getStringWidth("Go");
-		buttonList.add(sectorGo = new GuiButton(nextID(), viewLeft - (btnSize + btnBorder), viewTop + 10, btnSize + btnBorder, 20, "Go"));
+		buttonList.add(sectorGo = new GuiButton(nextID(), viewLeft - (btnSize + btnBorder), viewTop + 10, btnSize + btnBorder, btnHeight, "Go"));
+
 		int txtSize = fontRenderer.getStringWidth("-100, -100");
 		sectorText = new GuiTextField(nextID(), fontRenderer, viewLeft - (txtSize + (int)(btnBorder*1.5) + btnSize), viewTop + 10, txtSize, 20);
 		sectorText.setMaxStringLength(30);
@@ -305,6 +319,10 @@ public class TerminalGui extends GuiScreen
 		{
 			if(zoom > 0)
 				zoom -= 1;
+		}
+		if(button == toggleGrid)
+		{
+			displayGrid = !displayGrid;
 		}
 
 	}
