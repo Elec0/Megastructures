@@ -50,7 +50,11 @@ public class SolarSystem extends Location
 	public void generate()
 	{
 		Vector2l center = new Vector2l((Location.SUBSYSTEMS / 2) * Location.SUBSYSTEM_SIZE, (Location.SUBSYSTEMS / 2) * Location.SUBSYSTEM_SIZE);
-		int MAX_SUNS = 1, MAX_CELESTIALS = 20;
+		int MAX_SUNS = 1, MAX_CELESTIALS = getRand().nextInt(20) + 2;
+		// The system is a square, which means the max distance from the center to the corners is a right triangle
+		//  this can put some celestials outside the system, so we need to test the edges and make sure they aren't exceeded.
+		//int maxCenterDist = (int)Math.sqrt(Math.pow(Location.SYSTEM_SIZE/2, Location.SYSTEM_SIZE/2));
+		int maxCenterDist = 5000; // The edge testing needs to be added
 
 		// Generate gravatitional centers of the system
 		int suns = getRand().nextInt(MAX_SUNS);
@@ -75,14 +79,19 @@ public class SolarSystem extends Location
 			do
 			{
 				canAdd = true;
-				int distCenter = getRand().nextInt(Location.SYSTEM_SIZE); // Distance from the center of the system the planet will be
+				int distCenter = getRand().nextInt(maxCenterDist); // Distance from the center of the system the planet will be
 				double percX = getRand().nextDouble(); // Percentage of distance from center is in the X direction
 				double percY = 1 - percX; // Same as X but for Y, and is left over distance
-				if(getRand().nextDouble() > 0.5) // Flip X/Y in half the cases // TODO: this doesn't seem actually random. Seems weighted to upper-left quadrant
+				if(getRand().nextDouble() > 0.5) // Flip X/Y in half the cases
 					percX *= -1;
 				if(getRand().nextDouble() > 0.5)
 					percY *= -1;
-				p.setPosition(new Vector2l((long) (distCenter * percX), (long) (distCenter * percY)));
+
+				// Difference in position from the center of the system
+				Vector2l posDiff = new Vector2l((long) (distCenter * percX), (long) (distCenter * percY));
+				p.setPosition(new Vector2l(center.getX() + posDiff.getX(), center.getY() + posDiff.getY()));
+
+
 
 				// Check and make sure no other planet shares this location
 				for(Celestial cel : getCelestials())
