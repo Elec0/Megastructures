@@ -1,10 +1,6 @@
 package elec0.megastructures;
 
-import elec0.megastructures.blocks.ModBlocks;
-import elec0.megastructures.items.ModItems;
 import elec0.megastructures.proxy.CommonProxy;
-import net.minecraftforge.client.model.ModelLoaderRegistry;
-import net.minecraftforge.client.model.obj.OBJLoader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -50,7 +46,8 @@ public class Megastructures
 	{
         //event.registerServerCommand(new SimplyPowersCommand());
     }
-	
+
+    // TODO: Move this to their own files
 	public static class ClientProxy extends CommonProxy
 	{
 		@Override 
