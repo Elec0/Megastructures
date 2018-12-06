@@ -12,7 +12,7 @@ import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 
-@Mod(modid = Megastructures.MODID, name = Megastructures.MODNAME, version =  Megastructures.MODVERSION, dependencies = "required-after:forge@[13.19.1.2197,)", useMetadata = true)
+@Mod(modid = Megastructures.MODID, name = Megastructures.MODNAME, version =  Megastructures.MODVERSION, dependencies = "required-after:forge@[14.19.1.2197,)", useMetadata = true)
 public class Megastructures
 {
 	public static final String MODID = "megastructures";

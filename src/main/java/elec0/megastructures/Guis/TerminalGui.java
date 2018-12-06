@@ -180,53 +180,45 @@ public class TerminalGui extends GuiScreen
 		{
 			// If so, turn the mouse location to a subsector and display the relevant information
 			Vector2i mouseSub = mouseToSubsector(mouseX, mouseY);
-
-			if(zoom == 0)
-				drawSystemInfo(mouseSub.getX(), mouseSub.getY());
-			else if(zoom == 1)
-				drawCelestialInfo(mouseSub.getX(), mouseSub.getY());
+			drawInfo(zoom, mouseSub.getX(), mouseSub.getY());
 		}
 	}
 
 	/**
-	 * Draw the rectangle that shows solar system information in the sector view
+	 * Draw the rectangle that shows celestial information in the sector/solar system/planet view
+	 * @param zoom
 	 * @param subX
 	 * @param subY
 	 */
-	private void drawSystemInfo(int subX, int subY)
-	{
-		// 4 squares width, 2 squares hieght
-		int INFO_WIDTH = 4 * viewSubsectors, INFO_HEIGHT = 2 * viewSubsectors, PAD_LEFT = 2, PAD_TOP = 2;
-		int left = viewLeft + subX * viewSubsectors + PAD_LEFT, top = viewTop + subY * viewSubsectors + PAD_TOP;
-
-		SolarSystem sys = getSystemSubsector(viewSector, subX, subY);
-		if(sys != null)
-		{
-			drawRect(left, top, left + INFO_WIDTH + PAD_LEFT, top + INFO_HEIGHT + PAD_TOP, 0xBA9B9B9B);
-			fontRenderer.drawSplitString(sys.getName() + " " + Location.positionToSubsector(sys.getPosition()), left + PAD_LEFT, top + PAD_TOP, INFO_WIDTH,0x000000);
-
-		}
-	}
-
-	/**
-	 * Draw the rectangle that shows celestial information in the solar system view
-	 * @param subX
-	 * @param subY
-	 */
-	private void drawCelestialInfo(int subX, int subY)
+	private void drawInfo(int zoom, int subX, int subY)
 	{
 		// Keep same sizing as on system map (INFOs)
 		// 4 squares width, 2 squares hieght
 		int INFO_WIDTH = 4 * viewSubsectors, INFO_HEIGHT = 2 * viewSubsectors, PAD_LEFT = 2, PAD_TOP = 2;
 		int left = viewLeft + subX * viewSubsystems + PAD_LEFT, top = viewTop + subY * viewSubsystems + PAD_TOP;
 
-		Celestial cel = getCelestialSubsystem(subX, subY);
-		if(cel != null)
+		Location loc = null;
+		Vector2i position = null;
+
+		if(zoom == 0) // Celestials
+		{
+			loc = getCelestialSubsystem(subX, subY);
+			position = Location.positionToSubsystem(loc.getPosition());
+		}
+		else if(zoom == 1) // Solar Systems
+		{
+			loc = getSystemSubsector(viewSector, subX, subY);
+			position = Location.positionToSubsector(loc.getPosition());
+		}
+		else if (zoom == 2) // Planets?
+		{}
+
+		if(loc != null)
 		{
 			drawRect(left, top, left + INFO_WIDTH + PAD_LEFT, top + INFO_HEIGHT + PAD_TOP, 0xBA9B9B9B);
-			fontRenderer.drawSplitString(cel.getName() + " " + Location.positionToSubsystem(cel.getPosition()), left + PAD_LEFT, top + PAD_TOP, INFO_WIDTH,0x000000);
-
+			fontRenderer.drawSplitString(loc.getName() + " " + position, left + PAD_LEFT, top + PAD_TOP, INFO_WIDTH,0x000000);
 		}
+
 	}
 
 
