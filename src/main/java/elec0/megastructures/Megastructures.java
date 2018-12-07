@@ -1,12 +1,16 @@
 package elec0.megastructures;
 
 import elec0.megastructures.proxy.CommonProxy;
+import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 @Mod(modid = Megastructures.MODID, name = Megastructures.MODNAME, version =  Megastructures.MODVERSION, dependencies = "required-after:forge@[14.19.1.2197,)", useMetadata = true)
 public class Megastructures
@@ -16,13 +20,18 @@ public class Megastructures
 	public static final String MODVERSION = "0.0.1";
 
 
-	@SidedProxy
+	@SidedProxy(clientSide = "elec0.megastructures.proxy.ClientProxy", serverSide = "elec0.megastructures.proxy.ServerProxy")
 	public static CommonProxy proxy;
 	
 	@Mod.Instance
-	public static Megastructures instance;	
-	
-	
+	public static Megastructures instance;
+
+	public static CreativeTabs creativeTab = new CreativeTabs("megastructures") {
+		public ItemStack getTabIconItem() {
+			return new ItemStack(ModBlocks.terminalBlock);
+		}
+	};
+
 	@Mod.EventHandler
 	public void preInit(FMLPreInitializationEvent event)
 	{
@@ -46,32 +55,5 @@ public class Megastructures
 	{
         //event.registerServerCommand(new SimplyPowersCommand());
     }
-
-    // TODO: Move this to their own files
-	public static class ClientProxy extends CommonProxy
-	{
-		@Override 
-		public void preInit(FMLPreInitializationEvent e)
-		{
-			super.preInit(e);
-		}
-		
-		@Override
-		public void init(FMLInitializationEvent e)
-		{
-			super.init(e);
-			
-			//MinecraftForge.EVENT_BUS.register(new InputHandler());
-		}
-	}
-	
-	public static class ServerProxy extends CommonProxy
-	{
-		@Override
-		public void init(FMLInitializationEvent e)
-		{
-			
-		}
-	}
 
 }

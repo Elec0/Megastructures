@@ -11,18 +11,19 @@ import net.minecraftforge.registries.IForgeRegistry;
 
 public class ModBlocks
 {
-	@GameRegistry.ObjectHolder(Megastructures.MODID + ":terminal")
+	@GameRegistry.ObjectHolder("megastructures:terminalblock")
 	public static TerminalBlock terminalBlock;
 
-	public static void register(IForgeRegistry<Block> registry)
-	{
-		registry.register(new TerminalBlock());
-		GameRegistry.registerTileEntity(TerminalTileEntity.class, new ResourceLocation(Megastructures.MODID, "terminalblock"));
-	}
 
 	@SideOnly(Side.CLIENT)
 	public static void initModels()
 	{
 		terminalBlock.initModel();
+	}
+
+	public static void register(IForgeRegistry<Block> registry)
+	{
+		registry.register(new TerminalBlock());
+		GameRegistry.registerTileEntity(TerminalTileEntity.class, new ResourceLocation(Megastructures.MODID, "_terminalblock"));
 	}
 }

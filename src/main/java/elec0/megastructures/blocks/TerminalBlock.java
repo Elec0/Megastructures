@@ -19,6 +19,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
@@ -29,12 +30,13 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class TerminalBlock extends BaseBlock implements ITileEntityProvider
 {
 
-	public TerminalBlock() 
+	public static final ResourceLocation TERMINAL_BLOCK = new ResourceLocation(Megastructures.MODID, "terminalblock");
+
+	public TerminalBlock()
 	{
 		super(Material.ROCK);
+		setRegistryName(TERMINAL_BLOCK);
 		setUnlocalizedName(Megastructures.MODID + ".terminalblock");
-		setCreativeTab(CreativeTabs.DECORATIONS);
-		setRegistryName("terminalblock");
 	}
 
 	@Override
@@ -43,7 +45,7 @@ public class TerminalBlock extends BaseBlock implements ITileEntityProvider
 		super.onBlockPlacedBy(world, pos, state, placer, stack);
 		if(!world.isRemote)
 		{
-			((TerminalTileEntity)getTE(world, pos)).setPlacer(placer.getUniqueID());
+			getTE(world, pos).setPlacer(placer.getUniqueID());
 		}
 	}
 
@@ -70,11 +72,6 @@ public class TerminalBlock extends BaseBlock implements ITileEntityProvider
 
 		// Return true on the client so MC doesn't try to place block
 		return true;
-	}
-
-	@SideOnly(Side.CLIENT)
-	public void initModel() {
-		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(this), 0, new ModelResourceLocation(getRegistryName(), "inventory"));
 	}
 
     @Override
