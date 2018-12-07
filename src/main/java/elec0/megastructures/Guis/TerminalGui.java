@@ -3,6 +3,7 @@ package elec0.megastructures.Guis;
 
 import elec0.megastructures.Megastructures;
 import elec0.megastructures.general.Vector2i;
+import elec0.megastructures.general.Vector2l;
 import elec0.megastructures.network.PacketHandler;
 import elec0.megastructures.network.PacketRequestTerminalData;
 import elec0.megastructures.universe.*;
@@ -199,26 +200,34 @@ public class TerminalGui extends GuiScreen
 
 		Location loc = null;
 		Vector2i position = null;
+		Vector2iInterface vecInt = null;
 
 		if(zoom == 0) // Celestials
 		{
-			loc = getCelestialSubsystem(subX, subY);
-			position = Location.positionToSubsystem(loc.getPosition());
+			loc = getSystemSubsector(viewSector, subX, subY);
+			// Functional programming, finally
+			vecInt = Location::positionToSubsector;
 		}
 		else if(zoom == 1) // Solar Systems
 		{
-			loc = getSystemSubsector(viewSector, subX, subY);
-			position = Location.positionToSubsector(loc.getPosition());
+			loc = getCelestialSubsystem(subX, subY);
+			vecInt = Location::positionToSubsystem;
 		}
 		else if (zoom == 2) // Planets?
 		{}
 
 		if(loc != null)
 		{
+			position = vecInt.position(loc.getPosition());
 			drawRect(left, top, left + INFO_WIDTH + PAD_LEFT, top + INFO_HEIGHT + PAD_TOP, 0xBA9B9B9B);
 			fontRenderer.drawSplitString(loc.getName() + " " + position, left + PAD_LEFT, top + PAD_TOP, INFO_WIDTH,0x000000);
 		}
 
+	}
+
+	@FunctionalInterface
+	public interface Vector2iInterface {
+		Vector2i position(Vector2l pos);
 	}
 
 
