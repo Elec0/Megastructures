@@ -29,6 +29,8 @@ public class CommonProxy
 		PacketHandler.registerMessages("megastructures");
 		OBJLoader.INSTANCE.addDomain(Megastructures.MODID);
 
+		System.out.println("Megastructures: preInit");
+
 		// Init entities and liquids
 	}
 
