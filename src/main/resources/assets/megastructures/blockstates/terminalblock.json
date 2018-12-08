@@ -3,13 +3,13 @@
   "defaults": {
     "model": "cube",
 	"textures": {
-		"particle": "megastructures:blocks/terminalblocktexture",
-		"down": "megastructures:blocks/terminalblocktexture",
-		"up": "megastructures:blocks/terminalblocktexture",
-		"east": "megastructures:blocks/terminalblocktexture",
-		"west": "megastructures:blocks/terminalblocktexture",
-		"north": "megastructures:blocks/terminalblocktexture",
-		"south": "megastructures:blocks/terminalblocktexture"
+		"particle": "megastructures:blocks/terminalblocktexture_north",
+		"down": "megastructures:blocks/terminalblocktexture_down",
+		"up": "megastructures:blocks/terminalblocktexture_up",
+		"east": "megastructures:blocks/terminalblocktexture_east",
+		"west": "megastructures:blocks/terminalblocktexture_west",
+		"north": "megastructures:blocks/terminalblocktexture_north",
+		"south": "megastructures:blocks/terminalblocktexture_south"
 	}
   },
   "variants": {
