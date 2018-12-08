@@ -63,4 +63,9 @@ public class Vector2i
 	{
 		return "[" + x + ", " + y + "]";
 	}
+
+	@FunctionalInterface
+	public interface Vector2iInterface {
+		Vector2i position(Vector2l pos);
+	}
 }

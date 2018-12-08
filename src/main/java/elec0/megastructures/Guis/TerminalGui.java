@@ -113,7 +113,6 @@ public class TerminalGui extends GuiScreen
 		switch(zoom)
 		{
 			case 0: // Sector view
-
 				List<SolarSystem> sector = galaxy.getSectorList(viewSector);
 				for(int i = 0; i < sector.size(); ++i)
 				{
@@ -205,7 +204,7 @@ public class TerminalGui extends GuiScreen
 
 		Location loc = null;
 		Vector2i position = null;
-		Vector2iInterface vecInt = null;
+		Vector2i.Vector2iInterface vecInt = null;
 
 		if(zoom == 0) // Celestials
 		{
@@ -218,7 +217,7 @@ public class TerminalGui extends GuiScreen
 			loc = getCelestialSubsystem(subX, subY);
 			vecInt = Location::positionToSubsystem;
 		}
-		else if (zoom == 2) // Planets?
+		else if (zoom == 2) // Planets
 		{}
 
 		if(loc != null)
@@ -229,12 +228,6 @@ public class TerminalGui extends GuiScreen
 		}
 
 	}
-
-	@FunctionalInterface
-	public interface Vector2iInterface {
-		Vector2i position(Vector2l pos);
-	}
-
 
 	/**
 	 * Adds the buttons (and other controls) to the screen in question. Called when the GUI is displayed and when the
@@ -278,6 +271,11 @@ public class TerminalGui extends GuiScreen
 
 	}
 
+	/**
+	 * Button clicking
+	 * @param button
+	 * @throws IOException
+	 */
 	@Override
 	protected void actionPerformed(GuiButton button) throws IOException
 	{
@@ -286,48 +284,40 @@ public class TerminalGui extends GuiScreen
 			if (mc.currentScreen == null)
 				mc.setIngameFocus();
 				*/
-		if (button == sectorLeft)
-		{
+
+		if (button == sectorLeft) {
 			PacketHandler.INSTANCE.sendToServer(new PacketRequestTerminalData(new Vector2i(viewSector.getX() - 1, viewSector.getY())));
 		}
-		if (button == sectorRight)
-		{
+		else if (button == sectorRight) {
 			PacketHandler.INSTANCE.sendToServer(new PacketRequestTerminalData(new Vector2i(viewSector.getX() + 1, viewSector.getY())));
 		}
-		if (button == sectorUp)
-		{
+		else if (button == sectorUp) {
 			PacketHandler.INSTANCE.sendToServer(new PacketRequestTerminalData(new Vector2i(viewSector.getX(), viewSector.getY() + 1)));
 		}
-		if (button == sectorDown)
-		{
+		else if (button == sectorDown) {
 			PacketHandler.INSTANCE.sendToServer(new PacketRequestTerminalData(new Vector2i(viewSector.getX(), viewSector.getY() - 1)));
 		}
-		if(button == sectorGo)
-		{
+		else if(button == sectorGo) {
 			String[] input = sectorText.getText().split(",");
 			Vector2i newSector = viewSector; // Just to make sure we have a value
 			if(input.length == 2)
 			{
-				try
-				{
+				try {
 					newSector = new Vector2i(Integer.parseInt(input[0].trim()), Integer.parseInt(input[1].trim()));
 					zoom = 0; // Switch back to sector view if they put in a sector, but not if the arrows are pushed
-				} catch (Exception e){
 				}
+				catch (Exception e) { }
 			}
 			PacketHandler.INSTANCE.sendToServer(new PacketRequestTerminalData(newSector));
 		}
-		if(button == home)
-		{
+		else if(button == home) {
 			PacketHandler.INSTANCE.sendToServer(new PacketRequestTerminalData(galaxy.getSector()));
 		}
-		if(button == zoomOut)
-		{
+		else if(button == zoomOut) {
 			if(zoom > 0)
 				zoom -= 1;
 		}
-		if(button == toggleGrid)
-		{
+		else if(button == toggleGrid) {
 			displayGrid = !displayGrid;
 		}
 
@@ -341,8 +331,7 @@ public class TerminalGui extends GuiScreen
 	@Override
 	protected void  keyTyped(char typedChar, int keyCode)
 	{
-		try
-		{
+		try {
 			super.keyTyped(typedChar, keyCode);
 		}
 		catch(IOException e) {		}
@@ -360,8 +349,7 @@ public class TerminalGui extends GuiScreen
 	@Override
 	protected void mouseClicked(int x, int y, int btn)
 	{
-		try
-		{
+		try {
 			super.mouseClicked(x, y, btn);
 		}
 		catch(IOException e) { }
@@ -430,7 +418,7 @@ public class TerminalGui extends GuiScreen
 	// ----------------- Utility Methods -----------------
 
 	/**
-	 * Given the sector and subsector x & y, return a system in that sector at the subsector location
+	 * Given the sector and subsector x & y, return the system in that sector at the subsector location
 	 * Returns null if there is no system at that location
 	 * @param sector
 	 * @param subX
