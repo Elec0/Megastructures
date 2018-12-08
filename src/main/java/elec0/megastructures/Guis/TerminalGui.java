@@ -106,18 +106,13 @@ public class TerminalGui extends GuiScreen
 
 		drawRect(viewLeft, viewTop, viewRight, viewBottom, 0xFF000000);
 
+		// Draw the grid, if it's enabled. Less duplicate code this way
+		int[] gridSize = new int[] {Location.SUBSECTORS, Location.SUBSYSTEMS, 0};
+		drawGrid(gridSize[zoom]);
+
 		switch(zoom)
 		{
 			case 0: // Sector view
-				if(displayGrid)
-				{
-					// Draw sector grid
-					for (int i = 0; i < Location.SUBSECTORS + 1; ++i)
-					{
-						drawHorizontalLine(viewLeft, viewRight, viewTop + i * viewSubsectors, 0xFFFFFFFF);
-						drawVerticalLine(viewLeft + i * viewSubsectors, viewTop, viewBottom, 0xFFFFFFFF);
-					}
-				}
 
 				List<SolarSystem> sector = galaxy.getSectorList(viewSector);
 				for(int i = 0; i < sector.size(); ++i)
@@ -134,16 +129,6 @@ public class TerminalGui extends GuiScreen
 				break;
 
 			case 1: // System view
-				if(displayGrid)
-				{
-					// Draw system grid
-					for (int i = 0; i < Location.SUBSYSTEMS + 1; ++i)
-					{
-						drawHorizontalLine(viewLeft, viewRight, viewTop + i * viewSubsystems, 0xFFFFFFFF);
-						drawVerticalLine(viewLeft + i * viewSubsystems, viewTop, viewBottom, 0xFFFFFFFF);
-					}
-				}
-
 				List<Celestial> system = ((SolarSystem) viewLocation).getCelestials();
 				for(int i = 0; i < system.size(); ++i)
 				{
@@ -169,6 +154,26 @@ public class TerminalGui extends GuiScreen
 		// Draw current sector location
 		//fontRenderer.drawString(viewSector.toString(), viewLeft - fontRenderer.getStringWidth(viewSector.toString()), viewTop + 20, 0x000000, false);
 	}
+
+	/**
+	 * Draw the grid, if it's enabled.
+	 * Subsustems for system
+	 * Subsectors for sector
+	 * @param numSquares
+	 */
+	private void drawGrid(int numSquares)
+	{
+		if(displayGrid)
+		{
+			// Draw system grid
+			for (int i = 0; i < numSquares + 1; ++i)
+			{
+				drawHorizontalLine(viewLeft, viewRight, viewTop + i * viewSubsystems, 0xFFFFFFFF);
+				drawVerticalLine(viewLeft + i * viewSubsystems, viewTop, viewBottom, 0xFFFFFFFF);
+			}
+		}
+	}
+
 
 	/**
 	 * Handles mouse events that aren't clicking
