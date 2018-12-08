@@ -113,7 +113,6 @@ public class PacketSendTerminalData implements IMessage
 		List<SolarSystem> sector = galaxy.getSectorList(sectorToSend);
 		if(sector == null)
 		{
-			System.out.println("SendData: generate sector " + sectorToSend);
 			// If the sector hasn't been generated yet, do that
 			galaxy.generate(sectorToSend);
 			sector = galaxy.getSectorList(sectorToSend);

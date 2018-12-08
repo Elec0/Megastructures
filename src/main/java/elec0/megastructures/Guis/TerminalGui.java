@@ -165,10 +165,12 @@ public class TerminalGui extends GuiScreen
 		if(displayGrid)
 		{
 			// Draw system grid
+			int viewNum = squareSize / numSquares;
+
 			for (int i = 0; i < numSquares + 1; ++i)
 			{
-				drawHorizontalLine(viewLeft, viewRight, viewTop + i * viewSubsystems, 0xFFFFFFFF);
-				drawVerticalLine(viewLeft + i * viewSubsystems, viewTop, viewBottom, 0xFFFFFFFF);
+				drawHorizontalLine(viewLeft, viewRight, viewTop + i * viewNum, 0xFFFFFFFF);
+				drawVerticalLine(viewLeft + i * viewNum, viewTop, viewBottom, 0xFFFFFFFF);
 			}
 		}
 	}
