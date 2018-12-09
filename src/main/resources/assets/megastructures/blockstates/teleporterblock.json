@@ -1,0 +1,27 @@
+{
+  "forge_marker": 1,
+  "defaults": {
+    "model": "cube",
+	"textures": {
+		"particle": "megastructures:blocks/teleporter/particle",
+		"down": "megastructures:blocks/teleporter/texture_down",
+		"up": "megastructures:blocks/teleporter/texture_up",
+		"east": "megastructures:blocks/teleporter/texture_east",
+		"west": "megastructures:blocks/teleporter/texture_west",
+		"north": "megastructures:blocks/teleporter/texture_north",
+		"south": "megastructures:blocks/teleporter/texture_south"
+	}
+  },
+  "variants": {
+    "normal": [{}],
+    "inventory": [{}],
+    "facing": {
+      "north": {},
+      "south": {"y": 180},
+      "west": {"y": 270},
+      "east": {"y": 90},
+      "up": {"x": -90},
+      "down": {"x": 90}
+    }
+  }
+}

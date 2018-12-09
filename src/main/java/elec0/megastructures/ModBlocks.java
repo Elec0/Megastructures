@@ -2,6 +2,8 @@ package elec0.megastructures;
 
 import elec0.megastructures.blocks.powertap.PowerTapBlock;
 import elec0.megastructures.blocks.powertap.PowerTapTileEntity;
+import elec0.megastructures.blocks.teleporter.TeleporterBlock;
+import elec0.megastructures.blocks.teleporter.TeleporterTileEntity;
 import elec0.megastructures.blocks.terminal.TerminalBlock;
 import elec0.megastructures.blocks.terminal.TerminalTileEntity;
 import net.minecraft.block.Block;
@@ -20,12 +22,15 @@ public class ModBlocks
 	@GameRegistry.ObjectHolder("megastructures:powertapblock")
 	public static PowerTapBlock powerTapBlock;
 
+	@GameRegistry.ObjectHolder("megastructures:teleporterblock")
+	public static TeleporterBlock teleporterBlock;
 
 	@SideOnly(Side.CLIENT)
 	public static void initModels()
 	{
 		terminalBlock.initModel();
 		powerTapBlock.initModel();
+		teleporterBlock.initModel();
 	}
 
 	/**
@@ -39,6 +44,9 @@ public class ModBlocks
 
 		registry.register(new PowerTapBlock());
 		GameRegistry.registerTileEntity(PowerTapTileEntity.class, new ResourceLocation(Megastructures.MODID, "_powertapblock"));
+
+		registry.register(new TeleporterBlock());
+		GameRegistry.registerTileEntity(TeleporterTileEntity.class, new ResourceLocation(Megastructures.MODID, "_teleporterblock"));
 
 	}
 }
