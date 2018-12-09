@@ -1,0 +1,27 @@
+{
+  "forge_marker": 1,
+  "defaults": {
+    "model": "cube",
+	"textures": {
+		"particle": "megastructures:blocks/powertap/particle",
+		"down": "megastructures:blocks/powertap/texture_down",
+		"up": "megastructures:blocks/powertap/texture_up",
+		"east": "megastructures:blocks/powertap/texture_east",
+		"west": "megastructures:blocks/powertap/texture_west",
+		"north": "megastructures:blocks/powertap/texture_north",
+		"south": "megastructures:blocks/powertap/texture_south"
+	}
+  },
+  "variants": {
+    "normal": [{}],
+    "inventory": [{}],
+    "facing": {
+      "north": {},
+      "south": {"y": 180},
+      "west": {"y": 270},
+      "east": {"y": 90},
+      "up": {"x": -90},
+      "down": {"x": 90}
+    }
+  }
+}

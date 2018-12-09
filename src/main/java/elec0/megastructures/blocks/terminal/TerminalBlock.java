@@ -24,12 +24,12 @@ import net.minecraft.world.World;
 public class TerminalBlock extends BaseBlock implements ITileEntityProvider
 {
 
-	public static final ResourceLocation TERMINAL_BLOCK = new ResourceLocation(Megastructures.MODID, "terminalblock");
+	public static final ResourceLocation RESOURCE_LOCATION = new ResourceLocation(Megastructures.MODID, "terminalblock");
 
 	public TerminalBlock()
 	{
 		super(Material.ROCK);
-		setRegistryName(TERMINAL_BLOCK);
+		setRegistryName(RESOURCE_LOCATION);
 		setUnlocalizedName(Megastructures.MODID + ".terminalblock");
 	}
 

@@ -17,7 +17,7 @@ public class Megastructures
 {
 	public static final String MODID = "megastructures";
 	public static final String MODNAME = "Megastructures";
-	public static final String MODVERSION = "0.0.1";
+	public static final String MODVERSION = "0.1.0";
 
 
 	@SidedProxy(clientSide = "elec0.megastructures.proxy.ClientProxy", serverSide = "elec0.megastructures.proxy.ServerProxy")

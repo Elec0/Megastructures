@@ -1,5 +1,6 @@
 package elec0.megastructures;
 
+import elec0.megastructures.blocks.powertap.PowerTapBlock;
 import elec0.megastructures.blocks.terminal.TerminalBlock;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
@@ -11,7 +12,11 @@ public class ModItems
 {
 
 	public static void register(IForgeRegistry<Item> registry) {
-		registry.register(new ItemBlock(ModBlocks.terminalBlock).setRegistryName(TerminalBlock.TERMINAL_BLOCK));
+		// Inventory blocks for the actual Blocks
+		registry.register(new ItemBlock(ModBlocks.terminalBlock).setRegistryName(TerminalBlock.RESOURCE_LOCATION));
+		registry.register(new ItemBlock(ModBlocks.powerTapBlock).setRegistryName(PowerTapBlock.RESOURCE_LOCATION));
+
+		// Actual items
 	}
 
 	@SideOnly(Side.CLIENT)
