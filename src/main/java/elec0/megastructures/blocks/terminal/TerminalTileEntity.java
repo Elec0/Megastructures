@@ -1,4 +1,4 @@
-package elec0.megastructures.tileentities;
+package elec0.megastructures.blocks.terminal;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;

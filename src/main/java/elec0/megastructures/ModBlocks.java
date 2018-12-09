@@ -1,7 +1,7 @@
 package elec0.megastructures;
 
-import elec0.megastructures.blocks.TerminalBlock;
-import elec0.megastructures.tileentities.TerminalTileEntity;
+import elec0.megastructures.blocks.terminal.TerminalBlock;
+import elec0.megastructures.blocks.terminal.TerminalTileEntity;
 import net.minecraft.block.Block;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.registry.GameRegistry;

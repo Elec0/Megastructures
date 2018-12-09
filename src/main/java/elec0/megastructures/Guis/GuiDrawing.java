@@ -50,7 +50,7 @@ public class GuiDrawing
 					((g & 0xFF) << 8)  |
 					((b & 0xFF) << 0);
 
-		screen.drawRect(2, 2, squareSize-2, squareSize-2, color);
+		GuiScreen.drawRect(2, 2, squareSize-2, squareSize-2, color);
 
 	}
 

@@ -1,20 +1,17 @@
-package elec0.megastructures.blocks;
+package elec0.megastructures.blocks.terminal;
 
 import elec0.megastructures.Megastructures;
+import elec0.megastructures.blocks.BaseBlock;
 import elec0.megastructures.capabilities.MSWorldSavedData;
 import elec0.megastructures.network.PacketHandler;
 import elec0.megastructures.network.PacketSendTerminalData;
 import elec0.megastructures.proxy.GUIProxy;
-import elec0.megastructures.tileentities.TerminalTileEntity;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
-import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -23,9 +20,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.client.model.ModelLoader;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class TerminalBlock extends BaseBlock implements ITileEntityProvider
 {

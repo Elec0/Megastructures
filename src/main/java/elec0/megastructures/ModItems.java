@@ -1,6 +1,6 @@
 package elec0.megastructures;
 
-import elec0.megastructures.blocks.TerminalBlock;
+import elec0.megastructures.blocks.terminal.TerminalBlock;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraftforge.fml.relauncher.Side;
