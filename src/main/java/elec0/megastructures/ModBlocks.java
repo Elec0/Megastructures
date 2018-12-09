@@ -25,6 +25,7 @@ public class ModBlocks
 	public static void initModels()
 	{
 		terminalBlock.initModel();
+		powerTapBlock.initModel();
 	}
 
 	/**
