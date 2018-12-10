@@ -40,15 +40,10 @@ $RECYCLE.BIN/
 .VolumeIcon.icns
 build.gradle
 CREDITS.txt
-forge-1.12.2-14.23.5.2768-changelog.txt
-forge-1.12.2-14.23.5.2768-mdk.ipr
-forge-1.12.2-14.23.5.2768-mdk.iws
+forge-1.12.2-14.*
 gradle.properties
-gradlew
-gradlew.bat
-LICENSE.txt
-LICENSE-Paulscode IBXM Library.txt
-LICENSE-Paulscode SoundSystem CodecIBXM.txt
+gradlew*
+LICENSE*
 mcmod.info
 pack.mcmeta
 README.txt
