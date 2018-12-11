@@ -1,5 +1,7 @@
 package elec0.megastructures;
 
+import elec0.megastructures.capabilities.MSWorldSavedData;
+import elec0.megastructures.capabilities.StructureData;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingJumpEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
@@ -22,8 +24,14 @@ public class EventHandlerCommon
 		if(event.side == Side.SERVER)
 		{
 			worldTickCount++;
-			if(worldTickCount == 10) // Run this once every half second
+			if(worldTickCount >= 10) // Run this once every half second
 			{
+				StructureData structureData = StructureData.getData(event.world);
+
+				// Have the structures actually do their update every half second
+				// There's no real reason to have them update every tick, since they don't exist in the 'real' world,
+				// and we can interpolate the behavior in between so it'll look mostly seamless.
+				structureData.update();
 
 				worldTickCount = 0;
 			}

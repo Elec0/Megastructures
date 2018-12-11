@@ -16,14 +16,8 @@ import java.util.*;
  * Holds all of the player-made structures as a data type
  * We're gonna save everything as a HashMap(UUID, List(Structure))
  * This is so we can get a user's structures in O(1) time.
- *
- * Looping through the structures should be done via
- * for (Map.Entry<String, Structure> entry : map.entrySet())
- * {
- *     String key = entry.getKey();
- *     List value = entry.getValue();
- *     //use key and value
- * }
+ * This does mean that finding a player based on a structure takes O(n) time,
+ * but we're going to get around that by storing the player's UUID in the structure
  */
 public class StructureData extends WorldSavedData
 {
@@ -31,9 +25,21 @@ public class StructureData extends WorldSavedData
 
 	private HashMap<UUID, List<Structure>> structureHash;
 
+	// This is for calling update on the structures, the list will be reflective of all the items in all player lists
+	private List<Structure> tickList;
+
 	public StructureData() {
 		super(DATA_NAME);
 		structureHash = new HashMap<>();
+		tickList = new ArrayList<>();
+	}
+
+	/**
+	 * Runs the update method on all of the structures
+	 */
+	public void update() {
+		for(Structure s : tickList)
+			s.update();
 	}
 
 	/**
@@ -78,6 +84,9 @@ public class StructureData extends WorldSavedData
 
 			// Add the structure to the player's list of structures
 			structureHash.get(uuid).add(structure);
+			// Any changes made to the structures in structureHash will also be reflected here, because of
+			// pass by reference
+			tickList.add(structure);
 		}
 		else
 			throw new NullPointerException("structureHash is null, initialize it first.");
@@ -153,6 +162,7 @@ public class StructureData extends WorldSavedData
 			for(int i = 0; i < numStruct; ++i) {
 				Structure curStruct = new Structure((NBTTagCompound) compound.getTag(uuid + i));
 				curUserStructList.add(curStruct);
+				tickList.add(curStruct);
 			}
 
 			// Save the list into the new hashmap

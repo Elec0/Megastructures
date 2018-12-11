@@ -18,6 +18,15 @@ public class Structure implements INBTSerializable<NBTTagCompound>
 		deserializeNBT(nbtStructure);
 	}
 
+
+	/**
+	 * The main structure logic update loop
+	 */
+	public void update() {
+		System.out.println("Structure Update");
+	}
+
+
 	/**
 	 * Save the information in such a way that we can re-create the object
 	 * Essentially serializing the structure
