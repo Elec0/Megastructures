@@ -1,6 +1,5 @@
 package elec0.megastructures.general;
 
-import elec0.megastructures.config.PowerTapConfig;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;

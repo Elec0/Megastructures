@@ -17,10 +17,6 @@ public class MSWorldSavedData extends WorldSavedData
 	{
 		super(DATA_NAME);
 	}
-	public MSWorldSavedData(String s)
-	{
-		super(s);
-	}
 
 	// Save method
 	public void save(World world)
