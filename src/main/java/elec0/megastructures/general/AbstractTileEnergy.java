@@ -15,29 +15,30 @@ public abstract class AbstractTileEnergy extends TileEntity implements IRestorab
 	protected MyEnergyStorage energyStorage;
 	protected int clientEnergy = -1;
 
-	private EnumFacing[] powerFaces;
+	private EnumFacing[] powerFaces = EnumFacing.VALUES;
 	// ----------------------------------------------------------------------------------------
 
-	public AbstractTileEnergy() {
-		powerFaces = EnumFacing.VALUES;
-	}
 	public AbstractTileEnergy(int maxEnergy) {
 		energyStorage = new MyEnergyStorage(maxEnergy, 0);
-		powerFaces = EnumFacing.VALUES;
+		energyStorage.setEnergy(maxEnergy);
 	}
 
+	/**
+	 * Loop through the surrounding faces and push energy into the accepting devices
+	 */
 	protected void sendEnergy() {
 		if (energyStorage.getEnergyStored() > 0) {
-			for (EnumFacing facing : EnumFacing.VALUES) {
+			for (EnumFacing facing : powerFaces) {
 
 				TileEntity tileEntity = world.getTileEntity(pos.offset(facing));
 
 				if (tileEntity != null && tileEntity.hasCapability(CapabilityEnergy.ENERGY, facing.getOpposite()))
 				{
+
 					IEnergyStorage handler = tileEntity.getCapability(CapabilityEnergy.ENERGY, facing.getOpposite());
 
-					if (handler != null && handler.canReceive())
-					{
+					if (handler != null && handler.canReceive()) {
+						// The amount of energy we're transmitting out
 						int accepted = handler.receiveEnergy(energyStorage.getEnergyStored(), false);
 						energyStorage.consumePower(accepted);
 
@@ -48,6 +49,10 @@ public abstract class AbstractTileEnergy extends TileEntity implements IRestorab
 			}
 			markDirty();
 		}
+	}
+
+	protected void setPowerFaces(EnumFacing[] newFaces) {
+		this.powerFaces = newFaces;
 	}
 
 
@@ -104,7 +109,10 @@ public abstract class AbstractTileEnergy extends TileEntity implements IRestorab
 	@Override
 	public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
 		if (capability == CapabilityEnergy.ENERGY) {
-			return true;
+			// We only have the power interface on the faces that are specified
+			for(EnumFacing face : powerFaces)
+				if(face == facing)
+					return true;
 		}
 		return super.hasCapability(capability, facing);
 	}
@@ -112,7 +120,10 @@ public abstract class AbstractTileEnergy extends TileEntity implements IRestorab
 	@Override
 	public <T> T getCapability(Capability<T> capability, EnumFacing facing) {
 		if (capability == CapabilityEnergy.ENERGY) {
-			return CapabilityEnergy.ENERGY.cast(energyStorage);
+			// We only have the power interface on the faces that are specified
+			for(EnumFacing face : powerFaces)
+				if(face == facing)
+					return CapabilityEnergy.ENERGY.cast(energyStorage);
 		}
 		return super.getCapability(capability, facing);
 	}

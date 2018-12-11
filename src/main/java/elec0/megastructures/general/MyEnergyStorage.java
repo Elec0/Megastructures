@@ -5,7 +5,7 @@ import net.minecraftforge.energy.EnergyStorage;
 /**
  * McJty's Tutorial Class
  * https://github.com/McJty/YouTubeModdingTutorial/blob/master/src/main/java/mcjty/mymod/tools/MyEnergyStorage.java
- * TODO: Figure out if I can just use EnergyStorage instead.
+ *
  */
 public class MyEnergyStorage extends EnergyStorage {
 
