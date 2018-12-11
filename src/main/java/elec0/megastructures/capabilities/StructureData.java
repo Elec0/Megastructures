@@ -1,6 +1,8 @@
 package elec0.megastructures.capabilities;
 
+import com.sun.istack.internal.NotNull;
 import elec0.megastructures.Megastructures;
+import elec0.megastructures.general.Constants;
 import elec0.megastructures.structures.Structure;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.Tuple;
@@ -34,6 +36,10 @@ public class StructureData extends WorldSavedData
 		structureHash = new HashMap<>();
 	}
 
+	/**
+	 *
+	 * @param world
+	 */
 	public void save(World world)
 	{
 		MapStorage storage = world.getPerWorldStorage(); // Per dimension world data
@@ -41,8 +47,11 @@ public class StructureData extends WorldSavedData
 		markDirty();
 	}
 
-
-	// The create or load method
+	/**
+	 * The create or load method
+	 * @param world
+	 * @return
+	 */
 	public static StructureData getData(World world)
 	{
 		MapStorage storage = world.getPerWorldStorage(); // Per dimension world data
@@ -56,48 +65,101 @@ public class StructureData extends WorldSavedData
 	}
 
 	/**
-	 *
+	 * Add a Structure to the user's list of structures
 	 * @param uuid
 	 * @param structure
 	 */
 	public void addStructure(UUID uuid, Structure structure) {
 		if(structureHash != null) {
+			// If the hashmap doesn't have the user's structure list, create it
+			if(!structureHash.containsKey(uuid)) {
+				structureHash.put(uuid, new ArrayList<>());
+			}
+
 			// Add the structure to the player's list of structures
 			structureHash.get(uuid).add(structure);
 		}
+		else
+			throw new NullPointerException("structureHash is null, initialize it first.");
 	}
 
 	/**
 	 * Save all the data to NBT
+	 * We're gonna do this in the following way:
+	 * Make a string list of all the players UUIDs, concat them separated with ','
+	 * Loop through all the UUID, List pairs and serialize the Structure List into a NBTTag
+	 * Save that tag with the UUID as the key
+	 * Save the full string UUID list for reference later
+	 *
+	 * What we're doing is allowing the storage of an arbitrary number of players information, essentially creating
+	 * an array of Strings where each entry is a List, but saving it in NBT.
 	 * @param compound
 	 * @return
 	 */
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound compound)
 	{
-		String uuidList = "";
+		StringBuilder uuidList = new StringBuilder();
 
 		for (Map.Entry<UUID, List<Structure>> entry : structureHash.entrySet())
   		{
       		UUID uuid = entry.getKey();
       		List<Structure> structureList = entry.getValue();
 
-      		uuidList += uuid.toString() + ",";
+      		uuidList.append(uuid.toString()).append(",");
+
+      		// Serialize the structure into NBT
       		NBTTagCompound userStructures = new NBTTagCompound();
+      		// Save how many structures the user has
+      		userStructures.setInteger(Constants.NBT_STRUCTURES_LEN, structureList.size());
 
       		for(int i = 0; i < structureList.size(); ++i) {
-      			userStructures.setTag(uuid.toString(), structureList.get(i).getNBTTag());
+      			// Convert the structures into tags, append their uuid + i to be able to get them back
+      			userStructures.setTag(uuid.toString() + i, structureList.get(i).serializeNBT());
 			}
-
 	 	}
 		// Trim the trailing comma
-		uuidList = uuidList.substring(0, uuidList.length() - 1);
+		String uuids = uuidList.toString().substring(0, uuidList.length() - 1);
+		compound.setString(Constants.NBT_STRUCTURES_UUID_LIST, uuids);
+
 		return compound;
 	}
 
 	@Override
 	public void readFromNBT(NBTTagCompound compound)
 	{
+		String uuids = compound.getString(Constants.NBT_STRUCTURES_UUID_LIST);
 
+		// Make sure we have data to read from the NBT
+		if(uuids.equals("")) {
+			System.out.println(String.format("StructureData: readFromNBT failed due to uninitialized component '%s'",
+					Constants.NBT_STRUCTURES_UUID_LIST));
+			return;
+		}
+
+		HashMap<UUID, List<Structure>> newStructureHash = new HashMap<>();
+
+		// Each entry is a String UUID
+		String[] uuidList = uuids.split(",");
+
+		for(String uuid : uuidList) {
+			// This has all of the users structure information in it, we need to parse it out
+			NBTTagCompound userStructures = (NBTTagCompound)compound.getTag(Constants.NBT_STRUCTURES_UUID_LIST);
+			int numStruct = userStructures.getInteger(Constants.NBT_STRUCTURES_LEN);
+
+			List<Structure> curUserStructList = new ArrayList<>();
+
+			// Go through and deseralize the structures
+			for(int i = 0; i < numStruct; ++i) {
+				Structure curStruct = new Structure((NBTTagCompound) compound.getTag(uuid + i));
+				curUserStructList.add(curStruct);
+			}
+
+			// Save the list into the new hashmap
+			newStructureHash.put(UUID.fromString(uuid), curUserStructList);
+		}
+
+		// The new hashmap has been fully loaded
+		this.structureHash = newStructureHash;
 	}
 }

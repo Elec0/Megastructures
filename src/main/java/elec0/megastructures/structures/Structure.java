@@ -1,23 +1,47 @@
 package elec0.megastructures.structures;
 
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraftforge.common.util.INBTSerializable;
 
-public class Structure
+import java.util.UUID;
+
+public class Structure implements INBTSerializable<NBTTagCompound>
 {
-	/**
-	 * Deseralize the saved structure
-	 * @param nbtStructure
-	 */
-	public Structure(NBTTagCompound nbtStructure) {
 
+	private UUID player;					// The player who owns this structure
+	private final String NBT_PLAYER = "player";
+	private String name;					//
+	private final String NBT_NAME = "name";
+
+
+	public Structure(NBTTagCompound nbtStructure) {
+		deserializeNBT(nbtStructure);
 	}
 
 	/**
 	 * Save the information in such a way that we can re-create the object
 	 * Essentially serializing the structure
-	 * @return
+	 * @return NBTTagCompound
 	 */
-	public NBTTagCompound getNBTTag() {
-		return null;
+	@Override
+	public NBTTagCompound serializeNBT()
+	{
+		NBTTagCompound tag = new NBTTagCompound();
+
+		tag.setString(NBT_PLAYER, player.toString());
+		tag.setString(NBT_NAME, name);
+
+		return tag;
+	}
+
+	/**
+	 * Deseralize the saved structure
+	 * @param nbt
+	 */
+	@Override
+	public void deserializeNBT(NBTTagCompound nbt)
+	{
+		this.player = UUID.fromString(nbt.getString(NBT_PLAYER));
+		this.name = nbt.getString(NBT_NAME);
 	}
 }
