@@ -14,6 +14,11 @@ public class Structure implements INBTSerializable<NBTTagCompound>
 	private final String NBT_NAME = "name";
 
 
+	public Structure(UUID player, String name) {
+		this.player = player;
+		this.name = name;
+	}
+
 	public Structure(NBTTagCompound nbtStructure) {
 		deserializeNBT(nbtStructure);
 	}
@@ -26,6 +31,11 @@ public class Structure implements INBTSerializable<NBTTagCompound>
 		System.out.println("Structure Update");
 	}
 
+
+
+	/* *****************************
+	 *** Serializing Information ***
+	 *******************************/
 
 	/**
 	 * Save the information in such a way that we can re-create the object

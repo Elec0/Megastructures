@@ -1,38 +1,39 @@
 package elec0.megastructures.network;
 
 import elec0.megastructures.capabilities.MSWorldSavedData;
-import elec0.megastructures.general.Vector2i;
+import elec0.megastructures.capabilities.StructureData;
+import elec0.megastructures.structures.Structure;
 import io.netty.buffer.ByteBuf;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
-public class PacketRequestTerminalData implements IMessage
+import java.nio.charset.Charset;
+
+/**
+ * For server-bound messages relating to structures
+ */
+public class PacketRequestStructure implements IMessage
 {
+	private String command;
 
-	private Vector2i sectorRequest;
-
-	public PacketRequestTerminalData()
+	public PacketRequestStructure(String action)
 	{
-	}
 
-	public PacketRequestTerminalData(Vector2i sectorRequest)
-	{
-		this.sectorRequest = sectorRequest;
 	}
 
 	@Override
 	public void fromBytes(ByteBuf buf)
 	{
-		sectorRequest = new Vector2i(buf.readInt(), buf.readInt());
+		command = ByteBufUtils.readUTF8String(buf);
 	}
 
 	@Override
 	public void toBytes(ByteBuf buf)
 	{
-		buf.writeInt(sectorRequest.getX());
-		buf.writeInt(sectorRequest.getY());
+		ByteBufUtils.writeUTF8String(buf, command);
 	}
 
 
@@ -55,10 +56,10 @@ public class PacketRequestTerminalData implements IMessage
 		 */
 		private void handle(PacketRequestTerminalData message, MessageContext ctx)
 		{
-			// This is server-side
-			MSWorldSavedData wsd = MSWorldSavedData.getData(ctx.getServerHandler().player.world);
+			StructureData structureData = StructureData.getData(ctx.getServerHandler().player.world);
+			Structure s = new Structure(ctx.getServerHandler().player.getUniqueID(), "Test1");
+			structureData.addStructure();
 			// Send the packet back to the player's client with the sector requested
-			PacketHandler.INSTANCE.sendTo(new PacketSendTerminalData(wsd.getGalaxy(), message.sectorRequest), ctx.getServerHandler().player);
 		}
 	}
 }

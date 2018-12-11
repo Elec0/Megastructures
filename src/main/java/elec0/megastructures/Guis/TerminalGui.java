@@ -5,6 +5,7 @@ import elec0.megastructures.Megastructures;
 import elec0.megastructures.general.Vector2i;
 import elec0.megastructures.general.Vector2l;
 import elec0.megastructures.network.PacketHandler;
+import elec0.megastructures.network.PacketRequestDirector;
 import elec0.megastructures.network.PacketRequestTerminalData;
 import elec0.megastructures.universe.*;
 import net.minecraft.client.gui.GuiButton;
@@ -19,6 +20,7 @@ import java.util.List;
 public class TerminalGui extends GuiScreen
 {
 	private GuiButton sectorLeft, sectorRight, sectorUp, sectorDown, zoomOut, home, sectorGo, toggleGrid;
+	private GuiButton structCreate, structDelete;
 	private GuiTextField sectorText;
 	private Galaxy galaxy;
 	private int zoom = 0; // 0 = galaxy overview, 1 = solar system overview, 2 = planet overview
@@ -264,6 +266,9 @@ public class TerminalGui extends GuiScreen
 		sectorText.setMaxStringLength(30);
 		//sectorText.setCanLoseFocus(true);
 
+		btnSize = fontRenderer.getStringWidth("Create");
+		buttonList.add(structCreate = new GuiButton(nextID(), left, (viewTop) + btnHeight * 2, btnSize + btnBorder, btnHeight, "Create"));
+		buttonList.add(structCreate = new GuiButton(nextID(), left, (viewTop + btnHeight) + btnHeight * 2, btnSize + btnBorder, btnHeight, "Delete"));
 
 		// To handle when the GUI is resized, everything is cleared so need to be re-initialized
 		if(viewSector != null)
@@ -313,7 +318,7 @@ public class TerminalGui extends GuiScreen
 			PacketHandler.INSTANCE.sendToServer(new PacketRequestTerminalData(newSector));
 		}
 		else if(button == home) {
-			PacketHandler.INSTANCE.sendToServer(new PacketRequestTerminalData(galaxy.getSector()));
+			PacketHandler.INSTANCE.sendToServer(PacketRequestDirector.request(galaxy.getSector()));
 		}
 		else if(button == zoomOut) {
 			if(zoom > 0)
@@ -321,6 +326,12 @@ public class TerminalGui extends GuiScreen
 		}
 		else if(button == toggleGrid) {
 			displayGrid = !displayGrid;
+		}
+		else if(button == structCreate) {
+			PacketHandler.INSTANCE.sendToServer(PacketRequestDirector.request("create"));
+		}
+		else if(button == structDelete) {
+			PacketHandler.INSTANCE.sendToServer(PacketRequestDirector.request("delete"));
 		}
 
 	}

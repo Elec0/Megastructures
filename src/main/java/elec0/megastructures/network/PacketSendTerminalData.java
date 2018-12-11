@@ -7,6 +7,7 @@ import elec0.megastructures.universe.*;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
@@ -181,8 +182,7 @@ public class PacketSendTerminalData implements IMessage
 		// Seed
 		buf.writeLong(loc.getSeed());
 		// Name
-		buf.writeInt(loc.getName().length());
-		buf.writeCharSequence(loc.getName(), StandardCharsets.ISO_8859_1);
+		ByteBufUtils.writeUTF8String(buf, loc.getName());
 		// Position
 		buf.writeLong(loc.getPosition().getX());
 		buf.writeLong(loc.getPosition().getY());
@@ -195,7 +195,7 @@ public class PacketSendTerminalData implements IMessage
 	 */
 	private void readLocation(ByteBuf buf, Location loc)
 	{
-		loc.setName(buf.readCharSequence(buf.readInt(), StandardCharsets.ISO_8859_1).toString());
+		loc.setName(ByteBufUtils.readUTF8String(buf));
 		loc.setPosition(new Vector2l(buf.readLong(), buf.readLong()));
 	}
 
