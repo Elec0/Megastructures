@@ -31,6 +31,7 @@ public class EventHandlerCommon
 				// There's no real reason to have them update every tick, since they don't exist in the 'real' world,
 				// and we can interpolate the behavior in between so it'll look mostly seamless.
 				structureData.update();
+				structureData.save(event.world);
 
 				worldTickCount = 0;
 			}

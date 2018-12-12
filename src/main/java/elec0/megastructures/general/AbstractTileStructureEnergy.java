@@ -18,7 +18,7 @@ import java.util.UUID;
  * The blocks themselves aren't going to store any power, they're going to draw from the structure network via
  * a connection to the End.
  */
-public abstract class AbstractTileStructureEnergy extends TileEntity implements IRestorableTileEntity
+public abstract class AbstractTileStructureEnergy extends TileEntity
 {
 	// ----------------------------------------------------------------------------------------
 	protected MyEnergyStorage energyStorage;
@@ -50,6 +50,10 @@ public abstract class AbstractTileStructureEnergy extends TileEntity implements 
 		int highestPowerIndex = -1;
 		double highestPower = 0;
 		List<Structure> userStructures = structureData.getUserStructures(getOwner());
+
+		// When initializing I think blocks tick before stuff is loaded
+		if(userStructures == null)
+			return;
 
 		// Calculate the total energy of the network, and get the highest energy structure to draw power from
 		for(int i = 0; i < userStructures.size(); ++i) {
@@ -97,7 +101,9 @@ public abstract class AbstractTileStructureEnergy extends TileEntity implements 
 
 	public void setOwner(UUID owner) {
 		this.owner = owner;
+		markDirty();
 	}
+
 	public UUID getOwner() { return owner; }
 
 	//	@Override
@@ -138,21 +144,16 @@ public abstract class AbstractTileStructureEnergy extends TileEntity implements 
 	@Override
 	public void readFromNBT(NBTTagCompound compound) {
 		super.readFromNBT(compound);
-		readRestorableFromNBT(compound);
-	}
-
-	public void readRestorableFromNBT(NBTTagCompound compound) {
-		this.owner = UUID.fromString(compound.getString(NBT_OWNER));
+		if(compound.hasKey(NBT_OWNER))
+			this.owner = UUID.fromString(compound.getString(NBT_OWNER));
 	}
 
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
 		super.writeToNBT(compound);
-		writeRestorableToNBT(compound);
-		return compound;
-	}
+		if(owner != null)
+			compound.setString(NBT_OWNER, owner.toString());
 
-	public void writeRestorableToNBT(NBTTagCompound compound) {
-		compound.setString(NBT_OWNER, owner.toString());
+		return compound;
 	}
 }
