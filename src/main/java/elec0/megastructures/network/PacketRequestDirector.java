@@ -27,9 +27,9 @@ public class PacketRequestDirector {
 	{
 		switch(command) {
 			case "create":
-					return new PacketRequestStructure(command);
+				return new PacketRequestStructure(command);
 			case "delete":
-				break;
+				return new PacketRequestStructure(command);
 		}
 
 		return null;

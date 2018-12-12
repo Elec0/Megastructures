@@ -6,6 +6,7 @@ import elec0.megastructures.capabilities.StructureData;
 import elec0.megastructures.structures.DysonSphereStructure;
 import elec0.megastructures.structures.Structure;
 import io.netty.buffer.ByteBuf;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -15,6 +16,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
 import java.nio.charset.Charset;
+import java.util.UUID;
 
 /**
  * For server-bound messages relating to structures
@@ -28,7 +30,6 @@ public class PacketRequestStructure implements IMessage
 	public PacketRequestStructure(String action)
 	{
 		this.command = action;
-		System.out.println("PacketRequestStructure");
 	}
 
 	@Override
@@ -65,14 +66,20 @@ public class PacketRequestStructure implements IMessage
 		{
 			World world = ctx.getServerHandler().player.world;
 			StructureData structureData = StructureData.getData(world);
+			EntityPlayerMP player = ctx.getServerHandler().player;
 
-			// DEBUG creating a structure to test
-			Structure s = new DysonSphereStructure(ctx.getServerHandler().player.getUniqueID(), "Test1", 0);
-			structureData.addStructure(s.getPlayer(), s);
-			ctx.getServerHandler().player.sendMessage(new TextComponentString("A new structure was created."));
-			// END DEBUG
+			if(message.command.equals("create")) {
+				// DEBUG creating a structure to test
+				Structure s = new DysonSphereStructure(player.getUniqueID(), "Test1", 0);
 
-			// Handle whatever the message was
+				structureData.addStructure(s.getPlayer(), s);
+				player.sendMessage(new TextComponentString("A new structure was created."));
+				// END DEBUG
+			}
+			else if(message.command.equals("delete")) {
+				structureData.clearAllUserStructures(player.getUniqueID());
+				player.sendMessage(new TextComponentString("All structures have been cleared."));
+			}
 
 
 			// We need to save whenever we finish making a change

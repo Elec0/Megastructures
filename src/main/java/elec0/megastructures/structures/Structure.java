@@ -60,7 +60,7 @@ public class Structure implements INBTSerializable<NBTTagCompound>
 		setEnergy(getEnergy() - amt);
 	}
 
-	public void consume(int amt) { consume(amt); }
+	public void consume(int amt) { consume((double)amt); }
 
 
 	/* ***************************

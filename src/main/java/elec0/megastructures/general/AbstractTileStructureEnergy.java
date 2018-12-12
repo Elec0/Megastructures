@@ -89,29 +89,6 @@ public abstract class AbstractTileStructureEnergy extends TileEntity implements 
 			markDirty();
 			structureData.save(world);
 		}
-
-		if (energyStorage.getEnergyStored() > 0) {
-			for (EnumFacing facing : powerFaces) {
-
-				TileEntity tileEntity = world.getTileEntity(pos.offset(facing));
-
-				if (tileEntity != null && tileEntity.hasCapability(CapabilityEnergy.ENERGY, facing.getOpposite()))
-				{
-
-					IEnergyStorage handler = tileEntity.getCapability(CapabilityEnergy.ENERGY, facing.getOpposite());
-
-					if (handler != null && handler.canReceive()) {
-						// The amount of energy we're transmitting out
-						int accepted = handler.receiveEnergy(energyStorage.getEnergyStored(), false);
-						energyStorage.consumePower(accepted);
-
-						if (energyStorage.getEnergyStored() <= 0)
-							break;
-					}
-				}
-			}
-			markDirty();
-		}
 	}
 
 	protected void setPowerFaces(EnumFacing[] newFaces) {

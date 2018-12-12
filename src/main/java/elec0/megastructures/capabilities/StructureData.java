@@ -100,6 +100,20 @@ public class StructureData extends WorldSavedData
 	}
 
 	/**
+	 * Delete all of a user's structures
+	 * @param uuid
+	 */
+	public void clearAllUserStructures(UUID uuid) {
+		if(structureHash == null)
+			return;
+		if(!structureHash.containsKey(uuid))
+			return;
+
+		structureHash.get(uuid).clear();
+
+	}
+
+	/**
 	 * Get a user's list of structures
 	 * @param uuid
 	 * @return
