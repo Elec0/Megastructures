@@ -1,7 +1,10 @@
 package elec0.megastructures.general;
 
+import elec0.megastructures.blocks.BaseBlock;
+import elec0.megastructures.blocks.powertap.PowerTapBlock;
 import elec0.megastructures.capabilities.StructureData;
 import elec0.megastructures.structures.Structure;
+import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -9,7 +12,9 @@ import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
+import scala.xml.dtd.impl.Base;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -95,8 +100,46 @@ public abstract class AbstractTileStructureEnergy extends TileEntity
 		}
 	}
 
+	/**
+	 * This is called in the constructor
+	 * @param newFaces
+	 */
 	protected void setPowerFaces(EnumFacing[] newFaces) {
 		this.powerFaces = newFaces;
+	}
+
+	/**
+	 * To be called at the same time at setOwner
+	 * Need to rotate newFaces such that North is towards FACING
+	 * We want to apply one of three functions to all faces: rotateY(), rotateYCCW(), or getOpposite()
+	 */
+	public void initPowerFaces() {
+		EnumFacing facing = this.world.getBlockState(this.pos).getValue(BaseBlock.FACING);
+		EnumFacingInterface enumRotate = null;
+		switch(facing) {
+			case NORTH:
+				// Do nothing
+				return;
+			case EAST:
+				enumRotate = EnumFacing::rotateY;
+				break;
+			case WEST:
+				enumRotate = EnumFacing::rotateYCCW;
+				break;
+			case SOUTH:
+				enumRotate = EnumFacing::getOpposite;
+				break;
+		}
+		List<EnumFacing> newFaces = new ArrayList<>();
+		for(EnumFacing face : powerFaces) {
+			newFaces.add(enumRotate.init(face));
+		}
+		this.powerFaces = newFaces.toArray(new EnumFacing[]{});
+	}
+
+	@FunctionalInterface
+	public interface EnumFacingInterface {
+		EnumFacing init(EnumFacing dir);
 	}
 
 	public void setOwner(UUID owner) {

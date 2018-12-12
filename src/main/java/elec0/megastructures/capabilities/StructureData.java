@@ -44,7 +44,7 @@ public class StructureData extends WorldSavedData
 	 * Runs the update method on all of the structures
 	 */
 	public void update() {
-		System.out.println("update: " + tickList.size());
+//		System.out.println("update: " + tickList.size());
 		for(Structure s : tickList)
 			s.update();
 	}

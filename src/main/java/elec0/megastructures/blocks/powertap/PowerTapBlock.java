@@ -38,6 +38,7 @@ public class PowerTapBlock extends BaseBlock implements ITileEntityProvider
 		if(!world.isRemote)
 		{
 			getTE(world, pos).setOwner(placer.getUniqueID());
+			getTE(world, pos).initPowerFaces();
 		}
 	}
 

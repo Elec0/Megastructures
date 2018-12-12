@@ -5,14 +5,12 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 
-import java.util.UUID;
-
 public class PowerTapTileEntity extends AbstractTileStructureEnergy implements ITickable
 {
 
 	public PowerTapTileEntity() {
 		super();
-//		setPowerFaces(new EnumFacing[]{EnumFacing.NORTH, EnumFacing.SOUTH});
+		setPowerFaces(new EnumFacing[]{EnumFacing.NORTH, EnumFacing.SOUTH});
 	}
 
 	@Override
