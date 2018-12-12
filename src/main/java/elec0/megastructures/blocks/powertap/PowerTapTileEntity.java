@@ -1,15 +1,14 @@
 package elec0.megastructures.blocks.powertap;
 
-import elec0.megastructures.config.PowerTapConfig;
-import elec0.megastructures.general.AbstractTileEnergy;
+import elec0.megastructures.general.AbstractTileStructureEnergy;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 
-public class PowerTapTileEntity extends AbstractTileEnergy implements ITickable
+public class PowerTapTileEntity extends AbstractTileStructureEnergy implements ITickable
 {
 
 	public PowerTapTileEntity() {
-		super(PowerTapConfig.MAX_POWER);
+		super();
 		setPowerFaces(new EnumFacing[]{EnumFacing.NORTH, EnumFacing.SOUTH});
 	}
 
@@ -24,5 +23,4 @@ public class PowerTapTileEntity extends AbstractTileEnergy implements ITickable
 	public void invalidate() {
 		super.invalidate();
 	}
-
 }

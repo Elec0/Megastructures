@@ -3,8 +3,10 @@ package elec0.megastructures.network;
 import com.jcraft.jogg.Packet;
 import elec0.megastructures.capabilities.MSWorldSavedData;
 import elec0.megastructures.capabilities.StructureData;
+import elec0.megastructures.structures.DysonSphereStructure;
 import elec0.megastructures.structures.Structure;
 import io.netty.buffer.ByteBuf;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
@@ -63,9 +65,15 @@ public class PacketRequestStructure implements IMessage
 		{
 			World world = ctx.getServerHandler().player.world;
 			StructureData structureData = StructureData.getData(world);
-			System.out.println("handle");
-			Structure s = new Structure(ctx.getServerHandler().player.getUniqueID(), "Test1");
+
+			// DEBUG creating a structure to test
+			Structure s = new DysonSphereStructure(ctx.getServerHandler().player.getUniqueID(), "Test1", 0);
 			structureData.addStructure(s.getPlayer(), s);
+			ctx.getServerHandler().player.sendMessage(new TextComponentString("A new structure was created."));
+			// END DEBUG
+
+			// Handle whatever the message was
+
 
 			// We need to save whenever we finish making a change
 			structureData.save(world);

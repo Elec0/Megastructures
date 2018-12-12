@@ -29,18 +29,19 @@ public class PowerTapBlock extends BaseBlock implements ITileEntityProvider
 	}
 
 	@Override
-	public void onBlockPlacedBy(World world, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack)
-	{
+	public void onBlockPlacedBy(World world, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack) {
 		super.onBlockPlacedBy(world, pos, state, placer, stack);
 		if(!world.isRemote)
 		{
-			//getTE(world, pos).setPlacer(placer.getUniqueID());
+			PowerTapTileEntity te = getTE(world, pos);
+			if(te == null)
+				return;
+			te.setOwner(placer.getUniqueID());
 		}
 	}
 
 	@Override
-	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
-	{
+	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
 
 		TileEntity te = getTE(world, pos);
 		if(te == null)
@@ -65,8 +66,7 @@ public class PowerTapBlock extends BaseBlock implements ITileEntityProvider
 		return new PowerTapTileEntity();
 	}
 
-	private PowerTapTileEntity getTE(IBlockAccess world, BlockPos pos)
-	{
+	private PowerTapTileEntity getTE(IBlockAccess world, BlockPos pos) {
 		try {
 			return (PowerTapTileEntity) world.getTileEntity(pos);
 		}

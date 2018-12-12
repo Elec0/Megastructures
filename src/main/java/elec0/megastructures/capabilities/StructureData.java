@@ -3,6 +3,7 @@ package elec0.megastructures.capabilities;
 import com.sun.istack.internal.NotNull;
 import elec0.megastructures.Megastructures;
 import elec0.megastructures.general.Constants;
+import elec0.megastructures.structures.DysonSphereStructure;
 import elec0.megastructures.structures.Structure;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.Tuple;
@@ -99,6 +100,22 @@ public class StructureData extends WorldSavedData
 	}
 
 	/**
+	 * Get a user's list of structures
+	 * @param uuid
+	 * @return
+	 */
+	public List<Structure> getUserStructures(UUID uuid) {
+		if(structureHash != null) {
+			if(!structureHash.containsKey(uuid)) {
+				return null;
+			}
+			return structureHash.get(uuid);
+		}
+		else
+			throw new NullPointerException("structureHash is null, initialize it first.");
+	}
+
+	/**
 	 * Save all the data to NBT
 	 * We're gonna do this in the following way:
 	 * Make a string list of all the players UUIDs, concat them separated with ','
@@ -131,7 +148,6 @@ public class StructureData extends WorldSavedData
       		for(int i = 0; i < structureList.size(); ++i) {
       			// Convert the structures into tags, append their uuid + i to be able to get them back
       			userStructures.setTag(uuid.toString() + i, structureList.get(i).serializeNBT());
-      			System.out.println("Save Structure as " + (uuid.toString() + i));
 			}
 
       		// Actually set the data
@@ -164,15 +180,24 @@ public class StructureData extends WorldSavedData
 		for(String uuid : uuidList) {
 			// This has all of the users structure information in it, we need to parse it out
 			NBTTagCompound userStructures = (NBTTagCompound)compound.getTag(uuid);
-			int numStruct = userStructures.getInteger(Constants.NBT_STRUCTURES_LEN);
 
 			List<Structure> curUserStructList = new ArrayList<>();
 
+			int numStruct = userStructures.getInteger(Constants.NBT_STRUCTURES_LEN);
 			// Go through and deseralize the structures
 			for(int i = 0; i < numStruct; ++i) {
-				System.out.println("Load Structure with " + (uuid + i));
+				NBTTagCompound curStructure = (NBTTagCompound) userStructures.getTag(uuid + i);
+				Structure curStruct;
 
-				Structure curStruct = new Structure((NBTTagCompound) userStructures.getTag(uuid + i));
+				// Build the proper objects so the polymorphism actually makes sense and data doesn't just get lost
+				switch(curStructure.getInteger(Structure.NBT_TYPE)) {
+					case 0:
+						curStruct = new DysonSphereStructure(curStructure);
+						break;
+
+					default:
+						curStruct = new Structure(curStructure);
+				}
 
 				curUserStructList.add(curStruct);
 				tickList.add(curStruct);
