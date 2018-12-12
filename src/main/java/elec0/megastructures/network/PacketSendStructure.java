@@ -13,6 +13,8 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
  */
 public class PacketSendStructure implements IMessage
 {
+	public PacketSendStructure() {}
+
 	@Override
 	public void fromBytes(ByteBuf buf)
 	{
@@ -25,10 +27,10 @@ public class PacketSendStructure implements IMessage
 
 	}
 
-	public static class Handler implements IMessageHandler<PacketSendTerminalData, IMessage>
+	public static class Handler implements IMessageHandler<PacketSendStructure, IMessage>
 	{
 		@Override
-		public IMessage onMessage(PacketSendTerminalData message, MessageContext ctx) {
+		public IMessage onMessage(PacketSendStructure message, MessageContext ctx) {
 			// Always use a construct like this to actually handle your message. This ensures that
 			// your 'handle' code is run on the main Minecraft thread. 'onMessage' itself
 			// is called on the networking thread so it is not safe to do a lot of things
@@ -42,7 +44,7 @@ public class PacketSendStructure implements IMessage
 		 * @param message
 		 * @param ctx
 		 */
-		private void handle(PacketSendTerminalData message, MessageContext ctx)
+		private void handle(PacketSendStructure message, MessageContext ctx)
 		{
 			if(Minecraft.getMinecraft().currentScreen instanceof TerminalGui)
 			{

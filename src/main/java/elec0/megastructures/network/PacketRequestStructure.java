@@ -1,9 +1,11 @@
 package elec0.megastructures.network;
 
+import com.jcraft.jogg.Packet;
 import elec0.megastructures.capabilities.MSWorldSavedData;
 import elec0.megastructures.capabilities.StructureData;
 import elec0.megastructures.structures.Structure;
 import io.netty.buffer.ByteBuf;
+import net.minecraft.world.World;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
@@ -19,9 +21,12 @@ public class PacketRequestStructure implements IMessage
 {
 	private String command;
 
+	public PacketRequestStructure() {}
+
 	public PacketRequestStructure(String action)
 	{
-
+		this.command = action;
+		System.out.println("PacketRequestStructure");
 	}
 
 	@Override
@@ -37,10 +42,10 @@ public class PacketRequestStructure implements IMessage
 	}
 
 
-	public static class Handler implements IMessageHandler<PacketRequestTerminalData, IMessage>
+	public static class Handler implements IMessageHandler<PacketRequestStructure, IMessage>
 	{
 		@Override
-		public IMessage onMessage(PacketRequestTerminalData message, MessageContext ctx) {
+		public IMessage onMessage(PacketRequestStructure message, MessageContext ctx) {
 			// Always use a construct like this to actually handle your message. This ensures that
 			// your 'handle' code is run on the main Minecraft thread. 'onMessage' itself
 			// is called on the networking thread so it is not safe to do a lot of things
@@ -54,11 +59,17 @@ public class PacketRequestStructure implements IMessage
 		 * @param message
 		 * @param ctx
 		 */
-		private void handle(PacketRequestTerminalData message, MessageContext ctx)
+		private void handle(PacketRequestStructure message, MessageContext ctx)
 		{
-			StructureData structureData = StructureData.getData(ctx.getServerHandler().player.world);
+			World world = ctx.getServerHandler().player.world;
+			StructureData structureData = StructureData.getData(world);
+			System.out.println("handle");
 			Structure s = new Structure(ctx.getServerHandler().player.getUniqueID(), "Test1");
-			structureData.addStructure();
+			structureData.addStructure(s.getPlayer(), s);
+
+			// We need to save whenever we finish making a change
+			structureData.save(world);
+
 			// Send the packet back to the player's client with the sector requested
 		}
 	}

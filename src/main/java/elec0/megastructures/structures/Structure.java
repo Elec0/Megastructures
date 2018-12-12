@@ -28,9 +28,14 @@ public class Structure implements INBTSerializable<NBTTagCompound>
 	 * The main structure logic update loop
 	 */
 	public void update() {
-		System.out.println("Structure Update");
+		System.out.println("Structure Update " + player.toString() + ", " + name);
 	}
 
+	// *** Getters and Setters ***
+	public UUID getPlayer() { return player; }
+	public void setPlayer(UUID player){this.player = player;}
+	public String getName() {return name;}
+	public void setName(String name) {this.name = name;}
 
 
 	/* *****************************

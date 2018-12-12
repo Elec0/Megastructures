@@ -30,8 +30,10 @@ public class PacketHandler
 	{
 		// Register messages from server to client
 		INSTANCE.registerMessage(PacketSendTerminalData.Handler.class, PacketSendTerminalData.class, nextID(), Side.CLIENT);
+		INSTANCE.registerMessage(PacketSendStructure.Handler.class, PacketSendStructure.class, nextID(), Side.CLIENT);
 
 		// Register messages from client to server
 		INSTANCE.registerMessage(PacketRequestTerminalData.Handler.class, PacketRequestTerminalData.class, nextID(), Side.SERVER);
+		INSTANCE.registerMessage(PacketRequestStructure.Handler.class, PacketRequestStructure.class, nextID(), Side.SERVER);
 	}
 }

@@ -28,6 +28,11 @@ public class StructureData extends WorldSavedData
 	// This is for calling update on the structures, the list will be reflective of all the items in all player lists
 	private List<Structure> tickList;
 
+	public StructureData(String s) {
+		super(s);
+		structureHash = new HashMap<>();
+		tickList = new ArrayList<>();
+	}
 	public StructureData() {
 		super(DATA_NAME);
 		structureHash = new HashMap<>();
@@ -38,6 +43,7 @@ public class StructureData extends WorldSavedData
 	 * Runs the update method on all of the structures
 	 */
 	public void update() {
+		System.out.println("update: " + tickList.size());
 		for(Structure s : tickList)
 			s.update();
 	}
@@ -125,7 +131,11 @@ public class StructureData extends WorldSavedData
       		for(int i = 0; i < structureList.size(); ++i) {
       			// Convert the structures into tags, append their uuid + i to be able to get them back
       			userStructures.setTag(uuid.toString() + i, structureList.get(i).serializeNBT());
+      			System.out.println("Save Structure as " + (uuid.toString() + i));
 			}
+
+      		// Actually set the data
+      		compound.setTag(uuid.toString(), userStructures);
 	 	}
 		// Trim the trailing comma
 		String uuids = uuidList.toString().substring(0, uuidList.length() - 1);
@@ -153,14 +163,17 @@ public class StructureData extends WorldSavedData
 
 		for(String uuid : uuidList) {
 			// This has all of the users structure information in it, we need to parse it out
-			NBTTagCompound userStructures = (NBTTagCompound)compound.getTag(Constants.NBT_STRUCTURES_UUID_LIST);
+			NBTTagCompound userStructures = (NBTTagCompound)compound.getTag(uuid);
 			int numStruct = userStructures.getInteger(Constants.NBT_STRUCTURES_LEN);
 
 			List<Structure> curUserStructList = new ArrayList<>();
 
 			// Go through and deseralize the structures
 			for(int i = 0; i < numStruct; ++i) {
-				Structure curStruct = new Structure((NBTTagCompound) compound.getTag(uuid + i));
+				System.out.println("Load Structure with " + (uuid + i));
+
+				Structure curStruct = new Structure((NBTTagCompound) userStructures.getTag(uuid + i));
+
 				curUserStructList.add(curStruct);
 				tickList.add(curStruct);
 			}

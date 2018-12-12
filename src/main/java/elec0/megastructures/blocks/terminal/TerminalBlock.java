@@ -48,7 +48,7 @@ public class TerminalBlock extends BaseBlock implements ITileEntityProvider
 	{
 
 		TileEntity te = getTE(world, pos);
-		if(!(te instanceof TerminalTileEntity))
+		if(te == null)
 			return false;
 
 		if(world.isRemote)

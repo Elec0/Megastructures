@@ -268,7 +268,7 @@ public class TerminalGui extends GuiScreen
 
 		btnSize = fontRenderer.getStringWidth("Create");
 		buttonList.add(structCreate = new GuiButton(nextID(), left, (viewTop) + btnHeight * 2, btnSize + btnBorder, btnHeight, "Create"));
-		buttonList.add(structCreate = new GuiButton(nextID(), left, (viewTop + btnHeight) + btnHeight * 2, btnSize + btnBorder, btnHeight, "Delete"));
+		buttonList.add(structDelete = new GuiButton(nextID(), left, (viewTop + btnHeight) + btnHeight * 2, btnSize + btnBorder, btnHeight, "Delete"));
 
 		// To handle when the GUI is resized, everything is cleared so need to be re-initialized
 		if(viewSector != null)

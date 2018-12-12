@@ -13,6 +13,7 @@ public class MSWorldSavedData extends WorldSavedData
 
 	private Galaxy galaxy;
 
+	public MSWorldSavedData(String s) { super(s); }
 	public MSWorldSavedData()
 	{
 		super(DATA_NAME);

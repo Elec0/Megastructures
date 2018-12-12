@@ -1,6 +1,5 @@
 package elec0.megastructures;
 
-import elec0.megastructures.capabilities.MSWorldSavedData;
 import elec0.megastructures.capabilities.StructureData;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingJumpEvent;
