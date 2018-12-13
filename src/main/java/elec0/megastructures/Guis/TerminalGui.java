@@ -207,7 +207,6 @@ public class TerminalGui extends GuiScreen
 		int left = viewLeft + subX * viewSubsystems + PAD_LEFT, top = viewTop + subY * viewSubsystems + PAD_TOP;
 
 		Location loc = null;
-		Vector2i position = null;
 		Vector2i.Vector2iInterface vecInt = null;
 
 		if(zoom == 0) // Celestials
@@ -226,7 +225,7 @@ public class TerminalGui extends GuiScreen
 
 		if(loc != null)
 		{
-			position = vecInt.position(loc.getPosition());
+			Vector2i position = vecInt.position(loc.getPosition());
 			drawRect(left, top, left + INFO_WIDTH + PAD_LEFT, top + INFO_HEIGHT + PAD_TOP, 0xBA9B9B9B);
 			fontRenderer.drawSplitString(loc.getName() + " " + position, left + PAD_LEFT, top + PAD_TOP, INFO_WIDTH,0x000000);
 		}

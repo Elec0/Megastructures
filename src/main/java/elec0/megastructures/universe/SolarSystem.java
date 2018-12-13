@@ -98,6 +98,7 @@ public class SolarSystem extends Location
 				{
 					if(positionToSubsystem(cel.getPosition()).equals(positionToSubsystem(p.getPosition())))
 					{
+						// TODO: Fix this
 						// If it does, regenerate the planet until it doesn't
 						canAdd = false;
 						System.out.println("Celestial generation collision at " + p.getPosition());
