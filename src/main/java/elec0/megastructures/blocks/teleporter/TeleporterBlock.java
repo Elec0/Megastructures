@@ -3,6 +3,7 @@ package elec0.megastructures.blocks.teleporter;
 import elec0.megastructures.Megastructures;
 import elec0.megastructures.blocks.BaseBlock;
 import elec0.megastructures.blocks.powertap.PowerTapTileEntity;
+import elec0.megastructures.proxy.GUIProxy;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -47,10 +48,9 @@ public class TeleporterBlock extends BaseBlock implements ITileEntityProvider
 			return false;
 
 		if(world.isRemote)
-		{
-			//player.openGui(Megastructures.instance, GUIProxy.TERMINAL_GUI, world, pos.getX(), pos.getY(), pos.getZ());
 			return true;
-		}
+
+		player.openGui(Megastructures.instance, GUIProxy.TELEPORTER_GUI, world, pos.getX(), pos.getY(), pos.getZ());
 
 		//MSWorldSavedData wsd = MSWorldSavedData.getData(world);
 		//PacketHandler.INSTANCE.sendTo(new PacketSendTerminalData(wsd.getGalaxy(), wsd.getGalaxy().getSector()), (EntityPlayerMP)player);

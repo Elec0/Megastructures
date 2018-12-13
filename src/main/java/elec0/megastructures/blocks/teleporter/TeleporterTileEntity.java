@@ -13,8 +13,9 @@ import net.minecraftforge.oredict.OreDictionary;
 
 public class TeleporterTileEntity extends TileEntity implements ITickable
 {
+	public static final int SIZE = 9;
 	// This item handler will hold our nine inventory slots
-	private TeleporterItemStackHandler itemStackHandler = new TeleporterItemStackHandler(32) {
+	private TeleporterItemStackHandler itemStackHandler = new TeleporterItemStackHandler(SIZE) {
 		@Override
 		protected void onContentsChanged(int slot) {
 			// We need to tell the tile entity that something has changed so
@@ -48,6 +49,12 @@ public class TeleporterTileEntity extends TileEntity implements ITickable
 	private void consumeItems() {
 
 	}
+
+	public boolean canInteractWith(EntityPlayer playerIn) {
+		// If we are too far away from this tile entity you cannot use it
+		return !isInvalid() && playerIn.getDistanceSq(pos.add(0.5D, 0.5D, 0.5D)) <= 64D;
+	}
+
 	@Override
 	public void readFromNBT(NBTTagCompound compound) {
 		super.readFromNBT(compound);

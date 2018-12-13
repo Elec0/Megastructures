@@ -109,6 +109,7 @@ public abstract class AbstractTileStructureEnergy extends TileEntity
 	}
 
 	/**
+	 * TODO: This doesn't work when the blocks are loaded
 	 * To be called at the same time at setOwner
 	 * Need to rotate newFaces such that North is towards FACING
 	 * We want to apply one of three functions to all faces: rotateY(), rotateYCCW(), or getOpposite()
