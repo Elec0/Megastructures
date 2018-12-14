@@ -33,6 +33,9 @@ public class DysonSphereStructure extends Structure
 
 		setMaxEnergyGen(maxEnergy); // RF/t
 
+		// Set required materials
+		addNeededConsutructionMaterial("oreIron", 128);
+
 	}
 	public DysonSphereStructure(NBTTagCompound nbtStructure) {
 		super(nbtStructure); // This also calls deseralizeNBT
