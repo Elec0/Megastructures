@@ -167,7 +167,9 @@ public class StructureData extends WorldSavedData
       		compound.setTag(uuid.toString(), userStructures);
 	 	}
 		// Trim the trailing comma
-		String uuids = uuidList.toString().substring(0, uuidList.length() - 1);
+		String uuids = "";
+		if(uuidList.length() > 0)
+			uuids = uuidList.toString().substring(0, uuidList.length() - 1);
 		compound.setString(Constants.NBT_STRUCTURES_UUID_LIST, uuids);
 
 		return compound;

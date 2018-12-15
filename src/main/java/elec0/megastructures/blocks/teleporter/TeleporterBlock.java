@@ -35,7 +35,7 @@ public class TeleporterBlock extends BaseBlock implements ITileEntityProvider
 		super.onBlockPlacedBy(world, pos, state, placer, stack);
 		if(!world.isRemote)
 		{
-			//getTE(world, pos).setPlacer(placer.getUniqueID());
+			getTE(world, pos).setOwner(placer.getUniqueID());
 		}
 	}
 

@@ -44,14 +44,14 @@ public class Structure implements INBTSerializable<NBTTagCompound>
 
 	public static final String[] TYPES = new String[]{"Dyson Sphere"};
 
+	@SuppressWarnings("unchecked")
 	public Structure(UUID player, String name, int maxStage) {
 		this.player = player;
 		this.name = name;
 		this.maxStage = maxStage;
-	}
-	public Structure(UUID player, String name) {
-		this.player = player;
-		this.name = name;
+		curMaterials = new HashMap[maxStage];
+		neededMaterials = new HashMap[maxStage];
+
 	}
 
 	public Structure(NBTTagCompound nbtStructure) {
@@ -100,11 +100,12 @@ public class Structure implements INBTSerializable<NBTTagCompound>
 		}
 		setProgress((int)(totalHave/totalNeeded));
 
-		// There's probably somewhere better to put this, but for now it's here
-		if(getProgress() == 100)
-			constructionFinished();
-
+		// This needs to go above constructionFinished
 		setConstructing(true);
+
+		// There's probably somewhere better to put this, but for now it's here
+		if(getProgress() <= 100)
+			constructionFinished();
 
 		return getProgress();
 	}
@@ -113,6 +114,8 @@ public class Structure implements INBTSerializable<NBTTagCompound>
 	 * Finish the construction of the current stage
 	 */
 	protected void constructionFinished() {
+		System.out.println("Has been completed");
+
 		// We've gotten here, so that means that we have all the needed requirements
 		setConstructing(false);
 		// Idk if this is the best way to do this, but whatever
@@ -137,6 +140,10 @@ public class Structure implements INBTSerializable<NBTTagCompound>
 	 * @param count
 	 */
 	public void addNeededConsutructionMaterial(String oreDict, int stage, int count) {
+		// Init the hashmap
+		if(neededMaterials[stage] == null)
+			neededMaterials[stage] = new HashMap<>();
+
 		if(!neededMaterials[stage].containsKey(oreDict))
 			neededMaterials[stage].put(oreDict, count);
 		else
@@ -149,7 +156,7 @@ public class Structure implements INBTSerializable<NBTTagCompound>
 	 * @param count
 	 */
 	public boolean addMaterial(String oreDict, int count) throws KeyException {
-		// This shouldn't happen, but just in case it does
+		// This will happen if a material has 2 different values in oreDict, one that is accepted by the structure and one that isn't
 		if(!getNeededMaterials().containsKey(oreDict))
 			throw new KeyException("Trying to add material " + oreDict + " when it isn't needed");
 
@@ -157,8 +164,14 @@ public class Structure implements INBTSerializable<NBTTagCompound>
 		if(!isConstructing())
 			return false;
 
+		// Initialize the hashmap if it isn't already
+		if(getCurMaterials() == null)
+			curMaterials[curStage] = new HashMap<>();
+
 		if(!getCurMaterials().containsKey(oreDict))
 			getCurMaterials().put(oreDict, 0);
+
+		System.out.println("Adding " + oreDict + ": " + getCurMaterials().get(oreDict) + "/" + getNeededMaterials().get(oreDict));
 
 		// Stop if we try to put too many in
 		if(getCurMaterials().get(oreDict) + count > getNeededMaterials().get(oreDict))
