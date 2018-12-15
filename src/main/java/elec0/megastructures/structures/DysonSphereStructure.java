@@ -35,7 +35,7 @@ public class DysonSphereStructure extends Structure
 		setMaxEnergyGen(maxEnergy); // RF/t
 
 		// Set required materials
-		addNeededConsutructionMaterial("oreIron", 0, 128);
+		addNeededConsutructionMaterial("ingotIron", 0, 128);
 
 	}
 	public DysonSphereStructure(NBTTagCompound nbtStructure) {

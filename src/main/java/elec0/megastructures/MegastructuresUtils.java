@@ -43,6 +43,7 @@ public class MegastructuresUtils
 			int count = entry.getValue();
 			sb = sb.append(oreName).append(",").append(count).append(";");
 		}
+		// TODO: Check index out of bounds
 		return sb.substring(0, sb.length() - 1);
 	}
 }

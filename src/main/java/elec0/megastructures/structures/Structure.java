@@ -49,8 +49,18 @@ public class Structure implements INBTSerializable<NBTTagCompound>
 		this.player = player;
 		this.name = name;
 		this.maxStage = maxStage;
-		curMaterials = new HashMap[maxStage];
-		neededMaterials = new HashMap[maxStage];
+		curMaterials = new HashMap[maxStage + 1];
+		neededMaterials = new HashMap[maxStage + 1];
+		stageName = new String[maxStage + 1];
+		stageDesc = new String[maxStage + 1];
+
+		for(int i = 0; i < maxStage + 1; ++i) {
+			curMaterials[i] = new HashMap<>();
+			neededMaterials[i] = new HashMap<>();
+
+			stageName[i] = "";
+			stageDesc[i] = "";
+		}
 
 	}
 
@@ -96,16 +106,19 @@ public class Structure implements INBTSerializable<NBTTagCompound>
 			int count = entry.getValue();
 
 			totalNeeded += count;
-			totalHave += getCurMaterials().get(oreName);
+			if(getCurMaterials() != null && getCurMaterials().containsKey(oreName))
+				totalHave += getCurMaterials().get(oreName);
 		}
-		setProgress((int)(totalHave/totalNeeded));
+		setProgress((int)((totalHave/totalNeeded) * 100));
 
 		// This needs to go above constructionFinished
+		// It shouldn't always be constructing
 		setConstructing(true);
 
 		// There's probably somewhere better to put this, but for now it's here
-		if(getProgress() <= 100)
+		if(getProgress() >= 100)
 			constructionFinished();
+
 
 		return getProgress();
 	}
@@ -140,14 +153,11 @@ public class Structure implements INBTSerializable<NBTTagCompound>
 	 * @param count
 	 */
 	public void addNeededConsutructionMaterial(String oreDict, int stage, int count) {
-		// Init the hashmap
-		if(neededMaterials[stage] == null)
-			neededMaterials[stage] = new HashMap<>();
-
-		if(!neededMaterials[stage].containsKey(oreDict))
+		if(neededMaterials != null) {
 			neededMaterials[stage].put(oreDict, count);
-		else
-			neededMaterials[stage].put(oreDict, count + neededMaterials[stage].get(oreDict));
+			curMaterials[stage].put(oreDict, 0);
+			setConstructing(true);
+		}
 	}
 
 	/**
@@ -164,14 +174,8 @@ public class Structure implements INBTSerializable<NBTTagCompound>
 		if(!isConstructing())
 			return false;
 
-		// Initialize the hashmap if it isn't already
-		if(getCurMaterials() == null)
-			curMaterials[curStage] = new HashMap<>();
-
 		if(!getCurMaterials().containsKey(oreDict))
 			getCurMaterials().put(oreDict, 0);
-
-		System.out.println("Adding " + oreDict + ": " + getCurMaterials().get(oreDict) + "/" + getNeededMaterials().get(oreDict));
 
 		// Stop if we try to put too many in
 		if(getCurMaterials().get(oreDict) + count > getNeededMaterials().get(oreDict))
@@ -189,6 +193,7 @@ public class Structure implements INBTSerializable<NBTTagCompound>
 		}
 
 		getCurMaterials().put(oreDict, getCurMaterials().get(oreDict) + count);
+		System.out.println("Adding " + oreDict + ": " + getCurMaterials().get(oreDict) + "/" + getNeededMaterials().get(oreDict));
 		return true;
 	}
 
@@ -215,9 +220,13 @@ public class Structure implements INBTSerializable<NBTTagCompound>
 		this.curStage = curStage;
 	}
 	public HashMap<String, Integer> getCurMaterials(){
+//		if(curMaterials.length < curStage)
+//			return null;
 		return curMaterials[curStage];
 	}
 	public HashMap<String, Integer> getNeededMaterials(){
+//		if(neededMaterials.length < curStage)
+//			return null;
 		return neededMaterials[curStage];
 	}
 	public boolean isConstructing(){
@@ -273,7 +282,7 @@ public class Structure implements INBTSerializable<NBTTagCompound>
 		tag.setString(NBT_STAGE_NAME, String.join(";", stageName));
 		tag.setString(NBT_STAGE_DESC, String.join(";", stageDesc));
 
-		for(int i = 0; i < maxStage; ++i)
+		for(int i = 0; i < maxStage + 1; ++i)
 		{
 			tag.setString(NBT_CUR_MATS + i,  MegastructuresUtils.createStringFromHashMap(curMaterials[i]));
 			tag.setString(NBT_TOT_MATS + i,  MegastructuresUtils.createStringFromHashMap(neededMaterials[i]));
@@ -292,29 +301,39 @@ public class Structure implements INBTSerializable<NBTTagCompound>
 	@Override
 	public void deserializeNBT(NBTTagCompound nbt)
 	{
-		this.player = UUID.fromString(nbt.getString(NBT_PLAYER));
-		this.name = nbt.getString(NBT_NAME);
-		this.type = nbt.getInteger(NBT_TYPE);
-		this.progress = nbt.getInteger(NBT_PROGRESS);
-		this.energy = nbt.getDouble(NBT_ENERGY);
-		this.maxEnergyGen = nbt.getDouble(NBT_MAX_ENERGY_GEN);
-		this.curStage = nbt.getInteger(NBT_STAGE);
-		this.maxStage = nbt.getInteger(NBT_MAX_STAGE);
+		if(nbt.hasKey(NBT_PLAYER))
+			this.player = UUID.fromString(nbt.getString(NBT_PLAYER));
+		if(nbt.hasKey(NBT_NAME))
+			this.name = nbt.getString(NBT_NAME);
+		if(nbt.hasKey(NBT_TYPE))
+			this.type = nbt.getInteger(NBT_TYPE);
+		if(nbt.hasKey(NBT_PROGRESS))
+			this.progress = nbt.getInteger(NBT_PROGRESS);
+		if(nbt.hasKey(NBT_ENERGY))
+			this.energy = nbt.getDouble(NBT_ENERGY);
+		if(nbt.hasKey(NBT_MAX_ENERGY_GEN))
+			this.maxEnergyGen = nbt.getDouble(NBT_MAX_ENERGY_GEN);
+		if(nbt.hasKey(NBT_STAGE))
+			this.curStage = nbt.getInteger(NBT_STAGE);
+		if(nbt.hasKey(NBT_MAX_STAGE))
+			this.maxStage = nbt.getInteger(NBT_MAX_STAGE);
+		if(nbt.hasKey(NBT_CONSTRUCTING))
+			this.constructing = nbt.getBoolean(NBT_CONSTRUCTING);
+		if(nbt.hasKey(NBT_STAGE_NAME))
+			this.stageName = nbt.getString(NBT_STAGE_NAME).split(";");
+		if(nbt.hasKey(NBT_STAGE_DESC))
+			this.stageDesc = nbt.getString(NBT_STAGE_DESC).split(";");
 
 		// Since we have multiple stages stored here, initialize the array
-		this.curMaterials = new HashMap[this.maxStage];
-		this.neededMaterials = new HashMap[this.maxStage];
-
-		this.stageName = nbt.getString(NBT_STAGE_NAME).split(";");
-		this.stageDesc = nbt.getString(NBT_STAGE_DESC).split(";");
+		this.curMaterials = new HashMap[maxStage + 1];
+		this.neededMaterials = new HashMap[maxStage + 1];
 
 		// Now go through and load the values of each one
-		for(int i = 0; i < maxStage; ++i) {
+		for(int i = 0; i < maxStage + 1; ++i) {
 			String curMats = nbt.getString(NBT_CUR_MATS + i);
 			String totMats = nbt.getString(NBT_TOT_MATS + i);
 			this.curMaterials[i] = MegastructuresUtils.readHashMapFromString(curMats);
 			this.neededMaterials[i] =  MegastructuresUtils.readHashMapFromString(totMats);
 		}
-		this.constructing = nbt.getBoolean(NBT_CONSTRUCTING);
 	}
 }
