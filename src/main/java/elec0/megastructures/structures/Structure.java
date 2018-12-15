@@ -1,5 +1,6 @@
 package elec0.megastructures.structures;
 
+import elec0.megastructures.MegastructuresUtils;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.util.INBTSerializable;
 
@@ -14,13 +15,16 @@ public class Structure implements INBTSerializable<NBTTagCompound>
 	private UUID player;					// The player who owns this structure
 	private String name;					//
 	private int type;						// index for TYPES array
-	private int progress;					// 0-100, percent of current stage construction completion
+	private int progress;					// 0-100, percent of current curStage construction completion
 	private double energy;					// Amount of RF that is stored in this structure (1 RF = 2.5J)
 	private double maxEnergyGen;			// Max amount of energy possible to generate per tick
-	private int stage;						// Some stages don't generate power or have different options
+	private int curStage;					// Some stages don't generate power or have different options
 											// Stage 0 is non-functional in every way. No power, computation, anything
-	private HashMap<String, Integer> curMaterials;		// Map of oredict,count for the number of mats for the current construction that are in the network
-	private HashMap<String, Integer> neededMaterials;	// Map of oredict,count for the total number of mats needed for the current construction
+	private int maxStage;					// The total number of stages a given structure has
+	private String[] stageName;
+	private String[] stageDesc;
+	private HashMap<String, Integer>[] curMaterials;		// Map of oredict,count for the number of mats for the current construction that are in the network
+	private HashMap<String, Integer>[] neededMaterials;		// Map of oredict,count for the total number of mats needed for the current construction
 	private boolean constructing;			// Are we building something or not
 
 
@@ -30,14 +34,21 @@ public class Structure implements INBTSerializable<NBTTagCompound>
 	public static final String NBT_PROGRESS = "progress";
 	public static final String NBT_ENERGY = "energy";
 	public static final String NBT_MAX_ENERGY_GEN = "maxEnergyGen";
-	public static final String NBT_STAGE = "stage";
+	public static final String NBT_STAGE = "curStage";
 	public static final String NBT_CUR_MATS = "curMats";
 	public static final String NBT_TOT_MATS = "totMats";
 	public static final String NBT_CONSTRUCTING = "constructing";
+	public static final String NBT_MAX_STAGE = "maxStage";
+	public static final String NBT_STAGE_NAME = "stageName";
+	public static final String NBT_STAGE_DESC = "stageDesc";
 
 	public static final String[] TYPES = new String[]{"Dyson Sphere"};
 
-
+	public Structure(UUID player, String name, int maxStage) {
+		this.player = player;
+		this.name = name;
+		this.maxStage = maxStage;
+	}
 	public Structure(UUID player, String name) {
 		this.player = player;
 		this.name = name;
@@ -53,30 +64,59 @@ public class Structure implements INBTSerializable<NBTTagCompound>
 	 */
 	public void update() {
 		generate();
-		checkConstruction();
+		checkProgress();
 	}
 
 	/**
 	 * Generate energy, if this is a structure that does that
+	 * Default behavior is power increasing as progress does, override this method to change that
 	 * Note:
 	 */
 	public void generate() {
-		if(stage > 0) {
+		if(curStage > 0) {
 			double prog = getProgress() / 100d; // Convert this into a percentage
-			double energyToGen = prog * getMaxEnergyGen();
+			double energyToGen = prog * getMaxEnergyGen(); // Get that percentage of the total output
 			setEnergy(getEnergy() + energyToGen);
 		}
 	}
 
 	/**
 	 * Check to see if there is construction ongoing, and if it's done yet
+	 * If it is done, call constructionFinished
+	 * If it isn't done, figure out what percentage is done
 	 */
-	public void checkConstruction() {
-		if(!isConstructing())
-			return;
+	public int checkProgress() {
+		double totalNeeded = 0;
+		double totalHave = 0;
 
-		// Loop through all the cur materials to check if they are full
+		// Loop through all the materials and check how much of them we have gotten across the board
+		for (Map.Entry<String, Integer> entry : getNeededMaterials().entrySet())
+		{
+			String oreName = entry.getKey();
+			int count = entry.getValue();
 
+			totalNeeded += count;
+			totalHave += getCurMaterials().get(oreName);
+		}
+		setProgress((int)(totalHave/totalNeeded));
+
+		// There's probably somewhere better to put this, but for now it's here
+		if(getProgress() == 100)
+			constructionFinished();
+
+		setConstructing(true);
+
+		return getProgress();
+	}
+
+	/**
+	 * Finish the construction of the current stage
+	 */
+	protected void constructionFinished() {
+		// We've gotten here, so that means that we have all the needed requirements
+		setConstructing(false);
+		// Idk if this is the best way to do this, but whatever
+		setCurStage(getCurStage() + 1);
 	}
 
 	/**
@@ -84,7 +124,7 @@ public class Structure implements INBTSerializable<NBTTagCompound>
 	 * @param amt
 	 */
 	public void consume(double amt) {
-		if(stage > 0)
+		if(curStage > 0)
 			setEnergy(getEnergy() - amt);
 	}
 
@@ -96,11 +136,11 @@ public class Structure implements INBTSerializable<NBTTagCompound>
 	 * @param oreDict
 	 * @param count
 	 */
-	public void addNeededConsutructionMaterial(String oreDict, int count) {
-		if(!neededMaterials.containsKey(oreDict))
-			neededMaterials.put(oreDict, count);
+	public void addNeededConsutructionMaterial(String oreDict, int stage, int count) {
+		if(!neededMaterials[stage].containsKey(oreDict))
+			neededMaterials[stage].put(oreDict, count);
 		else
-			neededMaterials.put(oreDict, count + neededMaterials.get(oreDict));
+			neededMaterials[stage].put(oreDict, count + neededMaterials[stage].get(oreDict));
 	}
 
 	/**
@@ -110,28 +150,32 @@ public class Structure implements INBTSerializable<NBTTagCompound>
 	 */
 	public boolean addMaterial(String oreDict, int count) throws KeyException {
 		// This shouldn't happen, but just in case it does
-		if(!neededMaterials.containsKey(oreDict))
+		if(!getNeededMaterials().containsKey(oreDict))
 			throw new KeyException("Trying to add material " + oreDict + " when it isn't needed");
 
-		if(!curMaterials.containsKey(oreDict))
-			curMaterials.put(oreDict, 0);
+		// Make sure we're actually building something before we eat materials
+		if(!isConstructing())
+			return false;
+
+		if(!getCurMaterials().containsKey(oreDict))
+			getCurMaterials().put(oreDict, 0);
 
 		// Stop if we try to put too many in
-		if(curMaterials.get(oreDict) + count > neededMaterials.get(oreDict))
+		if(getCurMaterials().get(oreDict) + count > getNeededMaterials().get(oreDict))
 		{
-			int diff = (curMaterials.get(oreDict) + count) - neededMaterials.get(oreDict);
+			int diff = (getCurMaterials().get(oreDict) + count) - getNeededMaterials().get(oreDict);
 			if(diff == 0) // We need no more to complete the structure
 				return false;
 			else // We do actually need some amount of this transfer to complete the structure
 			{
 				// TODO: Figure out how to give the excess back
-				curMaterials.put(oreDict, neededMaterials.get(oreDict));
+				getCurMaterials().put(oreDict, getNeededMaterials().get(oreDict));
 
 				return true;
 			}
 		}
 
-		curMaterials.put(oreDict, curMaterials.get(oreDict) + count);
+		getCurMaterials().put(oreDict, getCurMaterials().get(oreDict) + count);
 		return true;
 	}
 
@@ -151,17 +195,17 @@ public class Structure implements INBTSerializable<NBTTagCompound>
 	public void setEnergy(double energy){this.energy = energy;}
 	public double getMaxEnergyGen(){return maxEnergyGen;}
 	public void setMaxEnergyGen(double maxEnergyGen){this.maxEnergyGen = maxEnergyGen;}
-	public int getStage() {
-		return stage;
+	public int getCurStage() {
+		return curStage;
 	}
-	public void setStage(int stage) {
-		this.stage = stage;
+	public void setCurStage(int curStage) {
+		this.curStage = curStage;
 	}
 	public HashMap<String, Integer> getCurMaterials(){
-		return curMaterials;
+		return curMaterials[curStage];
 	}
 	public HashMap<String, Integer> getNeededMaterials(){
-		return neededMaterials;
+		return neededMaterials[curStage];
 	}
 	public boolean isConstructing(){
 		return constructing;
@@ -169,7 +213,26 @@ public class Structure implements INBTSerializable<NBTTagCompound>
 	public void setConstructing(boolean constructing){
 		this.constructing = constructing;
 	}
-
+	public int getMaxStage() {
+		return maxStage;
+	}
+	public void setMaxStage(int maxStage) {
+		this.maxStage = maxStage;
+	}
+	public String getStageName() {
+		return stageName[curStage];
+	}
+	public void setStageName(String stageName) {
+		this.stageName[curStage] = stageName;
+	}
+	public String getStageDesc() {
+		return stageDesc[curStage];
+	}
+	public void setStageDesc(String stageDesc) {
+		this.stageDesc[curStage] = stageDesc;
+	}
+	public String[] getAllStageNames() { return stageName; }
+	public String[] getAllStageDescs() { return stageDesc; }
 
 	/* *****************************
 	 *** Serializing Information ***
@@ -191,26 +254,17 @@ public class Structure implements INBTSerializable<NBTTagCompound>
 		tag.setInteger(NBT_PROGRESS, progress);
 		tag.setDouble(NBT_ENERGY, energy);
 		tag.setDouble(NBT_MAX_ENERGY_GEN, maxEnergyGen);
-		tag.setInteger(NBT_STAGE, stage);
+		tag.setInteger(NBT_STAGE, curStage);
 
-		char sepChar = ';';
-		StringBuilder curMats = new StringBuilder();
-		for (Map.Entry<String, Integer> entry : curMaterials.entrySet())
+		tag.setInteger(NBT_MAX_STAGE, maxStage);
+		tag.setString(NBT_STAGE_NAME, String.join(";", stageName));
+		tag.setString(NBT_STAGE_DESC, String.join(";", stageDesc));
+
+		for(int i = 0; i < maxStage; ++i)
 		{
-			String oreName = entry.getKey();
-			int count = entry.getValue();
-			curMats = curMats.append(oreName).append(",").append(count).append(sepChar);
+			tag.setString(NBT_CUR_MATS + i,  MegastructuresUtils.createStringFromHashMap(curMaterials[i]));
+			tag.setString(NBT_TOT_MATS + i,  MegastructuresUtils.createStringFromHashMap(neededMaterials[i]));
 		}
-		StringBuilder totMats = new StringBuilder();
-		for (Map.Entry<String, Integer> entry : neededMaterials.entrySet())
-		{
-			String oreName = entry.getKey();
-			int count = entry.getValue();
-			totMats = totMats.append(oreName).append(",").append(count).append(sepChar);
-		}
-		// Trim trailing ';'
-		tag.setString(NBT_CUR_MATS, curMats.toString().substring(0, curMats.length() - 1));
-		tag.setString(NBT_TOT_MATS, totMats.toString().substring(0, curMats.length() - 1));
 		tag.setBoolean(NBT_CONSTRUCTING, constructing);
 
 
@@ -221,6 +275,7 @@ public class Structure implements INBTSerializable<NBTTagCompound>
 	 * Deseralize the saved structure
 	 * @param nbt
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public void deserializeNBT(NBTTagCompound nbt)
 	{
@@ -230,25 +285,23 @@ public class Structure implements INBTSerializable<NBTTagCompound>
 		this.progress = nbt.getInteger(NBT_PROGRESS);
 		this.energy = nbt.getDouble(NBT_ENERGY);
 		this.maxEnergyGen = nbt.getDouble(NBT_MAX_ENERGY_GEN);
-		this.stage = nbt.getInteger(NBT_STAGE);
+		this.curStage = nbt.getInteger(NBT_STAGE);
+		this.maxStage = nbt.getInteger(NBT_MAX_STAGE);
 
-		String curMats = nbt.getString(NBT_CUR_MATS);
-		String totMats = nbt.getString(NBT_TOT_MATS);
-		this.curMaterials = readHashMapFromString(curMats);
-		this.neededMaterials = readHashMapFromString(totMats);
-		this.constructing = nbt.getBoolean(NBT_CONSTRUCTING);
-	}
+		// Since we have multiple stages stored here, initialize the array
+		this.curMaterials = new HashMap[this.maxStage];
+		this.neededMaterials = new HashMap[this.maxStage];
 
-	private HashMap<String, Integer> readHashMapFromString(String input) {
-		HashMap<String, Integer> result = new HashMap<>();
+		this.stageName = nbt.getString(NBT_STAGE_NAME).split(";");
+		this.stageDesc = nbt.getString(NBT_STAGE_DESC).split(";");
 
-		String[] pairs = input.split(";");
-		for(String s : pairs) {
-				String[] kvp = s.split(",");
-				int count = Integer.parseInt(kvp[1]);
-				result.put(kvp[0], count);
+		// Now go through and load the values of each one
+		for(int i = 0; i < maxStage; ++i) {
+			String curMats = nbt.getString(NBT_CUR_MATS + i);
+			String totMats = nbt.getString(NBT_TOT_MATS + i);
+			this.curMaterials[i] = MegastructuresUtils.readHashMapFromString(curMats);
+			this.neededMaterials[i] =  MegastructuresUtils.readHashMapFromString(totMats);
 		}
-
-		return result;
+		this.constructing = nbt.getBoolean(NBT_CONSTRUCTING);
 	}
 }

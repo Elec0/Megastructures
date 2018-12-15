@@ -17,9 +17,10 @@ public class DysonSphereStructure extends Structure
 
 
 	public DysonSphereStructure(UUID player, String name, int distance) {
-		super(player, name);
+		super(player, name, 1);
 		setType(0);
-		setProgress(100);
+		setProgress(0);
+		setCurStage(0);
 
 		setDistance(distance);
 		// This value can change, this is just a test.
@@ -34,7 +35,7 @@ public class DysonSphereStructure extends Structure
 		setMaxEnergyGen(maxEnergy); // RF/t
 
 		// Set required materials
-		addNeededConsutructionMaterial("oreIron", 128);
+		addNeededConsutructionMaterial("oreIron", 0, 128);
 
 	}
 	public DysonSphereStructure(NBTTagCompound nbtStructure) {
