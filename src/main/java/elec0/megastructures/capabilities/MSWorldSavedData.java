@@ -7,7 +7,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.storage.MapStorage;
 import net.minecraft.world.storage.WorldSavedData;
 
-public class MSWorldSavedData extends WorldSavedData
+public class MSWorldSavedData extends MegastructuresWSDBase
 {
 	private static final String DATA_NAME = Megastructures.MODID + "_WorldSavedData";
 

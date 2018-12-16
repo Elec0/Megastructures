@@ -2,9 +2,15 @@ package elec0.megastructures.structures;
 
 import elec0.megastructures.MegastructuresUtils;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.world.World;
 import net.minecraftforge.common.util.INBTSerializable;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.security.KeyException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -15,7 +21,8 @@ public class Structure implements INBTSerializable<NBTTagCompound>
 	private UUID player;					// The player who owns this structure
 	private String name;					//
 	private int type;						// index for TYPES array
-	private int progress;					// 0-100, percent of current curStage construction completion
+	private int[] progress;					// 0-100, percent of current curStage construction completion
+	private double[] realProgress;			// The actual progress to be calculated, not just the int
 	private double energy;					// Amount of RF that is stored in this structure (1 RF = 2.5J)
 	private double maxEnergyGen;			// Max amount of energy possible to generate per tick
 	private int curStage;					// Some stages don't generate power or have different options
@@ -27,11 +34,14 @@ public class Structure implements INBTSerializable<NBTTagCompound>
 	private HashMap<String, Integer>[] neededMaterials;		// Map of oredict,count for the total number of mats needed for the current construction
 	private boolean constructing;			// Are we building something or not
 
+	private World world;
+
 
 	public static final String NBT_PLAYER = "player";
 	public static final String NBT_NAME = "name";
 	public static final String NBT_TYPE = "type";
 	public static final String NBT_PROGRESS = "progress";
+	public static final String NBT_REAL_PROGRESS = "realProgress";
 	public static final String NBT_ENERGY = "energy";
 	public static final String NBT_MAX_ENERGY_GEN = "maxEnergyGen";
 	public static final String NBT_STAGE = "curStage";
@@ -43,6 +53,7 @@ public class Structure implements INBTSerializable<NBTTagCompound>
 	public static final String NBT_STAGE_DESC = "stageDesc";
 
 	public static final String[] TYPES = new String[]{"Dyson Sphere"};
+	public static final double PROG_THRESHOLD = 0.000000001d; // Also the min. amount of stuff you have to start generating power
 
 	@SuppressWarnings("unchecked")
 	public Structure(UUID player, String name, int maxStage) {
@@ -53,6 +64,8 @@ public class Structure implements INBTSerializable<NBTTagCompound>
 		neededMaterials = new HashMap[maxStage + 1];
 		stageName = new String[maxStage + 1];
 		stageDesc = new String[maxStage + 1];
+		progress = new int[maxStage + 1];
+		realProgress = new double[maxStage + 1];
 
 		for(int i = 0; i < maxStage + 1; ++i) {
 			curMaterials[i] = new HashMap<>();
@@ -80,11 +93,11 @@ public class Structure implements INBTSerializable<NBTTagCompound>
 	/**
 	 * Generate energy, if this is a structure that does that
 	 * Default behavior is power increasing as progress does, override this method to change that
-	 * Note:
+	 * Note: No power is generated in stage 0
 	 */
 	public void generate() {
 		if(curStage > 0) {
-			double prog = getProgress() / 100d; // Convert this into a percentage
+			double prog = getRealProgress(getCurStage());
 			double energyToGen = prog * getMaxEnergyGen(); // Get that percentage of the total output
 			setEnergy(getEnergy() + energyToGen);
 		}
@@ -94,6 +107,8 @@ public class Structure implements INBTSerializable<NBTTagCompound>
 	 * Check to see if there is construction ongoing, and if it's done yet
 	 * If it is done, call constructionFinished
 	 * If it isn't done, figure out what percentage is done
+	 * Progress is an array with each value being the progress of the given stage
+	 * Once a stage is finished, leave progress at 100
 	 */
 	public int checkProgress() {
 		double totalNeeded = 0;
@@ -109,30 +124,36 @@ public class Structure implements INBTSerializable<NBTTagCompound>
 			if(getCurMaterials() != null && getCurMaterials().containsKey(oreName))
 				totalHave += getCurMaterials().get(oreName);
 		}
-		setProgress((int)((totalHave/totalNeeded) * 100));
+		setRealProgress(getCurStage(), totalHave/totalNeeded);
+		setProgress(getCurStage(), (int)((getRealProgress(getCurStage()) * 100)));
 
 		// This needs to go above constructionFinished
 		// It shouldn't always be constructing
 		setConstructing(true);
 
 		// There's probably somewhere better to put this, but for now it's here
-		if(getProgress() >= 100)
+		if(getProgress(getCurStage()) >= 100)
 			constructionFinished();
 
 
-		return getProgress();
+		return getProgress(getCurStage());
 	}
 
 	/**
 	 * Finish the construction of the current stage
 	 */
 	protected void constructionFinished() {
-		System.out.println("Has been completed");
+		getWorld().getMinecraftServer().getPlayerList().getPlayerByUUID(player).sendMessage(
+				new TextComponentString("Structure " + getName() + " has completed Stage " + getCurStage() + "!"));
 
 		// We've gotten here, so that means that we have all the needed requirements
 		setConstructing(false);
-		// Idk if this is the best way to do this, but whatever
-		setCurStage(getCurStage() + 1);
+		setRealProgress(getCurStage(), 100);
+
+		// If we are at the max stage, then don't increment this value, otherwise we're gonna get errors
+		// Plus we check the current stage's progress in generate()
+		if(getCurStage() != getMaxStage())
+			setCurStage(getCurStage() + 1);
 	}
 
 	/**
@@ -194,6 +215,8 @@ public class Structure implements INBTSerializable<NBTTagCompound>
 
 		getCurMaterials().put(oreDict, getCurMaterials().get(oreDict) + count);
 		System.out.println("Adding " + oreDict + ": " + getCurMaterials().get(oreDict) + "/" + getNeededMaterials().get(oreDict));
+		System.out.println("Progress: " + getRealProgress(getCurStage()));
+
 		return true;
 	}
 
@@ -207,54 +230,36 @@ public class Structure implements INBTSerializable<NBTTagCompound>
 	public String getTypeName() { return TYPES[type]; }
 	public void setType(int type) { this.type = type; }
 	public int getType() { return type; }
-	public int getProgress(){return progress;}
-	public void setProgress(int progress){this.progress = progress;}
+	public int get(int stage){return progress[stage];}
+	public int getProgress(int stage){return this.progress[stage];}
+	public void setProgress(int stage, int progress){this.progress[stage] = progress;}
 	public double getEnergy() {return energy;}
 	public void setEnergy(double energy){this.energy = energy;}
 	public double getMaxEnergyGen(){return maxEnergyGen;}
 	public void setMaxEnergyGen(double maxEnergyGen){this.maxEnergyGen = maxEnergyGen;}
-	public int getCurStage() {
-		return curStage;
-	}
-	public void setCurStage(int curStage) {
-		this.curStage = curStage;
-	}
-	public HashMap<String, Integer> getCurMaterials(){
-//		if(curMaterials.length < curStage)
-//			return null;
-		return curMaterials[curStage];
-	}
-	public HashMap<String, Integer> getNeededMaterials(){
-//		if(neededMaterials.length < curStage)
-//			return null;
-		return neededMaterials[curStage];
-	}
-	public boolean isConstructing(){
-		return constructing;
-	}
-	public void setConstructing(boolean constructing){
-		this.constructing = constructing;
-	}
-	public int getMaxStage() {
-		return maxStage;
-	}
-	public void setMaxStage(int maxStage) {
-		this.maxStage = maxStage;
-	}
-	public String getStageName() {
-		return stageName[curStage];
-	}
-	public void setStageName(String stageName) {
-		this.stageName[curStage] = stageName;
-	}
-	public String getStageDesc() {
-		return stageDesc[curStage];
-	}
-	public void setStageDesc(String stageDesc) {
-		this.stageDesc[curStage] = stageDesc;
-	}
+	public int getCurStage() {return curStage;}
+	public void setCurStage(int curStage) {this.curStage = curStage;}
+	public HashMap<String, Integer> getCurMaterials(){return curMaterials[curStage];}
+	public HashMap<String, Integer> getNeededMaterials(){return neededMaterials[curStage];}
+	public boolean isConstructing(){return constructing;}
+	public void setConstructing(boolean constructing){this.constructing = constructing;}
+	public int getMaxStage() {return maxStage;}
+	public void setMaxStage(int maxStage) {this.maxStage = maxStage;}
+	public String getStageName() {return stageName[curStage];}
+	public void setStageName(String stageName) {this.stageName[curStage] = stageName;}
+	public String getStageDesc() {return stageDesc[curStage];}
+	public void setStageDesc(String stageDesc) {this.stageDesc[curStage] = stageDesc;}
 	public String[] getAllStageNames() { return stageName; }
 	public String[] getAllStageDescs() { return stageDesc; }
+	public World getWorld(){return world;}
+	public void setWorld(World world){this.world = world;}
+	public double getRealProgress(int stage){
+		if(realProgress[stage] < PROG_THRESHOLD)
+			return 0;
+		return realProgress[stage];
+	}
+	public void setRealProgress(int stage, double realProgress){this.realProgress[stage] = realProgress;}
+
 
 	/* *****************************
 	 *** Serializing Information ***
@@ -273,7 +278,8 @@ public class Structure implements INBTSerializable<NBTTagCompound>
 		tag.setString(NBT_PLAYER, player.toString());
 		tag.setString(NBT_NAME, name);
 		tag.setInteger(NBT_TYPE, type);
-		tag.setInteger(NBT_PROGRESS, progress);
+		tag.setString(NBT_PROGRESS, StringUtils.join(ArrayUtils.toObject(progress), ";"));
+		tag.setString(NBT_PROGRESS, StringUtils.join(ArrayUtils.toObject(realProgress), ";"));
 		tag.setDouble(NBT_ENERGY, energy);
 		tag.setDouble(NBT_MAX_ENERGY_GEN, maxEnergyGen);
 		tag.setInteger(NBT_STAGE, curStage);
@@ -308,7 +314,9 @@ public class Structure implements INBTSerializable<NBTTagCompound>
 		if(nbt.hasKey(NBT_TYPE))
 			this.type = nbt.getInteger(NBT_TYPE);
 		if(nbt.hasKey(NBT_PROGRESS))
-			this.progress = nbt.getInteger(NBT_PROGRESS);
+			this.progress = Arrays.stream(nbt.getString(NBT_PROGRESS).split(";")).mapToInt(num -> Integer.parseInt(num)).toArray();
+		if(nbt.hasKey(NBT_REAL_PROGRESS))
+			this.realProgress = Arrays.stream(nbt.getString(NBT_REAL_PROGRESS).split(";")).mapToDouble(num -> Double.parseDouble(num)).toArray();
 		if(nbt.hasKey(NBT_ENERGY))
 			this.energy = nbt.getDouble(NBT_ENERGY);
 		if(nbt.hasKey(NBT_MAX_ENERGY_GEN))

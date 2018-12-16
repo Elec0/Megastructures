@@ -20,7 +20,7 @@ import java.util.*;
  * This does mean that finding a player based on a structure takes O(n) time,
  * but we're going to get around that by storing the player's UUID in the structure
  */
-public class StructureData extends WorldSavedData
+public class StructureData extends MegastructuresWSDBase
 {
 	private static final String DATA_NAME = Megastructures.MODID + "_StructureWSD";
 
@@ -71,8 +71,15 @@ public class StructureData extends WorldSavedData
 
 		if (instance == null) {
 			instance = new StructureData();
+			instance.setWorld(world);
 			storage.setData(DATA_NAME, instance);
+
 		}
+
+		// Always update the world object with the newest world.
+		// This probably isn't really required, but whatever. Shouldn't be too performance heavy
+		instance.setWorld(world);
+
 		return instance;
 	}
 
@@ -87,6 +94,9 @@ public class StructureData extends WorldSavedData
 			if(!structureHash.containsKey(uuid)) {
 				structureHash.put(uuid, new ArrayList<>());
 			}
+
+			// Give the structure the world object so we can use it later
+			structure.setWorld(getWorld());
 
 			// Add the structure to the player's list of structures
 			structureHash.get(uuid).add(structure);
