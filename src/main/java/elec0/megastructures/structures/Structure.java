@@ -55,6 +55,11 @@ public class Structure implements INBTSerializable<NBTTagCompound>
 	public static final String[] TYPES = new String[]{"Dyson Sphere"};
 	public static final double PROG_THRESHOLD = 0.000000001d; // Also the min. amount of stuff you have to start generating power
 
+	/**
+	 * Use with caution
+	 */
+	public Structure() {}
+
 	@SuppressWarnings("unchecked")
 	public Structure(UUID player, String name, int maxStage) {
 		this.player = player;
