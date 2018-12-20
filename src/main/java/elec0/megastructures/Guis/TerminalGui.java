@@ -15,6 +15,7 @@ import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 
+import java.awt.*;
 import java.io.IOException;
 import java.util.List;
 
@@ -55,7 +56,7 @@ public class TerminalGui extends GuiScreen
 		{
 			drawView();
 			handleMouse(mouseX, mouseY);
-			String str = null;
+			String str = "";
 			if(zoom == 0)
 				str = galaxy.getName();
 			else if(zoom == 1)
@@ -68,8 +69,18 @@ public class TerminalGui extends GuiScreen
 
 		// Draw the current progress of the structure(s), plus currently accepted materials and RF generation
 		if(userStructures != null) {
-		    for(Structure s : userStructures) {
-                System.out.println(s.getName());
+		    int textHeight = 3;
+
+		    // Currently just drawing things simply in a line, nothing special
+            // We need to make/import a list or whatever for scrolling since structures are going to be of arbitrary limit in the future
+            // Or, alternatively, make an entirely different GUI that only handles structures. I'm more inclined to do that for future-proofing
+		    for(int i = 0; i < userStructures.size(); ++i) {
+                Structure s = userStructures.get(i);
+                int line = i * textHeight;
+
+                fontRenderer.drawString(s.getName(), left, top + line, 0x000000);
+                fontRenderer.drawString(String.format("%s", s.getEnergy()), left + fontRenderer.getStringWidth(s.getName()) + 2, top + line, 0x000000);
+
             }
         }
 
