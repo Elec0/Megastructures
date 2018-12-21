@@ -284,7 +284,7 @@ public class Structure implements INBTSerializable<NBTTagCompound>
 		tag.setString(NBT_NAME, name);
 		tag.setInteger(NBT_TYPE, type);
 		tag.setString(NBT_PROGRESS, StringUtils.join(ArrayUtils.toObject(progress), ";"));
-		tag.setString(NBT_PROGRESS, StringUtils.join(ArrayUtils.toObject(realProgress), ";"));
+		tag.setString(NBT_REAL_PROGRESS, StringUtils.join(ArrayUtils.toObject(realProgress), ";"));
 		tag.setDouble(NBT_ENERGY, energy);
 		tag.setDouble(NBT_MAX_ENERGY_GEN, maxEnergyGen);
 		tag.setInteger(NBT_STAGE, curStage);
@@ -319,9 +319,9 @@ public class Structure implements INBTSerializable<NBTTagCompound>
 		if(nbt.hasKey(NBT_TYPE))
 			this.type = nbt.getInteger(NBT_TYPE);
 		if(nbt.hasKey(NBT_PROGRESS))
-			this.progress = Arrays.stream(nbt.getString(NBT_PROGRESS).split(";")).mapToInt(num -> Integer.parseInt(num)).toArray();
+			this.progress = Arrays.stream(nbt.getString(NBT_PROGRESS).split(";")).mapToInt(num -> (int)Double.parseDouble(num)).toArray();
 		if(nbt.hasKey(NBT_REAL_PROGRESS))
-			this.realProgress = Arrays.stream(nbt.getString(NBT_REAL_PROGRESS).split(";")).mapToDouble(num -> Double.parseDouble(num)).toArray();
+			this.realProgress = Arrays.stream(nbt.getString(NBT_REAL_PROGRESS).split(";")).mapToDouble(Double::parseDouble).toArray();
 		if(nbt.hasKey(NBT_ENERGY))
 			this.energy = nbt.getDouble(NBT_ENERGY);
 		if(nbt.hasKey(NBT_MAX_ENERGY_GEN))

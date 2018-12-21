@@ -213,6 +213,10 @@ public class PacketSendTerminalData implements IMessage
 	 * @param buf
 	 */
 	private void writeStructureList(ByteBuf buf) {
+		if(structures == null) {
+			buf.writeInt(0);
+			return;
+		}
 		buf.writeInt(structures.size());
 
 		for(Structure s : structures) {

@@ -3,6 +3,7 @@ package elec0.megastructures.blocks.terminal;
 import elec0.megastructures.Megastructures;
 import elec0.megastructures.blocks.BaseBlock;
 import elec0.megastructures.capabilities.MSWorldSavedData;
+import elec0.megastructures.capabilities.StructureData;
 import elec0.megastructures.network.PacketHandler;
 import elec0.megastructures.network.PacketSendTerminalData;
 import elec0.megastructures.proxy.GUIProxy;
@@ -59,7 +60,8 @@ public class TerminalBlock extends BaseBlock implements ITileEntityProvider
 		//player.sendMessage(new TextComponentString("Placer: " + ((TerminalTileEntity)getTE(world,pos)).getPlacer().toString()));
 
 		MSWorldSavedData wsd = MSWorldSavedData.getData(world);
-		PacketHandler.INSTANCE.sendTo(new PacketSendTerminalData(wsd.getGalaxy(), wsd.getGalaxy().getSector()), (EntityPlayerMP)player);
+		StructureData structureData = StructureData.getData(world);
+		PacketHandler.INSTANCE.sendTo(new PacketSendTerminalData(wsd.getGalaxy(), wsd.getGalaxy().getSector(), structureData.getUserStructures(player.getUniqueID())), (EntityPlayerMP)player);
 
 		wsd.save(world);
 
