@@ -1,8 +1,10 @@
 package elec0.megastructures.network;
 
 import elec0.megastructures.capabilities.MSWorldSavedData;
+import elec0.megastructures.capabilities.StructureData;
 import elec0.megastructures.general.Vector2i;
 import io.netty.buffer.ByteBuf;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
@@ -56,9 +58,13 @@ public class PacketRequestTerminalData implements IMessage
 		private void handle(PacketRequestTerminalData message, MessageContext ctx)
 		{
 			// This is server-side
-			MSWorldSavedData wsd = MSWorldSavedData.getData(ctx.getServerHandler().player.world);
+			EntityPlayerMP player = ctx.getServerHandler().player;
+			MSWorldSavedData wsd = MSWorldSavedData.getData(player.world);
+			StructureData structureData = StructureData.getData(player.world);
+
 			// Send the packet back to the player's client with the sector requested
-			PacketHandler.INSTANCE.sendTo(new PacketSendTerminalData(wsd.getGalaxy(), message.sectorRequest), ctx.getServerHandler().player);
+			PacketHandler.INSTANCE.sendTo(new PacketSendTerminalData(wsd.getGalaxy(), message.sectorRequest,
+					structureData.getUserStructures(player.getUniqueID())), player);
 		}
 	}
 }

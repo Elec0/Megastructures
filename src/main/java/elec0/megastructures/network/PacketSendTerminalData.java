@@ -3,32 +3,38 @@ package elec0.megastructures.network;
 import elec0.megastructures.Guis.TerminalGui;
 import elec0.megastructures.general.Vector2i;
 import elec0.megastructures.general.Vector2l;
+import elec0.megastructures.structures.Structure;
 import elec0.megastructures.universe.*;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
+import net.minecraft.nbt.JsonToNBT;
+import net.minecraft.nbt.NBTException;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
-import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 
 public class PacketSendTerminalData implements IMessage
 {
 	private Galaxy galaxy;
 	private Vector2i sectorToSend;
+	private List<Structure> structures;
 
 	public PacketSendTerminalData()
 	{
 
 	}
 
-	public PacketSendTerminalData(Galaxy galaxy, Vector2i sector)
+	public PacketSendTerminalData(Galaxy galaxy, Vector2i sector, List<Structure> structures)
 	{
 		this.galaxy = galaxy;
 		this.sectorToSend = sector;
+		this.structures = structures;
 	}
 
 	@Override
@@ -98,6 +104,8 @@ public class PacketSendTerminalData implements IMessage
 
 			galaxy.addSolarSystem(s);
 		}
+
+		readStructureList(buf);
 	}
 
 	@Override
@@ -170,6 +178,46 @@ public class PacketSendTerminalData implements IMessage
 				}
 			}
 		}
+
+		writeStructureList(buf);
+	}
+
+
+	/**
+	 * Get the list of structures from the byte buffer
+	 * @param buf
+	 */
+	private void readStructureList(ByteBuf buf) {
+		structures = new ArrayList<>();
+		int structSize = buf.readInt();
+
+		for(int i = 0; i < structSize; ++i) {
+			try {
+				// Read the JSON from the server, then convert it into an nbt tag
+				NBTTagCompound curTag = JsonToNBT.getTagFromJson(ByteBufUtils.readUTF8String(buf));
+
+				// Then use the code we've already written for loading from nbt to just load the object
+				Structure cur = new Structure();
+				cur.deserializeNBT(curTag);
+				structures.add(cur);
+			}
+			catch(NBTException e) {
+				System.out.println("Error in reading the NBT from the server.");
+				e.printStackTrace();
+			}
+		}
+	}
+
+	/**
+	 * Serialize and send the structure objects to the client
+	 * @param buf
+	 */
+	private void writeStructureList(ByteBuf buf) {
+		buf.writeInt(structures.size());
+
+		for(Structure s : structures) {
+			ByteBufUtils.writeUTF8String(buf, s.serializeNBT().toString());
+		}
 	}
 
 	/**
@@ -220,7 +268,8 @@ public class PacketSendTerminalData implements IMessage
 				TerminalGui termGui = (TerminalGui) Minecraft.getMinecraft().currentScreen;
 				termGui.setGalaxy(message.galaxy);
 				termGui.setViewSector(message.sectorToSend);
-				termGui.packedFinished();
+				termGui.setUserStructures(message.structures);
+				termGui.packetFinished();
 			}
 		}
     }

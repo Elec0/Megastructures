@@ -7,6 +7,7 @@ import elec0.megastructures.general.Vector2l;
 import elec0.megastructures.network.PacketHandler;
 import elec0.megastructures.network.PacketRequestDirector;
 import elec0.megastructures.network.PacketRequestTerminalData;
+import elec0.megastructures.structures.Structure;
 import elec0.megastructures.universe.*;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -14,6 +15,7 @@ import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 
+import java.awt.*;
 import java.io.IOException;
 import java.util.List;
 
@@ -23,6 +25,7 @@ public class TerminalGui extends GuiScreen
 	private GuiButton structCreate, structDelete;
 	private GuiTextField sectorText;
 	private Galaxy galaxy;
+	private List<Structure> userStructures; // List of the current block's activator's owned structures
 	private int zoom = 0; // 0 = galaxy overview, 1 = solar system overview, 2 = planet overview
 	private int left, right, top, bottom;
 	private int viewLeft, viewRight, viewTop, viewBottom, squareSize, viewSubsectors, viewSubsystems;
@@ -53,7 +56,7 @@ public class TerminalGui extends GuiScreen
 		{
 			drawView();
 			handleMouse(mouseX, mouseY);
-			String str = null;
+			String str = "";
 			if(zoom == 0)
 				str = galaxy.getName();
 			else if(zoom == 1)
@@ -63,6 +66,23 @@ public class TerminalGui extends GuiScreen
 
 			fontRenderer.drawString(str, viewLeft - fontRenderer.getStringWidth(str) - 7, top + 2, 0x000000);
 		}
+
+		// Draw the current progress of the structure(s), plus currently accepted materials and RF generation
+		if(userStructures != null) {
+		    int textHeight = 3;
+
+		    // Currently just drawing things simply in a line, nothing special
+            // We need to make/import a list or whatever for scrolling since structures are going to be of arbitrary limit in the future
+            // Or, alternatively, make an entirely different GUI that only handles structures. I'm more inclined to do that for future-proofing
+		    for(int i = 0; i < userStructures.size(); ++i) {
+                Structure s = userStructures.get(i);
+                int line = i * textHeight;
+
+                fontRenderer.drawString(s.getName(), left, top + line, 0x000000);
+                fontRenderer.drawString(String.format("%s", s.getEnergy()), left + fontRenderer.getStringWidth(s.getName()) + 2, top + line, 0x000000);
+
+            }
+        }
 
 		sectorText.drawTextBox();
 		super.drawScreen(mouseX, mouseY, partialTicks); // Handles drawing things like buttons, which need to be over the background
@@ -265,9 +285,11 @@ public class TerminalGui extends GuiScreen
 		sectorText.setMaxStringLength(30);
 		//sectorText.setCanLoseFocus(true);
 
+        // Structure display stuff
 		btnSize = fontRenderer.getStringWidth("Create");
 		buttonList.add(structCreate = new GuiButton(nextID(), left, (viewTop) + btnHeight * 2, btnSize + btnBorder, btnHeight, "Create"));
 		buttonList.add(structDelete = new GuiButton(nextID(), left, (viewTop + btnHeight) + btnHeight * 2, btnSize + btnBorder, btnHeight, "Delete"));
+
 
 		// To handle when the GUI is resized, everything is cleared so need to be re-initialized
 		if(viewSector != null)
@@ -397,7 +419,7 @@ public class TerminalGui extends GuiScreen
 	/**
 	 * Called by PacketSendTerminalData when the packet is finished being received
 	 */
-	public void packedFinished()
+	public void packetFinished()
 	{
 		// Have to wait till after the packet is received to set the text box
 		String text = "";
@@ -408,16 +430,10 @@ public class TerminalGui extends GuiScreen
 		sectorText.setText(text);
 	}
 
-	public void setGalaxy(Galaxy galaxy)
-	{
-		this.galaxy = galaxy;
-	}
 
-	public void setViewSector(Vector2i viewSector)
-	{
-		this.viewSector = viewSector;
-	}
-
+	public void setGalaxy(Galaxy galaxy) { this.galaxy = galaxy; }
+	public void setViewSector(Vector2i viewSector) { this.viewSector = viewSector; }
+	public void setUserStructures(List<Structure> structureList) { this.userStructures = structureList; }
 	private static int nextID() { return ID++; }
 
 	@Override
