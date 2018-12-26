@@ -3,7 +3,6 @@ package elec0.megastructures.Guis;
 
 import elec0.megastructures.Megastructures;
 import elec0.megastructures.general.Vector2i;
-import elec0.megastructures.general.Vector2l;
 import elec0.megastructures.network.PacketHandler;
 import elec0.megastructures.network.PacketRequestDirector;
 import elec0.megastructures.network.PacketRequestTerminalData;
@@ -13,9 +12,9 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.World;
 import org.lwjgl.opengl.GL11;
 
-import java.awt.*;
 import java.io.IOException;
 import java.util.List;
 
@@ -34,21 +33,45 @@ public class TerminalGui extends GuiScreen
 	private boolean displayGrid = true;
 
 	private static final ResourceLocation background = new ResourceLocation(Megastructures.MODID, "textures/gui/terminal.png");
+
 	private static final int w = 320, h = 150;
 	private static final int PAD_HORIZ = 14, PAD_VERT = 14, BORDER_SIZE = 2, BORDER_VIEW = 3;
+
+	private int structureBoxRight;
+
+	// Update values
+	private long tickCount;
+	private static final int TICK_UPDATE = 5;
+
+	// Button Text values
+	private static final String BTN_LEFT 						= "◄";
+	private static final String BTN_RIGHT 						= "►";
+	private static final String BTN_UP 							= "▲";
+	private static final String BTN_DOWN 						= "▼";
+	private static final String BTN_ZOOM_OUT 					= "Zoom Out";
+	private static final String BTN_HOME 						= "Home";
+	private static final String BTN_GRID 						= "Toggle Grid";
+	private static final String BTN_GO 							= "Go";
+	private static final String BTN_CREATE 						= "Create";
+	private static final String BTN_DELETE 						= "Delete";
+	// End button text values
 	private static int ID = 0;
 
-	public TerminalGui()
-	{
-	}
+	public TerminalGui() {}
 
-	/*
-		drawScreen is called every frame, I believe. Or close enough to not matter.
+	// <editor-fold desc="*** Draw Methods ***">
+
+	// **************************
+	// *** BEGIN DRAW METHODS ***
+	// **************************
+	/**
+	 * drawScreen is called every frame, I believe. Or close enough to not matter.
 	 */
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks)
 	{
 		this.drawDefaultBackground();
+		updateTickCount();
 		calcBounds();
 		drawBackground();
 
@@ -67,47 +90,46 @@ public class TerminalGui extends GuiScreen
 			fontRenderer.drawString(str, viewLeft - fontRenderer.getStringWidth(str) - 7, top + 2, 0x000000);
 		}
 
-		// Draw the current progress of the structure(s), plus currently accepted materials and RF generation
-		if(userStructures != null) {
-		    int textHeight = 3;
+		drawStructureInfo();
 
-		    // Currently just drawing things simply in a line, nothing special
-            // We need to make/import a list or whatever for scrolling since structures are going to be of arbitrary limit in the future
-            // Or, alternatively, make an entirely different GUI that only handles structures. I'm more inclined to do that for future-proofing
-		    for(int i = 0; i < userStructures.size(); ++i) {
-                Structure s = userStructures.get(i);
-                int line = i * textHeight;
+		sectorText.drawTextBox(); // This needs to be updated to account for input
 
-                fontRenderer.drawString(s.getName(), left, top + line, 0x000000);
-                fontRenderer.drawString(String.format("%s", s.getEnergy()), left + fontRenderer.getStringWidth(s.getName()) + 2, top + line, 0x000000);
-
-            }
-        }
-
-		sectorText.drawTextBox();
 		super.drawScreen(mouseX, mouseY, partialTicks); // Handles drawing things like buttons, which need to be over the background
-
 	}
 
 	/**
-	 * Calculate the relevant locations for the GUI, based on the size of the window
+	 * Draw all things related to the structures, excluding the buttons
+	 * TODO: Move this to a different GUI
 	 */
-	private void calcBounds()
-	{
-		// Main gui bounds
-		left = (width / 2) - (PAD_HORIZ + w/2);
-		top = (height / 2) - (PAD_VERT + h/2);
-		right = (width / 2) + (PAD_HORIZ + w/2);
-		bottom = (height / 2) + (PAD_VERT + h/2);
+	private void drawStructureInfo() {
+		// Draw the background no matter what
+		drawStructureBackground();
 
-		// Sector view bounds
-		squareSize = (right-left) / 2;
-		viewLeft = right - squareSize - BORDER_VIEW;
-		viewTop = top + BORDER_VIEW;
-		viewRight = viewLeft + squareSize - BORDER_VIEW;
-		viewBottom = viewTop + squareSize - BORDER_VIEW;
-		viewSubsectors = squareSize / Location.SUBSECTORS;
-		viewSubsystems = squareSize / Location.SUBSYSTEMS;
+		// Draw the current progress of the structure(s), plus currently accepted materials and RF generation
+		if(userStructures != null) {
+			int textHeight = 10;
+			int base = 50;
+
+			// Currently just drawing things simply in a line, nothing special
+			// We need to make/import a list or whatever for scrolling since structures are going to be of arbitrary limit in the future
+			// Or, alternatively, make an entirely different GUI that only handles structures. I'm more inclined to do that for future-proofing
+			for(int i = 0; i < userStructures.size(); ++i) {
+				Structure s = userStructures.get(i);
+				int line = i * textHeight + base;
+				String toDraw = String.format("%s: Stage (%s/%s) %s%%  RF: %s", s.getName(), s.getCurStage(), s.getMaxStage(),
+						s.getProgress(s.getCurStage()), s.getEnergy());
+//				fontRenderer.drawString(toDraw, left, top + line, 0x000000);
+
+				// This is too large
+				fontRenderer.drawSplitString(toDraw, left, top + line, structureBoxRight, 0x000000);
+			}
+		} else {
+			// If there aren't any structures, display a text that says that
+		}
+	}
+
+	private void drawStructureBackground() {
+		drawRect(left + BORDER_SIZE, top + BORDER_SIZE, structureBoxRight, bottom - BORDER_SIZE, 0xFF737373); // Dark grey
 	}
 
 	/***
@@ -135,10 +157,8 @@ public class TerminalGui extends GuiScreen
 		switch(zoom)
 		{
 			case 0: // Sector view
-				List<SolarSystem> sector = galaxy.getSectorList(viewSector);
-				for(int i = 0; i < sector.size(); ++i)
+				for(SolarSystem s : galaxy.getSectorList(viewSector))
 				{
-					SolarSystem s = sector.get(i);
 					Vector2i subsector = Location.positionToSubsector(s.getPosition());
 
 					GL11.glPushMatrix();
@@ -150,14 +170,13 @@ public class TerminalGui extends GuiScreen
 				break;
 
 			case 1: // System view
-				List<Celestial> system = ((SolarSystem) viewLocation).getCelestials();
-				for(int i = 0; i < system.size(); ++i)
+				for(Celestial c : ((SolarSystem) viewLocation).getCelestials())
 				{
-					Celestial c = system.get(i);
 					Vector2i subsystem = Location.positionToSubsystem(c.getPosition());
 
 					GL11.glPushMatrix();
 					GL11.glTranslated(viewLeft + subsystem.getX() * viewSubsystems + 2, viewTop + subsystem.getY() * viewSubsystems + 1, 0);
+
 					if(c instanceof Planet)
 						fontRenderer.drawString("P", 0, 0, 0xFF0000);
 					else if(c instanceof Star)
@@ -199,6 +218,150 @@ public class TerminalGui extends GuiScreen
 
 
 	/**
+	 * Draw the rectangle that shows celestial information in the sector/solar system/planet view
+	 * @param zoom
+	 * @param subX
+	 * @param subY
+	 */
+	private void drawInfo(int zoom, int subX, int subY) {
+		// Keep same sizing as on system map (INFOs)
+		// 4 squares width, 2 squares hieght
+		int INFO_WIDTH = 4 * viewSubsectors, INFO_HEIGHT = 2 * viewSubsectors, PAD_LEFT = 2, PAD_TOP = 2;
+		int left = viewLeft + subX * viewSubsystems + PAD_LEFT, top = viewTop + subY * viewSubsystems + PAD_TOP;
+
+		Location loc = null;
+		Vector2i.Vector2iInterface vecInt = null;
+
+		if (zoom == 0) // Celestials
+		{
+			loc = getSystemSubsector(viewSector, subX, subY);
+			// Functional programming, finally
+			vecInt = Location::positionToSubsector;
+		} else if (zoom == 1) // Solar Systems
+		{
+			loc = getCelestialSubsystem(subX, subY);
+			vecInt = Location::positionToSubsystem;
+		} else if (zoom == 2) // Planets
+		{
+		}
+
+		if (loc != null) {
+			Vector2i position = vecInt.position(loc.getPosition());
+			drawRect(left, top, left + INFO_WIDTH + PAD_LEFT, top + INFO_HEIGHT + PAD_TOP, 0xBA9B9B9B);
+			fontRenderer.drawSplitString(loc.getName() + " " + position, left + PAD_LEFT, top + PAD_TOP, INFO_WIDTH, 0x000000);
+		}
+
+	}
+
+	// ************************
+	// *** END DRAW METHODS ***
+	// ************************
+	// </editor-fold>
+
+	//<editor-fold desc="*** One-Time Methods ***">
+
+	// ******************************
+	// *** BEGIN ONE-TIME METHODS ***
+	// ******************************
+
+	/**
+	 * Calculate the relevant locations for the GUI, based on the size of the window
+	 */
+	private void calcBounds()
+	{
+		// Main gui bounds
+		left = (width / 2) - (PAD_HORIZ + w/2);
+		top = (height / 2) - (PAD_VERT + h/2);
+		right = (width / 2) + (PAD_HORIZ + w/2);
+		bottom = (height / 2) + (PAD_VERT + h/2);
+
+		// Sector view bounds
+		squareSize = (right-left) / 2;
+		viewLeft = right - squareSize - BORDER_VIEW;
+		viewTop = top + BORDER_VIEW;
+		viewRight = viewLeft + squareSize - BORDER_VIEW;
+		viewBottom = viewTop + squareSize - BORDER_VIEW;
+		viewSubsectors = squareSize / Location.SUBSECTORS;
+		viewSubsystems = squareSize / Location.SUBSYSTEMS;
+	}
+
+	/**
+	 * Adds the buttons (and other controls) to the screen in question. Called when the GUI is displayed and when the
+	 * window resizes, the buttonList is cleared beforehand.
+	 */
+	@Override
+	public void initGui()
+	{
+		calcBounds();
+
+		int btnBorder = 6;
+		int btnHeight = 20;
+
+
+		// Arrows
+		int btnSize = fontRenderer.getStringWidth("<-") + 4;
+		createButton(sectorLeft, BTN_LEFT, viewLeft - (btnSize + btnBorder) * 2, height / 2, btnBorder + btnSize, btnHeight);
+		createButton(sectorRight, BTN_RIGHT, viewLeft - (btnSize + btnBorder), height / 2, btnSize + btnBorder, btnHeight);
+		createButton(sectorUp, BTN_UP, viewLeft - (int)((btnSize + btnBorder) * 1.5), (height / 2) - 20, btnSize + btnBorder, btnHeight);
+		createButton(sectorDown, BTN_DOWN, viewLeft - (int)((btnSize + btnBorder) * 1.5), (height / 2) + 20, btnSize + btnBorder, btnHeight);
+
+		// Zoom out
+		btnSize = fontRenderer.getStringWidth(BTN_ZOOM_OUT);
+		createButton(zoomOut, BTN_ZOOM_OUT, viewLeft - (btnSize + btnBorder), (height / 2) + btnHeight * 2, btnSize + btnBorder, btnHeight);
+
+		// Home
+		btnSize = fontRenderer.getStringWidth(BTN_HOME);
+		createButton(home, BTN_HOME, viewLeft - (btnSize + btnBorder) - 7, (height / 2) - btnHeight * 2, btnSize + btnBorder, btnHeight);
+
+		// Toggle Grid
+		btnSize = fontRenderer.getStringWidth(BTN_GRID);
+		createButton(toggleGrid, BTN_GRID, viewLeft - (btnSize + btnBorder), (height / 2) + btnHeight * 3, btnSize + btnBorder, btnHeight);
+
+		// Go
+		btnSize = fontRenderer.getStringWidth(BTN_GO);
+		createButton(sectorGo, BTN_GO, viewLeft - (btnSize + btnBorder), viewTop + 10, btnSize + btnBorder, btnHeight);
+
+		// Sector text box
+		int txtSize = fontRenderer.getStringWidth("-100, -100");
+		int x = viewLeft - (txtSize + (int)(btnBorder*1.5) + btnSize);
+		sectorText = new GuiTextField(nextID(), fontRenderer, x, viewTop + 10, txtSize, 20);
+		sectorText.setMaxStringLength(30);
+		structureBoxRight = x - 1;
+		//sectorText.setCanLoseFocus(true);
+
+		// Create
+		btnSize = fontRenderer.getStringWidth(BTN_CREATE);
+		createButton(structCreate, BTN_CREATE, left + BORDER_SIZE, bottom - btnHeight, btnSize + btnBorder, btnHeight);
+
+		// Delete
+		int prevSize = btnSize + btnBorder;
+		btnSize = fontRenderer.getStringWidth(BTN_DELETE);
+		createButton(structDelete, BTN_DELETE, left + BORDER_SIZE + prevSize, bottom - btnHeight, btnSize + btnBorder, btnHeight);
+
+
+		// To handle when the GUI is resized, everything is cleared so need to be re-initialized
+		if(viewSector != null)
+			sectorText.setText(viewSector.getX() + ", " + viewSector.getY());
+		else if(galaxy != null)
+			sectorText.setText(galaxy.getSector().getX() + ", " + galaxy.getSector().getY());
+
+	}
+
+	private void createButton(GuiButton btn, String buttonText, int x, int y, int widthIn, int btnHeight) {
+		buttonList.add(btn = new GuiButton(nextID(), x, y, widthIn, btnHeight, buttonText));
+	}
+
+	// ***************************
+	// ** END ONE-TIME METHODS ***
+	// ***************************
+	//</editor-fold>
+
+	// <editor-fold desc="*** IO Methods ***">
+
+	// ******************
+	// *** IO Methods ***
+	// ******************
+	/**
 	 * Handles mouse events that aren't clicking
 	 */
 	private void handleMouse(int mouseX, int mouseY)
@@ -211,92 +374,6 @@ public class TerminalGui extends GuiScreen
 			Vector2i mouseSub = mouseToSubsector(mouseX, mouseY);
 			drawInfo(zoom, mouseSub.getX(), mouseSub.getY());
 		}
-	}
-
-	/**
-	 * Draw the rectangle that shows celestial information in the sector/solar system/planet view
-	 * @param zoom
-	 * @param subX
-	 * @param subY
-	 */
-	private void drawInfo(int zoom, int subX, int subY)
-	{
-		// Keep same sizing as on system map (INFOs)
-		// 4 squares width, 2 squares hieght
-		int INFO_WIDTH = 4 * viewSubsectors, INFO_HEIGHT = 2 * viewSubsectors, PAD_LEFT = 2, PAD_TOP = 2;
-		int left = viewLeft + subX * viewSubsystems + PAD_LEFT, top = viewTop + subY * viewSubsystems + PAD_TOP;
-
-		Location loc = null;
-		Vector2i.Vector2iInterface vecInt = null;
-
-		if(zoom == 0) // Celestials
-		{
-			loc = getSystemSubsector(viewSector, subX, subY);
-			// Functional programming, finally
-			vecInt = Location::positionToSubsector;
-		}
-		else if(zoom == 1) // Solar Systems
-		{
-			loc = getCelestialSubsystem(subX, subY);
-			vecInt = Location::positionToSubsystem;
-		}
-		else if (zoom == 2) // Planets
-		{}
-
-		if(loc != null)
-		{
-			Vector2i position = vecInt.position(loc.getPosition());
-			drawRect(left, top, left + INFO_WIDTH + PAD_LEFT, top + INFO_HEIGHT + PAD_TOP, 0xBA9B9B9B);
-			fontRenderer.drawSplitString(loc.getName() + " " + position, left + PAD_LEFT, top + PAD_TOP, INFO_WIDTH,0x000000);
-		}
-
-	}
-
-	/**
-	 * Adds the buttons (and other controls) to the screen in question. Called when the GUI is displayed and when the
-	 * window resizes, the buttonList is cleared beforehand.
-	 */
-	@Override
-	public void initGui()
-	{
-		calcBounds();
-		int btnBorder = 6, btnHeight = 20;
-		int btnSize = fontRenderer.getStringWidth("<-") + 4;
-		buttonList.add(sectorLeft = new GuiButton(nextID(), viewLeft - (btnSize + btnBorder) * 2, height / 2, btnSize + btnBorder, btnHeight, "◄"));
-		buttonList.add(sectorRight = new GuiButton(nextID(), viewLeft - (btnSize + btnBorder), height / 2, btnSize + btnBorder, btnHeight, "►"));
-		buttonList.add(sectorUp = new GuiButton(nextID(), viewLeft - (int)((btnSize + btnBorder) * 1.5), (height / 2) - 20, btnSize + btnBorder, btnHeight, "▲"));
-		buttonList.add(sectorDown = new GuiButton(nextID(), viewLeft - (int)((btnSize + btnBorder) * 1.5), (height / 2) + 20, btnSize + btnBorder, btnHeight, "▼"));
-
-		btnSize = fontRenderer.getStringWidth("Zoom Out");
-		buttonList.add(zoomOut = new GuiButton(nextID(), viewLeft - (btnSize + btnBorder), (height / 2) + btnHeight * 2, btnSize + btnBorder, btnHeight, "Zoom Out"));
-
-		btnSize = fontRenderer.getStringWidth("Home");
-		buttonList.add(home = new GuiButton(nextID(), viewLeft - (btnSize + btnBorder) - 7, (height / 2) - btnHeight * 2, btnSize + btnBorder, btnHeight, "Home"));
-
-		btnSize = fontRenderer.getStringWidth("Toggle Grid");
-		buttonList.add(toggleGrid = new GuiButton(nextID(), viewLeft - (btnSize + btnBorder), (height / 2) + btnHeight * 3, btnSize + btnBorder, btnHeight, "Toggle Grid"));
-
-
-		btnSize = fontRenderer.getStringWidth("Go");
-		buttonList.add(sectorGo = new GuiButton(nextID(), viewLeft - (btnSize + btnBorder), viewTop + 10, btnSize + btnBorder, btnHeight, "Go"));
-
-		int txtSize = fontRenderer.getStringWidth("-100, -100");
-		sectorText = new GuiTextField(nextID(), fontRenderer, viewLeft - (txtSize + (int)(btnBorder*1.5) + btnSize), viewTop + 10, txtSize, 20);
-		sectorText.setMaxStringLength(30);
-		//sectorText.setCanLoseFocus(true);
-
-        // Structure display stuff
-		btnSize = fontRenderer.getStringWidth("Create");
-		buttonList.add(structCreate = new GuiButton(nextID(), left, (viewTop) + btnHeight * 2, btnSize + btnBorder, btnHeight, "Create"));
-		buttonList.add(structDelete = new GuiButton(nextID(), left, (viewTop + btnHeight) + btnHeight * 2, btnSize + btnBorder, btnHeight, "Delete"));
-
-
-		// To handle when the GUI is resized, everything is cleared so need to be re-initialized
-		if(viewSector != null)
-			sectorText.setText(viewSector.getX() + ", " + viewSector.getY());
-		else if(galaxy != null)
-			sectorText.setText(galaxy.getSector().getX() + ", " + galaxy.getSector().getY());
-
 	}
 
 	/**
@@ -409,12 +486,6 @@ public class TerminalGui extends GuiScreen
 		}
 	}
 
-	@Override
-	public void updateScreen()
-	{
-		super.updateScreen();
-		sectorText.updateCursorCounter();
-	}
 
 	/**
 	 * Called by PacketSendTerminalData when the packet is finished being received
@@ -430,6 +501,50 @@ public class TerminalGui extends GuiScreen
 		sectorText.setText(text);
 	}
 
+	// **********************
+	// *** END IO Methods ***
+	// **********************
+	// </editor-fold>
+
+	// <editor-fold desc="*** Per-Tick Methods ***">
+
+	// ************************
+	// *** Per-Tick Methods ***
+	// ************************
+
+
+	@Override
+	public void updateScreen()
+	{
+		super.updateScreen();
+		sectorText.updateCursorCounter();
+	}
+
+	/**
+	 * Handles the timer aspect of the gui for updating info from the server
+	 */
+	private void updateTickCount() {
+		if(mc.world.getTotalWorldTime() >= tickCount + TICK_UPDATE) {
+			requestUpdate();
+			tickCount = mc.world.getTotalWorldTime();
+		}
+	}
+
+	// ****************************
+	// *** END Per-Tick Methods ***
+	// ****************************
+	// </editor-fold>
+
+
+	/**
+	 * Ask the server for an update. This is mainly for the structure info
+	 * TODO: Remove the viewSector aspect and just add an updating of the structures
+	 */
+	private void requestUpdate() {
+		// Request the same place we're in
+		if(viewSector != null && PacketHandler.INSTANCE != null)
+			PacketHandler.INSTANCE.sendToServer(new PacketRequestTerminalData(new Vector2i(viewSector.getX(), viewSector.getY())));
+	}
 
 	public void setGalaxy(Galaxy galaxy) { this.galaxy = galaxy; }
 	public void setViewSector(Vector2i viewSector) { this.viewSector = viewSector; }
@@ -443,7 +558,7 @@ public class TerminalGui extends GuiScreen
 	}
 
 
-	// ----------------- Utility Methods -----------------
+	// <editor-fold desc="*** Utility Methods ***">
 
 	/**
 	 * Given the sector and subsector x & y, return the system in that sector at the subsector location
@@ -505,4 +620,6 @@ public class TerminalGui extends GuiScreen
 		else
 			return null;
 	}
+
+	//</editor-fold>
 }
