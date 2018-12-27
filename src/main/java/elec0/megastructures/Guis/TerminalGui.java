@@ -492,15 +492,17 @@ public class TerminalGui extends GuiScreen
 	/**
 	 * Called by PacketSendTerminalData when the packet is finished being received
 	 */
-	public void packetFinished()
+	public void packetFinished(int opt)
 	{
 		// Have to wait till after the packet is received to set the text box
-		String text = "";
-		if(viewSector != null)
-			text = viewSector.getX() + ", " + viewSector.getY();
-		else if(galaxy != null) // If this isn't true we have problems
-			text = galaxy.getSector().getX() + ", " + galaxy.getSector().getY();
-		sectorText.setText(text);
+		if(opt == PacketRequestTerminalData.OPT_SECTOR || opt == PacketRequestTerminalData.OPT_BOTH) {
+			String text = "";
+			if (viewSector != null)
+				text = viewSector.getX() + ", " + viewSector.getY();
+			else if (galaxy != null) // If this isn't true we have problems
+				text = galaxy.getSector().getX() + ", " + galaxy.getSector().getY();
+			sectorText.setText(text);
+		}
 	}
 
 	// **********************
@@ -539,13 +541,12 @@ public class TerminalGui extends GuiScreen
 
 
 	/**
-	 * Ask the server for an update. This is mainly for the structure info
-	 * TODO: Remove the viewSector aspect and just add an updating of the structures
+	 * Ask the server for an update. This is only for structure updating
 	 */
 	private void requestUpdate() {
 		// Request the same place we're in
 		if(viewSector != null && PacketHandler.INSTANCE != null)
-			PacketHandler.INSTANCE.sendToServer(new PacketRequestTerminalData(new Vector2i(viewSector.getX(), viewSector.getY())));
+			PacketHandler.INSTANCE.sendToServer(new PacketRequestTerminalData(true));
 	}
 
 	public void setGalaxy(Galaxy galaxy) { this.galaxy = galaxy; }

@@ -224,6 +224,7 @@ public class StructureData extends MegastructuresWSDBase
 						curStruct = new Structure(curStructure);
 				}
 
+				curStruct.setWorld(getWorld());
 				curUserStructList.add(curStruct);
 				tickList.add(curStruct);
 			}

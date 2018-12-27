@@ -22,7 +22,7 @@ import java.util.List;
 public class PacketSendTerminalData implements IMessage
 {
 	private Galaxy galaxy;
-	private Vector2i sectorToSend;
+	private Vector2i sectorToSend; // If this is null then we're only sending structures
 	private List<Structure> structures;
 
 	public PacketSendTerminalData()
@@ -30,8 +30,35 @@ public class PacketSendTerminalData implements IMessage
 
 	}
 
-	public PacketSendTerminalData(Galaxy galaxy, Vector2i sector, List<Structure> structures)
+	/**
+	 * Sending new sector information
+	 * @param galaxy
+	 * @param sector
+	 */
+	public PacketSendTerminalData(Galaxy galaxy, Vector2i sector)
 	{
+		this.galaxy = galaxy;
+		this.sectorToSend = sector;
+		this.structures = null;
+	}
+
+	/**
+	 * Sending structure information like energy, etc
+	 * Is called very often
+	 * @param structures
+	 */
+	public PacketSendTerminalData(List<Structure> structures) {
+		this.structures = structures;
+		this.sectorToSend = null;
+	}
+
+	/**
+	 * Get sector and structure information
+	 * @param galaxy
+	 * @param sector
+	 * @param structures
+	 */
+	public PacketSendTerminalData(Galaxy galaxy, Vector2i sector, List<Structure> structures) {
 		this.galaxy = galaxy;
 		this.sectorToSend = sector;
 		this.structures = structures;
@@ -40,6 +67,69 @@ public class PacketSendTerminalData implements IMessage
 	@Override
 	public void fromBytes(ByteBuf buf)
 	{
+		int opt = buf.readInt();
+
+		switch(opt) {
+			case PacketRequestTerminalData.OPT_SECTOR:
+				readSector(buf);
+				break;
+
+			case PacketRequestTerminalData.OPT_STRUCT:
+				readStructureList(buf);
+				break;
+
+			case PacketRequestTerminalData.OPT_BOTH:
+				readSector(buf);
+				readStructureList(buf);
+				break;
+			default:
+				System.err.println("PacketSendTerminalData.fromBytes(): opt is not a valid option");
+		}
+	}
+
+	@Override
+	public void toBytes(ByteBuf buf) 
+	{
+
+		int opt = -1;
+
+		// This is kinda stupid but whatever.
+		// We write an int that's either sector, structure, or both
+		// Since opt is -1 by def., in structures if it hasn't been set then just send structures, otherwise send all
+		if(sectorToSend != null)
+			opt = PacketRequestTerminalData.OPT_SECTOR;
+
+		if(structures != null)
+			if(opt != -1)
+				opt = PacketRequestTerminalData.OPT_BOTH;
+			else
+				opt = PacketRequestTerminalData.OPT_STRUCT;
+
+		buf.writeInt(opt);
+
+		// This bothers me but I can't think of a better way to do it right now
+		switch(opt) {
+			case PacketRequestTerminalData.OPT_SECTOR:
+				writeSector(buf);
+				break;
+
+			case PacketRequestTerminalData.OPT_STRUCT:
+				writeStructureList(buf);
+				break;
+
+			case PacketRequestTerminalData.OPT_BOTH:
+				writeSector(buf);
+				writeStructureList(buf);
+				break;
+
+		}
+	}
+
+	/**
+	 * Read the sector information from the network
+	 * @param buf
+	 */
+	private void readSector(ByteBuf buf) {
 		// Retrieve info from message
 		// Read the galaxy
 		galaxy = new Galaxy(buf.readLong());
@@ -104,13 +194,14 @@ public class PacketSendTerminalData implements IMessage
 
 			galaxy.addSolarSystem(s);
 		}
-
-		readStructureList(buf);
 	}
 
-	@Override
-	public void toBytes(ByteBuf buf) 
-	{
+
+	/**
+	 * Send the sector information via network
+	 * @param buf
+	 */
+	private void writeSector(ByteBuf buf) {
 		// Send info to message
 		sendLocation(buf, galaxy);
 
@@ -178,8 +269,6 @@ public class PacketSendTerminalData implements IMessage
 				}
 			}
 		}
-
-		writeStructureList(buf);
 	}
 
 
@@ -270,10 +359,23 @@ public class PacketSendTerminalData implements IMessage
             if(Minecraft.getMinecraft().currentScreen instanceof TerminalGui)
 			{
 				TerminalGui termGui = (TerminalGui) Minecraft.getMinecraft().currentScreen;
-				termGui.setGalaxy(message.galaxy);
-				termGui.setViewSector(message.sectorToSend);
-				termGui.setUserStructures(message.structures);
-				termGui.packetFinished();
+
+				int opt = -1;
+				// Only read the stuff that we've actually sent
+				if(message.sectorToSend != null) {
+					termGui.setGalaxy(message.galaxy);
+					termGui.setViewSector(message.sectorToSend);
+					opt = PacketRequestTerminalData.OPT_SECTOR;
+				}
+				if(message.structures != null) {
+					termGui.setUserStructures(message.structures);
+					if(opt != -1)
+						opt = PacketRequestTerminalData.OPT_BOTH;
+					else
+						opt = PacketRequestTerminalData.OPT_STRUCT;
+				}
+
+				termGui.packetFinished(opt);
 			}
 		}
     }

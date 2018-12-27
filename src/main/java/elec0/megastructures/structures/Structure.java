@@ -3,6 +3,7 @@ package elec0.megastructures.structures;
 import elec0.megastructures.MegastructuresUtils;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.management.PlayerList;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.INBTSerializable;
@@ -148,8 +149,11 @@ public class Structure implements INBTSerializable<NBTTagCompound>
 	 * Finish the construction of the current stage
 	 */
 	protected void constructionFinished() {
-		getWorld().getMinecraftServer().getPlayerList().getPlayerByUUID(player).sendMessage(
-				new TextComponentString("Structure " + getName() + " has completed Stage " + getCurStage() + "!"));
+		if(getWorld() != null)
+			getWorld().getMinecraftServer().getPlayerList().getPlayerByUUID(player).sendMessage(
+					new TextComponentString("Structure " + getName() + " has completed Stage " + getCurStage() + "!"));
+		else
+			System.err.println("getWorld() is null. Something has gone wrong.");
 
 		// We've gotten here, so that means that we have all the needed requirements
 		setConstructing(false);
