@@ -108,7 +108,7 @@ public class TerminalGui extends GuiScreen
 		// Draw the current progress of the structure(s), plus currently accepted materials and RF generation
 		if(userStructures != null) {
 			int textHeight = 10;
-			int base = 50;
+			int base = 0;
 
 			// Currently just drawing things simply in a line, nothing special
 			// We need to make/import a list or whatever for scrolling since structures are going to be of arbitrary limit in the future
@@ -121,7 +121,7 @@ public class TerminalGui extends GuiScreen
 //				fontRenderer.drawString(toDraw, left, top + line, 0x000000);
 
 				// This is too large
-				fontRenderer.drawSplitString(toDraw, left, top + line, structureBoxRight, 0x000000);
+				fontRenderer.drawSplitString(toDraw, left + BORDER_SIZE, top + line, structureBoxRight - left, 0x000000);
 			}
 		} else {
 			// If there aren't any structures, display a text that says that
@@ -300,26 +300,26 @@ public class TerminalGui extends GuiScreen
 
 		// Arrows
 		int btnSize = fontRenderer.getStringWidth("<-") + 4;
-		createButton(sectorLeft, BTN_LEFT, viewLeft - (btnSize + btnBorder) * 2, height / 2, btnBorder + btnSize, btnHeight);
-		createButton(sectorRight, BTN_RIGHT, viewLeft - (btnSize + btnBorder), height / 2, btnSize + btnBorder, btnHeight);
-		createButton(sectorUp, BTN_UP, viewLeft - (int)((btnSize + btnBorder) * 1.5), (height / 2) - 20, btnSize + btnBorder, btnHeight);
-		createButton(sectorDown, BTN_DOWN, viewLeft - (int)((btnSize + btnBorder) * 1.5), (height / 2) + 20, btnSize + btnBorder, btnHeight);
+		sectorLeft = createButton(BTN_LEFT, viewLeft - (btnSize + btnBorder) * 2, height / 2, btnBorder + btnSize, btnHeight);
+		sectorRight = createButton(BTN_RIGHT, viewLeft - (btnSize + btnBorder), height / 2, btnSize + btnBorder, btnHeight);
+		sectorUp = createButton(BTN_UP, viewLeft - (int)((btnSize + btnBorder) * 1.5), (height / 2) - 20, btnSize + btnBorder, btnHeight);
+		sectorDown = createButton(BTN_DOWN, viewLeft - (int)((btnSize + btnBorder) * 1.5), (height / 2) + 20, btnSize + btnBorder, btnHeight);
 
 		// Zoom out
 		btnSize = fontRenderer.getStringWidth(BTN_ZOOM_OUT);
-		createButton(zoomOut, BTN_ZOOM_OUT, viewLeft - (btnSize + btnBorder), (height / 2) + btnHeight * 2, btnSize + btnBorder, btnHeight);
+		zoomOut = createButton(BTN_ZOOM_OUT, viewLeft - (btnSize + btnBorder), (height / 2) + btnHeight * 2, btnSize + btnBorder, btnHeight);
 
 		// Home
 		btnSize = fontRenderer.getStringWidth(BTN_HOME);
-		createButton(home, BTN_HOME, viewLeft - (btnSize + btnBorder) - 7, (height / 2) - btnHeight * 2, btnSize + btnBorder, btnHeight);
+		home = createButton(BTN_HOME, viewLeft - (btnSize + btnBorder) - 7, (height / 2) - btnHeight * 2, btnSize + btnBorder, btnHeight);
 
 		// Toggle Grid
 		btnSize = fontRenderer.getStringWidth(BTN_GRID);
-		createButton(toggleGrid, BTN_GRID, viewLeft - (btnSize + btnBorder), (height / 2) + btnHeight * 3, btnSize + btnBorder, btnHeight);
+		toggleGrid = createButton(BTN_GRID, viewLeft - (btnSize + btnBorder), (height / 2) + btnHeight * 3, btnSize + btnBorder, btnHeight);
 
 		// Go
 		btnSize = fontRenderer.getStringWidth(BTN_GO);
-		createButton(sectorGo, BTN_GO, viewLeft - (btnSize + btnBorder), viewTop + 10, btnSize + btnBorder, btnHeight);
+		sectorGo = createButton(BTN_GO, viewLeft - (btnSize + btnBorder), viewTop + 10, btnSize + btnBorder, btnHeight);
 
 		// Sector text box
 		int txtSize = fontRenderer.getStringWidth("-100, -100");
@@ -331,12 +331,12 @@ public class TerminalGui extends GuiScreen
 
 		// Create
 		btnSize = fontRenderer.getStringWidth(BTN_CREATE);
-		createButton(structCreate, BTN_CREATE, left + BORDER_SIZE, bottom - btnHeight, btnSize + btnBorder, btnHeight);
+		structCreate = createButton(BTN_CREATE, left + BORDER_SIZE, bottom - btnHeight, btnSize + btnBorder, btnHeight);
 
 		// Delete
 		int prevSize = btnSize + btnBorder;
 		btnSize = fontRenderer.getStringWidth(BTN_DELETE);
-		createButton(structDelete, BTN_DELETE, left + BORDER_SIZE + prevSize, bottom - btnHeight, btnSize + btnBorder, btnHeight);
+		structDelete = createButton(BTN_DELETE, left + BORDER_SIZE + prevSize, bottom - btnHeight, btnSize + btnBorder, btnHeight);
 
 
 		// To handle when the GUI is resized, everything is cleared so need to be re-initialized
@@ -347,8 +347,10 @@ public class TerminalGui extends GuiScreen
 
 	}
 
-	private void createButton(GuiButton btn, String buttonText, int x, int y, int widthIn, int btnHeight) {
-		buttonList.add(btn = new GuiButton(nextID(), x, y, widthIn, btnHeight, buttonText));
+	private GuiButton createButton(String buttonText, int x, int y, int widthIn, int btnHeight) {
+		GuiButton btn = new GuiButton(nextID(), x, y, widthIn, btnHeight, buttonText);
+		buttonList.add(btn);
+		return btn;
 	}
 
 	// ***************************
