@@ -53,39 +53,50 @@ public class TeleporterTileEntity extends TileEntity implements ITickable
 			return;
 
 		// Read then clear the stack
-		// TODO: This is applying to all valid structures instead of just the first one
-		ItemStack curStack;
 		for(int i = 0; i < itemStackHandler.getSlots(); ++i) {
-			curStack = itemStackHandler.getStackInSlot(i);
-			// Check if the stack is nothing, or if we don't want to accept it
-			if(curStack.isEmpty())
+			consumeStack(itemStackHandler.getStackInSlot(i), i, userStructures);
+
+		}
+	}
+
+	/**
+	 * Eat the given stack if it is required for a structure
+	 * @param curStack
+	 * @param i
+	 * @param userStructures
+	 */
+	private void consumeStack(ItemStack curStack, int i, List<Structure> userStructures) {
+		// Check if the stack is nothing, or if we don't want to accept it
+		if(curStack.isEmpty())
+			return;
+
+		// Figure out if the stack is accepted by any of the structures
+		for(Structure s : userStructures) {
+			if(!s.isConstructing())
 				continue;
 
-			// Figure out if the stack is accepted by any of the structures
-			for(Structure s : userStructures) {
-				if(!s.isConstructing())
-					continue;
+			// We need to check all the IDs, since often there are items that have multiple IDs, although idk if we're
+			// going to be accepting those, it's always good to plan for the future.
+			for(int id : OreDictionary.getOreIDs(curStack)) {
+				// Check if the ore dict name is in the currently accepted list
+				String name = OreDictionary.getOreName(id);
 
-				// We need to check all the IDs, since often there are items that have multiple IDs, although idk if we're
-				// going to be accepting those, it's always good to plan for the future.
-				for(int id : OreDictionary.getOreIDs(curStack)) {
-					// Check if the ore dict name is in the currently accepted list
-					String name = OreDictionary.getOreName(id);
-
-					// If the current structure needs the material
-					if(s.getNeededMaterials().containsKey(name)) {
-						// Check if we actually need any more of it
-						if(s.getCurMaterials().get(name) < s.getNeededMaterials().get(name)) {
-							// Eat the items
-							try {
-								// If the material is accepted by the structure, only then actually remove it
-								// This does currently eat the excess of a stack, but whatever
-								if (s.addMaterial(OreDictionary.getOreName(id), curStack.getCount())) {
-									itemStackHandler.setStackInSlot(i, ItemStack.EMPTY);
-								}
+				// If the current structure needs the material
+				if(s.getNeededMaterials().containsKey(name)) {
+					// Check if we actually need any more of it
+					if(s.getCurMaterials().get(name) < s.getNeededMaterials().get(name)) {
+						// Eat the items
+						try {
+							// If the material is accepted by the structure, only then actually remove it
+							// This does currently eat the excess of a stack, but whatever
+							if (s.addMaterial(OreDictionary.getOreName(id), curStack.getCount())) {
+								itemStackHandler.setStackInSlot(i, ItemStack.EMPTY);
+								// End the loop for this stack since we have consumed it.
+								// If we don't do this then this itemstack applies to all valid structures
+								return;
 							}
-							catch(KeyException e) { e.printStackTrace(); }
 						}
+						catch(KeyException e) { e.printStackTrace(); }
 					}
 				}
 			}
