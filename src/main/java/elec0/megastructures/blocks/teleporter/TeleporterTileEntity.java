@@ -53,6 +53,7 @@ public class TeleporterTileEntity extends TileEntity implements ITickable
 			return;
 
 		// Read then clear the stack
+		// TODO: This is applying to all valid structures instead of just the first one
 		ItemStack curStack;
 		for(int i = 0; i < itemStackHandler.getSlots(); ++i) {
 			curStack = itemStackHandler.getStackInSlot(i);

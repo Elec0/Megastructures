@@ -16,6 +16,8 @@ import net.minecraft.world.World;
 import org.lwjgl.opengl.GL11;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.List;
 
 public class TerminalGui extends GuiScreen
@@ -38,6 +40,9 @@ public class TerminalGui extends GuiScreen
 	private static final int PAD_HORIZ = 14, PAD_VERT = 14, BORDER_SIZE = 2, BORDER_VIEW = 3;
 
 	private int structureBoxRight;
+
+
+	public static NumberFormat decimalFormat = new DecimalFormat("0.####E0");
 
 	// Update values
 	private long tickCount;
@@ -107,21 +112,35 @@ public class TerminalGui extends GuiScreen
 
 		// Draw the current progress of the structure(s), plus currently accepted materials and RF generation
 		if(userStructures != null) {
-			int textHeight = 10;
-			int base = 0;
+			int base = top + BORDER_SIZE + 1;
+			int baseLeft = left + BORDER_SIZE + 1;
+
+			int wrapWidth = structureBoxRight - left - 1; // The 1 is for the 1 in baseLeft
+			int linesDrawn = 0;
 
 			// Currently just drawing things simply in a line, nothing special
 			// We need to make/import a list or whatever for scrolling since structures are going to be of arbitrary limit in the future
 			// Or, alternatively, make an entirely different GUI that only handles structures. I'm more inclined to do that for future-proofing
 			for(int i = 0; i < userStructures.size(); ++i) {
 				Structure s = userStructures.get(i);
-				int line = i * textHeight + base;
-				String toDraw = String.format("%s: Stage (%s/%s) %s%%  RF: %s", s.getName(), s.getCurStage(), s.getMaxStage(),
-						s.getProgress(s.getCurStage()), s.getEnergy());
-//				fontRenderer.drawString(toDraw, left, top + line, 0x000000);
 
-				// This is too large
-				fontRenderer.drawSplitString(toDraw, left + BORDER_SIZE, top + line, structureBoxRight - left, 0x000000);
+				int line = linesDrawn * fontRenderer.FONT_HEIGHT + base;
+
+				String curRF = decimalFormat.format(s.getEnergy());
+
+				// If the name plus the border is longer than the wrap width then remove the border
+				String name = String.format("-- %s --", s.getName());
+				if(fontRenderer.getStringWidth(name) + 6 > wrapWidth)
+					name = String.format("%s", s.getName());
+
+				String stage = String.format("Stage %s of %s", s.getCurStage(), s.getMaxStage());
+
+				String toDraw = String.format("%s\n%s %s%%\nRF: %s", name, stage, s.getProgress(s.getCurStage()), curRF);
+
+
+				fontRenderer.drawSplitString(toDraw, baseLeft, line, wrapWidth, 0x000000);
+
+				linesDrawn += fontRenderer.getStringWidth(toDraw) / wrapWidth + 2; // There's at least 1 line drawn
 			}
 		} else {
 			// If there aren't any structures, display a text that says that
