@@ -49,7 +49,7 @@ public class Structure implements INBTSerializable<NBTTagCompound>
 	public static final String NBT_CUR_MATS = "curMats";
 	public static final String NBT_TOT_MATS = "totMats";
 	public static final String NBT_CONSTRUCTING = "constructing";
-	public static final String NBT_MAX_STAGE = "maxStage";
+	public static final String NBT_MAX_STAGE = "dsMaxStage";
 	public static final String NBT_STAGE_NAME = "stageName";
 	public static final String NBT_STAGE_DESC = "stageDesc";
 
@@ -250,6 +250,7 @@ public class Structure implements INBTSerializable<NBTTagCompound>
 	public void setCurStage(int curStage) {this.curStage = curStage;}
 	public HashMap<String, Integer> getCurMaterials(){return curMaterials[curStage];}
 	public HashMap<String, Integer> getNeededMaterials(){return neededMaterials[curStage];}
+	public void setNeededMaterialsArray(HashMap[] neededMaterials) { this.neededMaterials = neededMaterials; }
 	public boolean isConstructing(){return constructing;}
 	public void setConstructing(boolean constructing){this.constructing = constructing;}
 	public int getMaxStage() {return maxStage;}
@@ -300,7 +301,7 @@ public class Structure implements INBTSerializable<NBTTagCompound>
 		for(int i = 0; i < maxStage + 1; ++i)
 		{
 			tag.setString(NBT_CUR_MATS + i,  MegastructuresUtils.createStringFromHashMap(curMaterials[i]));
-			tag.setString(NBT_TOT_MATS + i,  MegastructuresUtils.createStringFromHashMap(neededMaterials[i]));
+			//tag.setString(NBT_TOT_MATS + i,  MegastructuresUtils.createStringFromHashMap(neededMaterials[i]));
 		}
 		tag.setBoolean(NBT_CONSTRUCTING, constructing);
 
@@ -343,14 +344,14 @@ public class Structure implements INBTSerializable<NBTTagCompound>
 
 		// Since we have multiple stages stored here, initialize the array
 		this.curMaterials = new HashMap[maxStage + 1];
-		this.neededMaterials = new HashMap[maxStage + 1];
+		//this.neededMaterials = new HashMap[dsMaxStage + 1];
 
 		// Now go through and load the values of each one
 		for(int i = 0; i < maxStage + 1; ++i) {
 			String curMats = nbt.getString(NBT_CUR_MATS + i);
-			String totMats = nbt.getString(NBT_TOT_MATS + i);
+			//String totMats = nbt.getString(NBT_TOT_MATS + i);
 			this.curMaterials[i] = MegastructuresUtils.readHashMapFromString(curMats);
-			this.neededMaterials[i] =  MegastructuresUtils.readHashMapFromString(totMats);
+			//this.neededMaterials[i] =  MegastructuresUtils.readHashMapFromString(totMats);
 		}
 	}
 }

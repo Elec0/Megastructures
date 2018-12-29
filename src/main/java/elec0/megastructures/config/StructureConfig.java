@@ -1,31 +1,35 @@
 package elec0.megastructures.config;
 
 import elec0.megastructures.Megastructures;
-import net.minecraft.util.Tuple;
 import net.minecraftforge.common.config.Config;
 
 import java.util.HashMap;
 
-@Config(modid = Megastructures.MODID, category = "structureDysonSphere", name = Megastructures.MODID + "/structures")
-@SuppressWarnings("unchecked")
+@Config.LangKey("megastructures.config.structures")
+@Config(modid = Megastructures.MODID, category = "structures", name = Megastructures.MODID + "/structures")
+//@SuppressWarnings("unchecked")
 public class StructureConfig
 {
-    @Config.Name("dysonSphereMaterials")
-    @Config.RequiresMcRestart
-    @Config.Comment(value = "Required oreDict materials and their quantities")
-    public static HashMap<String, Integer> structureDSNeeded;
+    @Config.Name("dysonsphere.materials")
+    @Config.Comment(value = "Stage, required oreDict materials and their quantities (stageNum:oreDict=qty)")
+    public static HashMap<String, Integer> dsNeeded;
 
+    @Config.Name("dysonsphere.max_stage")
+    @Config.Comment("Max stage of construction")
+    public static int dsMaxStage;
+
+
+    // Populate the hashmap with defaults
     static {
-        int maxStage = 1;
-        structureDSNeeded = new HashMap<>();
-        // Populate the hashmap, with defaults, I guess?
-        // Stage 0 stuff
-        structureDSNeeded.put("ingotIron", 128);
+        dsMaxStage = 1;
 
+        dsNeeded = new HashMap<>();
+        // Stage 0 stuff
+        dsNeeded.put("0:ingotIron", 128);
         // Stage 1 stuff
+        dsNeeded.put("1:ingotIron", (int) 1e9);
 
     }
-
 
 
 }

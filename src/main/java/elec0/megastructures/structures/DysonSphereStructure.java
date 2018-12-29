@@ -1,6 +1,8 @@
 package elec0.megastructures.structures;
 
 import com.google.gson.annotations.Since;
+import elec0.megastructures.config.MegastructuresConfig;
+import elec0.megastructures.config.StructureConfig;
 import net.minecraft.nbt.NBTTagCompound;
 
 import java.util.UUID;
@@ -34,14 +36,8 @@ public class DysonSphereStructure extends Structure
 
 		setMaxEnergyGen(maxEnergy); // RF/t
 
-		// Set required materials
-		// Stage 0
-		addNeededConsutructionMaterial("ingotIron", 0, 128);
-
-		// Stage 1
-
-		addNeededConsutructionMaterial("ingotIron", 1, (int)1e9);
-
+		// Read needed materials from config
+		this.setNeededMaterialsArray(MegastructuresConfig.processCompressedHashMap(StructureConfig.dsNeeded, StructureConfig.dsMaxStage));
 	}
 	public DysonSphereStructure(NBTTagCompound nbtStructure) {
 		super(nbtStructure); // This also calls deseralizeNBT
