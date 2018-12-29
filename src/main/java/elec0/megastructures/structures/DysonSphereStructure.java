@@ -19,14 +19,17 @@ public class DysonSphereStructure extends Structure
 
 
 	public DysonSphereStructure(UUID player, String name, int distance) {
-		super(player, name, 1);
+		super(player, name, StructureConfig.dsMaxStage); // Read max stage from config
+		// I don't know what will happen if configs like max stage are changed after a structure is already in progress
+		// I also don't care enough to check right now
+
 		setType(0);
 		setCurStage(0);
 		setProgress(getCurStage(), 0);
 
 		setDistance(distance);
 		// This value can change, this is just a test.
-		// 0.0001 means a dyson sphere at pluto's orbit would lose 44.4% of the energy. Which is much too high, but whatever
+		// 0.0001 means a dyson sphere at pluto's orbit would lose 44.4% of the energy
 		setDistanceFalloff(0.0001d); // 0.001%
 
 		double maxEnergy = 3.85e27; // Watts put out by our sun
@@ -42,13 +45,6 @@ public class DysonSphereStructure extends Structure
 	public DysonSphereStructure(NBTTagCompound nbtStructure) {
 		super(nbtStructure); // This also calls deseralizeNBT
 	}
-
-//	@Override
-//	public void generate() {
-//		double prog = getProgress()/100d; // Convert this into a percentage
-//		double energyToGen = prog * getMaxEnergyGen();
-//		setEnergy(getEnergy() + energyToGen);
-//	}
 
 	public int getDistance(){return distance;}
 	public void setDistance(int distance)

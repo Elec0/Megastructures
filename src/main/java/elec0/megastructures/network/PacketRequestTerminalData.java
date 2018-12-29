@@ -113,7 +113,7 @@ public class PacketRequestTerminalData implements IMessage
 				// send struct
 				PacketHandler.INSTANCE.sendTo(new PacketSendTerminalData(structureData.getUserStructures(player.getUniqueID())), player);
 			}
-			else {
+			else if(message.sectorRequest != null) {
 				// Send sector
 				// Send the packet back to the player's client with the sector requested
 				PacketHandler.INSTANCE.sendTo(new PacketSendTerminalData(wsd.getGalaxy(), message.sectorRequest), player);

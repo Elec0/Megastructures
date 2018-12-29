@@ -10,6 +10,7 @@ import net.minecraftforge.common.util.INBTSerializable;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import javax.annotation.Nullable;
 import java.security.KeyException;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -115,10 +116,16 @@ public class Structure implements INBTSerializable<NBTTagCompound>
 	 * If it isn't done, figure out what percentage is done
 	 * Progress is an array with each value being the progress of the given stage
 	 * Once a stage is finished, leave progress at 100
+	 * @return the current progress, or -1 if invalid
 	 */
 	public int checkProgress() {
 		double totalNeeded = 0;
 		double totalHave = 0;
+
+
+		// Make sure shit's loaded first
+		if(getNeededMaterials() == null)
+			return -1;
 
 		// Loop through all the materials and check how much of them we have gotten across the board
 		for (Map.Entry<String, Integer> entry : getNeededMaterials().entrySet())
@@ -197,6 +204,9 @@ public class Structure implements INBTSerializable<NBTTagCompound>
 	 */
 	public boolean addMaterial(String oreDict, int count) throws KeyException {
 		// This will happen if a material has 2 different values in oreDict, one that is accepted by the structure and one that isn't
+		if(getNeededMaterials() == null)
+			return false;
+
 		if(!getNeededMaterials().containsKey(oreDict))
 			throw new KeyException("Trying to add material " + oreDict + " when it isn't needed");
 
@@ -249,8 +259,24 @@ public class Structure implements INBTSerializable<NBTTagCompound>
 	public int getCurStage() {return curStage;}
 	public void setCurStage(int curStage) {this.curStage = curStage;}
 	public HashMap<String, Integer> getCurMaterials(){return curMaterials[curStage];}
-	public HashMap<String, Integer> getNeededMaterials(){return neededMaterials[curStage];}
-	public void setNeededMaterialsArray(HashMap[] neededMaterials) { this.neededMaterials = neededMaterials; }
+	@Nullable
+	public HashMap<String, Integer> getNeededMaterials(){
+		if(neededMaterials == null || curStage > neededMaterials.length || curStage < 0)
+			return null;
+		return neededMaterials[curStage];
+	}
+	@SuppressWarnings("unchecked")
+	public void setNeededMaterialsArray(HashMap[] neededMaterials) {
+		this.neededMaterials = neededMaterials;
+		// Loop through the needed materials and init curMaterials with that type
+		for(int i = 0; i < neededMaterials.length; ++i) {
+			HashMap<String, Integer> map = neededMaterials[i];
+			for (Map.Entry entry : map.entrySet()) {
+				curMaterials[i].put(entry.getKey().toString(), 0);
+
+			}
+		}
+	}
 	public boolean isConstructing(){return constructing;}
 	public void setConstructing(boolean constructing){this.constructing = constructing;}
 	public int getMaxStage() {return maxStage;}

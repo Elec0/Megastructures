@@ -69,6 +69,10 @@ public class PacketSendTerminalData implements IMessage
 	{
 		int opt = buf.readInt();
 
+		// Sometimes we have to send a -1, if so just fail silently
+		if(opt == -1)
+			return;
+
 		switch(opt) {
 			case PacketRequestTerminalData.OPT_SECTOR:
 				readSector(buf);
@@ -83,7 +87,7 @@ public class PacketSendTerminalData implements IMessage
 				readStructureList(buf);
 				break;
 			default:
-				System.err.println("PacketSendTerminalData.fromBytes(): opt is not a valid option");
+				System.err.println(String.format("PacketSendTerminalData.fromBytes(): opt %s is not a valid option", opt));
 		}
 	}
 

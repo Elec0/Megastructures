@@ -16,6 +16,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
 import java.nio.charset.Charset;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -70,7 +71,10 @@ public class PacketRequestStructure implements IMessage
 
 			if(message.command.equals("create")) {
 				// Only allow creation of a single structure at the moment
-				if(structureData.getUserStructures(player.getUniqueID()).size() == 0) {
+				// Check if the userStructures are null
+				List<Structure> userStructures = structureData.getUserStructures(player.getUniqueID());
+
+				if(userStructures == null || userStructures.size() == 0) {
 					Structure s = new DysonSphereStructure(player.getUniqueID(), "Dyson Sphere", 0);
 
 					structureData.addStructure(s.getPlayer(), s);

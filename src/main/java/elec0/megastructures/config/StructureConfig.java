@@ -7,14 +7,15 @@ import java.util.HashMap;
 
 @Config.LangKey("megastructures.config.structures")
 @Config(modid = Megastructures.MODID, category = "structures", name = Megastructures.MODID + "/structures")
-//@SuppressWarnings("unchecked")
 public class StructureConfig
 {
     @Config.Name("dysonsphere.materials")
+    @Config.RequiresMcRestart
     @Config.Comment(value = "Stage, required oreDict materials and their quantities (stageNum:oreDict=qty)")
     public static HashMap<String, Integer> dsNeeded;
 
     @Config.Name("dysonsphere.max_stage")
+    @Config.RequiresMcRestart
     @Config.Comment("Max stage of construction")
     public static int dsMaxStage;
 

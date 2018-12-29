@@ -1,6 +1,7 @@
 package elec0.megastructures.capabilities;
 
 import com.sun.istack.internal.NotNull;
+import com.sun.istack.internal.Nullable;
 import elec0.megastructures.Megastructures;
 import elec0.megastructures.general.Constants;
 import elec0.megastructures.structures.DysonSphereStructure;
@@ -125,8 +126,10 @@ public class StructureData extends MegastructuresWSDBase
 	/**
 	 * Get a user's list of structures
 	 * @param uuid
-	 * @return
+	 * @return Either the list of structures, or null.
+	 * @throws NullPointerException if structureHash has not been initialized
 	 */
+	@Nullable
 	public List<Structure> getUserStructures(UUID uuid) {
 		if(structureHash != null) {
 			if(!structureHash.containsKey(uuid)) {
