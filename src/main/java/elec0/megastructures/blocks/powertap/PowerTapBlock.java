@@ -9,6 +9,7 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -18,6 +19,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+
+import java.util.UUID;
 
 public class PowerTapBlock extends BaseBlock implements ITileEntityProvider
 {
@@ -51,16 +54,18 @@ public class PowerTapBlock extends BaseBlock implements ITileEntityProvider
 
 		if(world.isRemote)
 		{
-			//player.openGui(Megastructures.instance, GUIProxy.TERMINAL_GUI, world, pos.getX(), pos.getY(), pos.getZ());
+			// Return true on the client so MC doesn't try to place block
 			return true;
 		}
+		try {
+			UUID owner = getTE(world, pos).getOwner();
+			EntityPlayerMP pl = world.getMinecraftServer().getPlayerList().getPlayerByUUID(owner);
 
-		player.sendMessage(new TextComponentString("Owner: " + ((PowerTapTileEntity)getTE(world,pos)).getOwner().toString()));
-		//MSWorldSavedData wsd = MSWorldSavedData.getData(world);
-		//PacketHandler.INSTANCE.sendTo(new PacketSendTerminalData(wsd.getGalaxy(), wsd.getGalaxy().getSector()), (EntityPlayerMP)player);
-		//wsd.save(world);
+			player.sendMessage(new TextComponentString(String.format("Owner: %s", pl.getName())));
+		}
+		catch(NullPointerException ignore) {}
 
-		// Return true on the client so MC doesn't try to place block
+		// Return true on the server so we don't place a block too?
 		return true;
 	}
 

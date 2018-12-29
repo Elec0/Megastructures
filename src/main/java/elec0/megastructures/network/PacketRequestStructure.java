@@ -69,12 +69,13 @@ public class PacketRequestStructure implements IMessage
 			EntityPlayerMP player = ctx.getServerHandler().player;
 
 			if(message.command.equals("create")) {
-				// DEBUG creating a structure to test
-				Structure s = new DysonSphereStructure(player.getUniqueID(), "Test1", 0);
+				// Only allow creation of a single structure at the moment
+				if(structureData.getUserStructures(player.getUniqueID()).size() == 0) {
+					Structure s = new DysonSphereStructure(player.getUniqueID(), "Dyson Sphere", 0);
 
-				structureData.addStructure(s.getPlayer(), s);
-				player.sendMessage(new TextComponentString("A new structure was created."));
-				// END DEBUG
+					structureData.addStructure(s.getPlayer(), s);
+					player.sendMessage(new TextComponentString(String.format("Structure %s (Dyson Sphere) has been created.", s.getName())));
+				}
 			}
 			else if(message.command.equals("delete")) {
 				structureData.clearAllUserStructures(player.getUniqueID());

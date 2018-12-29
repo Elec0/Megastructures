@@ -135,7 +135,7 @@ public class TerminalGui extends GuiScreen
 
 				String stage = String.format("Stage %s of %s", s.getCurStage(), s.getMaxStage());
 
-				String toDraw = String.format("%s\n%s %s%%\nRF: %s", name, stage, s.getProgress(s.getCurStage()), curRF);
+				String toDraw = String.format("%s\n%s: %s%%\nRF: %s", name, stage, s.getProgress(s.getCurStage()), curRF);
 
 
 				fontRenderer.drawSplitString(toDraw, baseLeft, line, wrapWidth, 0x000000);
@@ -148,7 +148,7 @@ public class TerminalGui extends GuiScreen
 	}
 
 	private void drawStructureBackground() {
-		drawRect(left + BORDER_SIZE, top + BORDER_SIZE, structureBoxRight, bottom - BORDER_SIZE, 0xFF737373); // Dark grey
+		drawRect(left + BORDER_SIZE, top + BORDER_SIZE, structureBoxRight, bottom - BORDER_SIZE - 20, 0xFF737373); // Dark grey
 	}
 
 	/***
@@ -353,6 +353,7 @@ public class TerminalGui extends GuiScreen
 		structCreate = createButton(BTN_CREATE, left + BORDER_SIZE, bottom - btnHeight, btnSize + btnBorder, btnHeight);
 
 		// Delete
+		// TODO: Remove this
 		int prevSize = btnSize + btnBorder;
 		btnSize = fontRenderer.getStringWidth(BTN_DELETE);
 		structDelete = createButton(BTN_DELETE, left + BORDER_SIZE + prevSize, bottom - btnHeight, btnSize + btnBorder, btnHeight);
