@@ -30,14 +30,14 @@ public class StructureConfig
         // Stage 0 stuff
         dsNeeded.put("0:blockSand", (int)1e7);
         dsNeeded.put("0:blockGlass", (int)1e7);
-        dsNeeded.put("0:ingotAluminum",  (int)1e8);
+        dsNeeded.put("0:ingotAluminum",  (int)1e6);
         dsNeeded.put("0:ingotCopper",  (int)1e6);
 
         // Stage 1 stuff
-        dsNeeded.put("1:blockGlass", (int)2.544e20);
-        dsNeeded.put("1:ingotIron", (int)2.544e18);
-        dsNeeded.put("1:dustRedstone", (int)2.544e18);
-        dsNeeded.put("1:ingotCopper", (int)1.272e18);
+        dsNeeded.put("1:blockGlass", (int)1e8);
+        dsNeeded.put("1:ingotIron", (int)1e6);
+        dsNeeded.put("1:dustRedstone", (int)1e6);
+        dsNeeded.put("1:ingotCopper", (int)5e5);
 
     }
 
