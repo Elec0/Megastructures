@@ -9,19 +9,18 @@ public class MegastructuresConfig
     /**
      * Assume hashmap has values of 'i:oreDictValue', num
      * Process these into an array of hashmaps with i corresponding to the index
-     * @param map
+     * @param map Array of HashMap<String, Integer>
      * @param maxStage
      * @return
      */
     @SuppressWarnings("unchecked")
     public static HashMap[] processCompressedHashMap(HashMap<String, Integer> map, int maxStage) {
-        HashMap[] result = new HashMap[maxStage + 1];
+        HashMap<String, Integer>[] result = new HashMap[maxStage + 1];
 
         // Ensure all the results are initialized
         for(int i = 0; i < result.length; ++i) {
-            result[i] = new HashMap<String, Integer>();
+            result[i] = new HashMap<>();
         }
-
 
         // Loop through and process each of the key value pairs
         for (Map.Entry<String, Integer> entry : map.entrySet())

@@ -2,8 +2,6 @@ package elec0.megastructures.structures;
 
 import elec0.megastructures.MegastructuresUtils;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.management.PlayerList;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.INBTSerializable;
@@ -75,8 +73,8 @@ public class Structure implements INBTSerializable<NBTTagCompound>
 		realProgress = new double[maxStage + 1];
 
 		for(int i = 0; i < maxStage + 1; ++i) {
-			curMaterials[i] = new HashMap<>();
-			neededMaterials[i] = new HashMap<>();
+			curMaterials[i] = new HashMap<String, Integer>();
+			neededMaterials[i] = new HashMap<String, Integer>();
 
 			stageName[i] = "";
 			stageDesc[i] = "";
@@ -273,7 +271,6 @@ public class Structure implements INBTSerializable<NBTTagCompound>
 			HashMap<String, Integer> map = neededMaterials[i];
 			for (Map.Entry entry : map.entrySet()) {
 				curMaterials[i].put(entry.getKey().toString(), 0);
-
 			}
 		}
 	}
