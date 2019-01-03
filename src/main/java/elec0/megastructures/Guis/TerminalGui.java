@@ -182,8 +182,10 @@ public class TerminalGui extends GuiScreen
 
 					GL11.glPushMatrix();
 					GL11.glTranslated(viewLeft + subsector.getX() * viewSubsectors, viewTop + subsector.getY() * viewSubsectors, 0);
-					//fontRenderer.drawString("SS", 0, 0, 0xFF0000);
-					GuiDrawing.drawSystem(this, s, viewSubsectors);
+
+					// We need to resize this to circles, so make the radius the max size of the square / 2
+					int maxSize = viewSubsectors;
+					GuiDrawing.drawSystem(this, s, (maxSize / 2) - 1;
 					GL11.glPopMatrix();
 				}
 				break;
