@@ -185,7 +185,7 @@ public class TerminalGui extends GuiScreen
 
 					// We need to resize this to circles, so make the radius the max size of the square / 2
 					int maxSize = viewSubsectors;
-					GuiDrawing.drawSystem(this, s, (maxSize / 2) - 1;
+					GuiDrawing.drawSystem(this, s, (maxSize / 2) - 1);
 					GL11.glPopMatrix();
 				}
 				break;
