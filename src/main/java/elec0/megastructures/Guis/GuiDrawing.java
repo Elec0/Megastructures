@@ -21,6 +21,8 @@ public class GuiDrawing
 	/**
 	 * Draw the systems when in sector view
 	 * Transorm matix has already happened
+	 * So turns out these are solar systems and not galaxies like I thought for some reason???
+	 * That means they can be drawn *much* simpler with just stars and it still makes sense.
 	 * @param screen
 	 * @param system
 	 * @param circleRad
