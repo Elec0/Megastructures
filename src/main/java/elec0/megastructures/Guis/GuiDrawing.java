@@ -29,20 +29,6 @@ public class GuiDrawing
 	 */
 	public static void drawSystem(GuiScreen screen, SolarSystem system, int circleRad)
 	{
-		//screen.drawRect(2, 2, squareSize - 4, squareSize - 4, 0xFFFFFFFF);
-
-		BufferedImage image = new BufferedImage(32, 32, BufferedImage.TYPE_4BYTE_ABGR);
-		Graphics2D g2d = image.createGraphics();
-		g2d.setColor(Color.BLUE);
-		g2d.fill(new Ellipse2D.Float(0, 0, 32, 32));
-		g2d.dispose();
-
-		//bindTexture(image);
-		//screen.drawTexturedModalRect(0, 0, 0, 0, squareSize, squareSize);
-
-		// Generate color
-		int a = 255;
-
 		// Just so the numbers are consistent, and we don't have too much relevant overlap
 		long seed = system.getSeed() + Constants.SEED_OFFSET_GUI_SYSTEM;
 		// Don't create a new object every time, this runs every tick so that'd be slow.
@@ -52,15 +38,15 @@ public class GuiDrawing
 		int g = rand.nextInt(255);
 		int b = rand.nextInt(255);
 
-		int color = ((a & 0xFF) << 24) |
-					((r & 0xFF) << 16) |
-					((g & 0xFF) << 8)  |
-					((b & 0xFF) << 0);
+		GL11.glPushMatrix();
+		// Scoot the image over to fit in the squares
+		GL11.glTranslated(1, 1, 0);
 
-		//GuiScreen.drawRect(2, 2, squareSize-2, squareSize-2, color);
+		screen.mc.getTextureManager().bindTexture(TerminalGui.TEXTURE_STAR);
+		GlStateManager.color(r/255f, g/255f, b/255f);
+		screen.drawTexturedModalRect(0, 0, 0, 0, 16, 16);
 
-		// Draw the circle in the square. Have to tweak the coords a little bit
-		drawCircle(circleRad + 2, circleRad + 2, circleRad, color);
+		GL11.glPopMatrix();
 
 	}
 
@@ -72,6 +58,7 @@ public class GuiDrawing
 	{
 		BufferedTexture tex = new BufferedTexture();
 		tex.loadTexture(image);
+		GlStateManager.enableTexture2D();
 		GlStateManager.bindTexture(tex.getGlTextureId()); // This bypasses TextureUtil.bindTexture because it's private somehow? idk.
 	}
 

@@ -35,6 +35,7 @@ public class TerminalGui extends GuiScreen
 	private boolean displayGrid = true;
 
 	private static final ResourceLocation background = new ResourceLocation(Megastructures.MODID, "textures/gui/terminal.png");
+	public static final ResourceLocation TEXTURE_STAR = new ResourceLocation(Megastructures.MODID,"textures/gui/star_base.png");
 
 	private static final int w = 320, h = 150;
 	private static final int PAD_HORIZ = 14, PAD_VERT = 14, BORDER_SIZE = 2, BORDER_VIEW = 3;
