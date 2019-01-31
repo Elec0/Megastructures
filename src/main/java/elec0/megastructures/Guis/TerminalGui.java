@@ -18,7 +18,9 @@ import org.lwjgl.opengl.GL11;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class TerminalGui extends GuiScreen
 {
@@ -111,14 +113,14 @@ public class TerminalGui extends GuiScreen
 		// Draw the background no matter what
 		drawStructureBackground();
 
+		int base = top + BORDER_SIZE + 1;
+		int baseLeft = left + BORDER_SIZE + 1;
+
+		int wrapWidth = structureBoxRight - left - 1; // The 1 is for the 1 in baseLeft
+		int linesDrawn = 0;
+
 		// Draw the current progress of the structure(s), plus currently accepted materials and RF generation
-		if(userStructures != null) {
-			int base = top + BORDER_SIZE + 1;
-			int baseLeft = left + BORDER_SIZE + 1;
-
-			int wrapWidth = structureBoxRight - left - 1; // The 1 is for the 1 in baseLeft
-			int linesDrawn = 0;
-
+		if(userStructures != null && userStructures.size() > 0) {
 			// Currently just drawing things simply in a line, nothing special
 			// We need to make/import a list or whatever for scrolling since structures are going to be of arbitrary limit in the future
 			// Or, alternatively, make an entirely different GUI that only handles structures. I'm more inclined to do that for future-proofing
@@ -136,15 +138,23 @@ public class TerminalGui extends GuiScreen
 
 				String stage = String.format("Stage %s of %s", s.getCurStage(), s.getMaxStage());
 
-				String toDraw = String.format("%s\n%s: %s%%\nRF: %s", name, stage, s.getProgress(s.getCurStage()), curRF);
+				StringBuilder toDraw = new StringBuilder();
+				toDraw.append(String.format("%s\n%s: %s%%\nRF: %s", name, stage, s.getProgress(s.getCurStage()), curRF));
 
+				if(s.getNeededMaterials() != null) {
+					for (Map.Entry<String, Integer> curMat : s.getNeededMaterials().entrySet()) {
+						toDraw.append(String.format("\n%s: %s", curMat.getKey(), curMat.getValue()));
+					}
+				}
 
-				fontRenderer.drawSplitString(toDraw, baseLeft, line, wrapWidth, 0x000000);
+				fontRenderer.drawSplitString(toDraw.toString(), baseLeft, line, wrapWidth, 0x000000);
 
-				linesDrawn += fontRenderer.getStringWidth(toDraw) / wrapWidth + 2; // There's at least 1 line drawn
+				linesDrawn += fontRenderer.getStringWidth(toDraw.toString()) / wrapWidth + 2; // There's at least 1 line drawn
 			}
 		} else {
 			// If there aren't any structures, display a text that says that
+			String toDraw = "There are no structures being built currently.\nStart a new build with the button below.";
+			fontRenderer.drawSplitString(toDraw, baseLeft, base, wrapWidth, 0x000000);
 		}
 	}
 
